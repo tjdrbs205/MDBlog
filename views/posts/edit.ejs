@@ -1,0 +1,9 @@
+<%- include('../layouts/main', { body: `
+<h2>글 수정</h2>
+<form action="/posts/${post._id}/edit" method="POST">
+  <input type="text" name="title" value="${post.title}" required /><br />
+  <textarea name="body" rows="10" required>${post.body}</textarea><br />
+  <button type="submit">수정</button>
+</form>
+<a href="/posts/${post._id}">← 돌아가기</a>
+` }) %>

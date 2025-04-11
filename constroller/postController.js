@@ -24,3 +24,23 @@ exports.getPostDetail = async (req, res) => {
   if (!post) return res.status(404).send("Not Found");
   res.render("posts/detail", { title: post.title, post });
 };
+
+// 수정 폼
+exports.renderEditForm = async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  if (!post) return res.status(404).send("Not Found");
+  res.render("posts/edit", { title: "글 수정", post });
+};
+
+// 글 수정 처리
+exports.updatePost = async (req, res) => {
+  const { title, body } = req.body;
+  await Post.findByIdAndUpdate(req.params.id, { title, body });
+  res.redirect(`/posts/${req.params.id}`);
+};
+
+// 글 삭제
+exports.deletePost = async (req, res) => {
+  await Post.findByIdAndDelete(req.params.id);
+  res.redirect("/posts");
+};
