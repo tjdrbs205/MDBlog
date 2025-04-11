@@ -1,0 +1,9 @@
+<%- include('../layouts/main', { body: `
+<h2>게시글 목록</h2>
+<ul>
+  ${posts.map(post => `
+  <li><a href="/posts/${post._id}">${post.title}</a></li>
+  `).join('')}
+</ul>
+<a href="/posts/new">새 글 작성</a>
+` }) %>

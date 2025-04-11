@@ -1,0 +1,8 @@
+<%- include('../layouts/main', { body: `
+<h2>새 글 작성</h2>
+<form action="/posts" method="POST">
+  <input type="text" name="title" placeholder="제목" required /><br />
+  <textarea name="body" rows="10" placeholder="내용" required></textarea><br />
+  <button type="submit">작성</button>
+</form>
+` }) %>

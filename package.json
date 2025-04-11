@@ -1,0 +1,31 @@
+{
+  "name": "mdblog",
+  "version": "0.0.1",
+  "description": "my develop blog",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjdrbs205/MDBlog.git"
+  },
+  "author": "tjdrbs25",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjdrbs205/MDBlog/issues"
+  },
+  "homepage": "https://github.com/tjdrbs205/MDBlog#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "mongoose": "^8.13.2",
+    "morgan": "^1.10.0"
+  }
+}
