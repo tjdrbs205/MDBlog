@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const postController = require("../constroller/postController");
-const { route } = require("./posts");
 
 //form
 router.get("/new", postController.renderNewForm); // new form

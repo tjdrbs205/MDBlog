@@ -1,0 +1,27 @@
+<%- include('../layouts/main', { title: '사이드 메뉴 관리', body: `
+<h2>사이드 메뉴 관리</h2>
+
+<form action="/menus" method="POST">
+  <input name="title" placeholder="메뉴 이름" required />
+  <input name="url" placeholder="/경로" required />
+  <input name="order" type="number" placeholder="순서" value="0" />
+  <button type="submit">추가</button>
+</form>
+
+<ul>
+  ${menus.map(menu => `
+  <li>
+    [${menu.order}] <a href="${menu.url}">${menu.title}</a>
+    <form
+      method="POST"
+      action="/menus/${menu._id}/delete"
+      style="display: inline"
+    >
+      <button type="submit">삭제</button>
+    </form>
+  </li>
+  `).join('')}
+</ul>
+
+<a href="/">← 홈으로</a>
+` }) %>

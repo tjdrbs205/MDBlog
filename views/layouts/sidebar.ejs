@@ -1,0 +1,15 @@
+<!-- 카테고리 리스트 -->
+<h3>카테고리</h3>
+<ul>
+  <% categories.forEach(cat => { %>
+  <li><a href="/categories/<%= cat._id %>/posts"><%= cat.name %></a></li>
+  <% }) %>
+</ul>
+
+<!-- 태그 리스트 -->
+<h3>태그</h3>
+<ul>
+  <% tags.forEach(tag => { %>
+  <li><a href="/tags/<%= tag._id %>/posts">#<%= tag.name %></a></li>
+  <% }) %>
+</ul>

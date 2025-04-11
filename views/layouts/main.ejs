@@ -1,19 +1,31 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <title><%= title || '내 블로그' %></title>
   </head>
   <body>
-    <header>
-      <h1><a href="/">나의 개발 블로그</a></h1>
-    </header>
-    <main><%- body %></main>
-
-    <footer>
-      <p>&copy; 2025 MDBlog</p>
-    </footer>
+    <div class="container">
+      <aside class="sidebar">
+        <nav>
+          <% if (currentUser) { %>
+          <span><%= currentUser.username %>님</span>
+          <a href="/auth/logout">로그아웃</a>
+          <% } else { %>
+          <a href="/auth/login">로그인</a>
+          <a href="/auth/register">회원가입</a>
+          <% } %>
+        </nav>
+        <h3>메뉴</h3>
+        <ul>
+          <% if (menus && menus.length > 0) { %> <% menus.forEach(menu => { %>
+          <li><a href="<%= menu.url %>"><%= menu.title %></a></li>
+          <% }) %> <% } else { %>
+          <li>등록된 메뉴가 없습니다.</li>
+          <% } %>
+        </ul>
+      </aside>
+      <main class="content"><%- body %></main>
+    </div>
   </body>
 </html>

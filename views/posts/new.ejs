@@ -1,8 +1,17 @@
-<%- include('../layouts/main', { body: `
 <h2>새 글 작성</h2>
 <form action="/posts" method="POST">
   <input type="text" name="title" placeholder="제목" required /><br />
   <textarea name="body" rows="10" placeholder="내용" required></textarea><br />
+
+  <label>카테고리:</label>
+  <select name="category">
+    <% categories.forEach(cat => { %>
+    <option value="<%= cat._id %>"><%= cat.name %></option>
+    <% }); %></select
+  ><br />
+
+  <label>태그 (쉼표로 구분):</label>
+  <input type="text" name="tags" placeholder="예: Node.js, MongoDB" /><br />
+
   <button type="submit">작성</button>
 </form>
-` }) %>
