@@ -4,8 +4,10 @@ const authController = require("../constroller/authController");
 
 //form
 router.get("/register", authController.renderNewUserForm);
-router.post("/register", authController.register);
 router.get("/login", authController.renderLoginForm);
+
+//process
+router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.get("/logout", authController.logout);
 

@@ -6,6 +6,9 @@ exports.renderNewUserForm = (req, res) => {
 
 exports.register = async (req, res) => {
   const { username, password } = req.body;
+  const exists = await User.findOne({ username });
+  if (exists)
+    return res.render("auth/register", { error: "이미 존재하는 유저입니다." });
   await User.create({ username, password });
   res.redirect("/auth/login");
 };

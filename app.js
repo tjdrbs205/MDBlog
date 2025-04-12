@@ -3,6 +3,7 @@ const session = require("express-session");
 const morgan = require("morgan");
 
 const connectDB = require("./config/db");
+const MongoStore = require("connect-mongo");
 const path = require("path");
 const dotenv = require("dotenv");
 
@@ -16,6 +17,11 @@ app.use(
     secret: process.env.SECRET_KEY,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGOOSE_URI,
+      collectionName: "sessions",
+    }),
+    cookie: { maxAge: 1000 * 60 * 60 },
   })
 );
 app.use(morgan(process.env.NODE_ENV || "dev"));
