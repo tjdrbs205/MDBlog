@@ -1,228 +1,135 @@
-<%- include('../layouts/main', { body: `
-<h2>카테고리 관리</h2>
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>카테고리 관리 - MDBlog</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="/css/categories.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>카테고리 관리</h1>
 
-<div class="category-management">
-  <div class="category-form-container">
-    <h3>새 카테고리 추가</h3>
-    <form action="/categories" method="POST" class="category-form">
-      <div class="form-group">
-        <label for="name">카테고리명</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          placeholder="카테고리명"
-          required
-        />
+      <div class="category-management">
+        <!-- 카테고리 추가 폼 -->
+        <div class="category-form-container">
+          <h3>새 카테고리 추가</h3>
+          <form action="/categories" method="POST" class="category-form">
+            <div class="form-group">
+              <label for="name">카테고리명</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="카테고리명"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="parent">상위 카테고리</label>
+              <select name="parent" id="parent">
+                <option value="">최상위 카테고리로 생성</option>
+                <% allCategories.forEach(category => { %>
+                <option value="<%= category._id %>">
+                  <%= category.name %>
+                </option>
+                <% }); %>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">추가</button>
+          </form>
+        </div>
+
+        <!-- 카테고리 목록 -->
+        <div class="category-list-container">
+          <h3>카테고리 목록</h3>
+          <% if (categories && categories.length > 0) { %>
+          <ul class="category-tree">
+            <%- include('_category_tree', { categories: categories, depth: 0 })
+            %>
+          </ul>
+          <% } else { %>
+          <p>등록된 카테고리가 없습니다.</p>
+          <% } %>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="parent">상위 카테고리</label>
-        <select name="parent" id="parent">
-          <option value="">최상위 카테고리로 생성</option>
-          <% allCategories.forEach(category => { %>
-          <option value="<%= category._id %>"><%= category.name %></option>
-          <% }); %>
-        </select>
+      <a href="/" class="back-link">← 홈으로</a>
+
+      <!-- 카테고리 수정 모달 -->
+      <div id="editCategoryModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h3>카테고리 수정</h3>
+          <form action="/categories/update" method="POST" id="editCategoryForm">
+            <input type="hidden" id="editCategoryId" name="id" />
+            <div class="form-group">
+              <label for="editName">카테고리명</label>
+              <input type="text" id="editName" name="name" required />
+            </div>
+            <div class="form-group">
+              <label for="editParent">상위 카테고리</label>
+              <select name="parent" id="editParent">
+                <option value="">최상위 카테고리로 설정</option>
+                <% allCategories.forEach(category => { %>
+                <option value="<%= category._id %>">
+                  <%= category.name %>
+                </option>
+                <% }); %>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">저장</button>
+          </form>
+        </div>
       </div>
+    </div>
 
-      <button type="submit" class="btn btn-primary">추가</button>
-    </form>
-  </div>
+    <script>
+      // 카테고리 수정 모달 관련 스크립트
+      document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("editCategoryModal");
+        const closeBtn = modal.querySelector(".close");
 
-  <div class="category-list-container">
-    <h3>카테고리 목록</h3>
-    <% if (categories.length === 0) { %>
-    <p>등록된 카테고리가 없습니다.</p>
-    <% } else { %>
-    <ul class="category-tree">
-      <%- include('_category_tree', { categories: categories, depth: 0 }) %>
-    </ul>
-    <% } %>
-  </div>
-</div>
+        // 모달 닫기
+        closeBtn.onclick = function () {
+          modal.style.display = "none";
+        };
 
-<a href="/" class="back-link">← 홈으로</a>
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function (event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        };
 
-<div id="editCategoryModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h3>카테고리 수정</h3>
-    <form action="/categories/update" method="POST" id="editCategoryForm">
-      <input type="hidden" id="editCategoryId" name="id" />
-      <div class="form-group">
-        <label for="editName">카테고리명</label>
-        <input type="text" id="editName" name="name" required />
-      </div>
-      <div class="form-group">
-        <label for="editParent">상위 카테고리</label>
-        <select name="parent" id="editParent">
-          <option value="">최상위 카테고리로 설정</option>
-          <% allCategories.forEach(category => { %>
-          <option value="<%= category._id %>"><%= category.name %></option>
-          <% }); %>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primary">저장</button>
-    </form>
-  </div>
-</div>
+        // 카테고리 편집 버튼 클릭 이벤트
+        document.querySelectorAll(".edit-category").forEach((button) => {
+          button.addEventListener("click", function () {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            const parent = this.dataset.parent || "";
 
-<script>
-  // 카테고리 수정 모달 관련 스크립트
-  document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById("editCategoryModal");
-    const closeBtn = modal.querySelector(".close");
+            document.getElementById("editCategoryId").value = id;
+            document.getElementById("editName").value = name;
+            document.getElementById("editParent").value = parent;
 
-    // 모달 닫기
-    closeBtn.onclick = function () {
-      modal.style.display = "none";
-    };
+            // 자기 자신은 부모로 선택할 수 없게 처리
+            document
+              .querySelectorAll("#editParent option")
+              .forEach((option) => {
+                option.disabled = option.value === id;
+              });
 
-    // 모달 외부 클릭 시 닫기
-    window.onclick = function (event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    };
-
-    // 카테고리 편집 버튼 클릭 이벤트
-    document.querySelectorAll(".edit-category").forEach((button) => {
-      button.addEventListener("click", function () {
-        const id = this.dataset.id;
-        const name = this.dataset.name;
-        const parent = this.dataset.parent || "";
-
-        document.getElementById("editCategoryId").value = id;
-        document.getElementById("editName").value = name;
-        document.getElementById("editParent").value = parent;
-
-        // 자기 자신은 부모로 선택할 수 없게 처리
-        document.querySelectorAll("#editParent option").forEach((option) => {
-          option.disabled = option.value === id;
+            modal.style.display = "block";
+          });
         });
-
-        modal.style.display = "block";
       });
-    });
-  });
-</script>
-
-<style>
-  .category-management {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-  }
-
-  .category-form-container,
-  .category-list-container {
-    flex: 1;
-    min-width: 300px;
-  }
-
-  .category-tree {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .category-tree ul {
-    list-style: none;
-    padding-left: 1.5rem;
-  }
-
-  .category-item {
-    margin: 0.5rem 0;
-    padding: 0.5rem;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .category-name {
-    font-weight: bold;
-  }
-
-  .category-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .btn {
-    padding: 0.25rem 0.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .btn-primary {
-    background-color: #007bff;
-    color: white;
-  }
-
-  .btn-edit {
-    background-color: #ffc107;
-  }
-
-  .btn-delete {
-    background-color: #dc3545;
-    color: white;
-  }
-
-  /* 모달 스타일 */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-  }
-
-  .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-  }
-
-  .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .close:hover,
-  .close:focus {
-    color: black;
-    text-decoration: none;
-  }
-
-  /* 폼 스타일 */
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  input,
-  select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-</style>
-` }) %>
+    </script>
+  </body>
+</html>

@@ -21,6 +21,23 @@
     />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- 페이지별 CSS 로드 - 페이지 제목 기반 -->
+    <% if (title && (title === '로그인' || title === '회원가입')) { %>
+    <link rel="stylesheet" href="/css/auth.css" />
+    <% } %> <% if (title && title.includes('관리자')) { %>
+    <link rel="stylesheet" href="/css/admin.css" />
+    <% } %> <% if (title && title.includes('카테고리')) { %>
+    <link rel="stylesheet" href="/css/categories.css" />
+    <% } %> <% if (title && title.includes('대시보드')) { %>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <% } %>
+
+    <!-- 디버깅용 -->
+    <script>
+      console.log("페이지 제목: <%= title %>");
+    </script>
+
     <!-- CSRF Token -->
     <% if (typeof csrfToken !== 'undefined') { %>
     <meta name="csrf-token" content="<%= csrfToken %>" />

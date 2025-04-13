@@ -1,4 +1,52 @@
 const User = require("../models/User");
+const Post = require("../models/Post");
+const Stats = require("../models/Stats");
+
+/**
+ * 관리자 대시보드
+ */
+exports.dashboard = async (req, res) => {
+  try {
+    // 통계 데이터 조회
+    const stats = {
+      users: {
+        total: await User.countDocuments(),
+      },
+      posts: {
+        total: await Post.countDocuments(),
+      },
+      visits: {
+        total: await Stats.getTotalVisits(),
+        today: await Stats.getTodayVisits(),
+      },
+    };
+
+    // 최근 게시물 조회 (최근 5개)
+    const recentPosts = await Post.find()
+      .populate("author", "username")
+      .select("title author createdAt views")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    // 최근 가입한 회원 조회 (최근 5명)
+    const recentUsers = await User.find()
+      .select("username email createdAt role")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    // 대시보드 페이지 렌더링
+    res.render("admin/dashboard", {
+      title: "관리자 대시보드",
+      stats,
+      recentPosts,
+      recentUsers,
+    });
+  } catch (error) {
+    console.error("대시보드 에러:", error);
+    req.flash("error", "대시보드 데이터를 불러오는 중 오류가 발생했습니다.");
+    res.redirect("/");
+  }
+};
 
 /**
  * 사용자 목록 조회 (관리자용)

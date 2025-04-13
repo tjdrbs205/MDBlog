@@ -1,0 +1,172 @@
+<!-- 관리자 대시보드 메인 페이지 -->
+<div class="admin-dashboard">
+  <h1>관리자 대시보드</h1>
+
+  <div class="dashboard-stats">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="bi bi-people"></i></div>
+      <div class="stat-content">
+        <h3>사용자 수</h3>
+        <p class="stat-value"><%= stats.users.total %></p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon"><i class="bi bi-file-earmark-text"></i></div>
+      <div class="stat-content">
+        <h3>총 게시물</h3>
+        <p class="stat-value"><%= stats.posts.total %></p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon"><i class="bi bi-eye"></i></div>
+      <div class="stat-content">
+        <h3>총 방문자</h3>
+        <p class="stat-value"><%= stats.visits.total.toLocaleString() %></p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
+      <div class="stat-content">
+        <h3>오늘 방문자</h3>
+        <p class="stat-value"><%= stats.visits.today.toLocaleString() %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="dashboard-section">
+      <div class="section-header">
+        <h2>최근 게시물</h2>
+        <a href="/admin/posts" class="view-all">전체보기</a>
+      </div>
+      <div class="section-content">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>작성일</th>
+              <th>조회수</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentPosts.forEach(post => { %>
+            <tr>
+              <td><a href="/posts/<%= post._id %>"><%= post.title %></a></td>
+              <td><%= post.author.username %></td>
+              <td><%= new Date(post.createdAt).toLocaleDateString() %></td>
+              <td><%= post.views %></td>
+              <td class="action-buttons">
+                <a
+                  href="/posts/edit/<%= post._id %>"
+                  class="btn btn-sm btn-edit"
+                  >수정</a
+                >
+                <form
+                  action="/posts/<%= post._id %>?_method=DELETE"
+                  method="POST"
+                  class="inline-form"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');"
+                >
+                  <button type="submit" class="btn btn-sm btn-delete">
+                    삭제
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dashboard-section">
+      <div class="section-header">
+        <h2>최근 가입 회원</h2>
+        <a href="/admin/users" class="view-all">전체보기</a>
+      </div>
+      <div class="section-content">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>이메일</th>
+              <th>가입일</th>
+              <th>상태</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentUsers.forEach(user => { %>
+            <tr>
+              <td><%= user.username %></td>
+              <td><%= user.email %></td>
+              <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+              <td>
+                <span
+                  class="status <%= user.isAdmin ? 'status-admin' : 'status-user' %>"
+                >
+                  <%= user.isAdmin ? '관리자' : '사용자' %>
+                </span>
+              </td>
+              <td class="action-buttons">
+                <a
+                  href="/admin/users/edit/<%= user._id %>"
+                  class="btn btn-sm btn-edit"
+                  >수정</a
+                >
+                <form
+                  action="/admin/users/<%= user._id %>?_method=DELETE"
+                  method="POST"
+                  class="inline-form"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');"
+                >
+                  <button type="submit" class="btn btn-sm btn-delete">
+                    삭제
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-menu">
+    <div class="section-header">
+      <h2>관리 메뉴</h2>
+    </div>
+    <div class="admin-menu-grid">
+      <a href="/admin/users" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="menu-title">사용자 관리</div>
+      </a>
+      <a href="/admin/posts" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-file-earmark-text"></i></div>
+        <div class="menu-title">게시물 관리</div>
+      </a>
+      <a href="/categories" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-folder2-open"></i></div>
+        <div class="menu-title">카테고리 관리</div>
+      </a>
+      <a href="/tags" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-tags"></i></div>
+        <div class="menu-title">태그 관리</div>
+      </a>
+      <a href="/menus" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-list"></i></div>
+        <div class="menu-title">메뉴 관리</div>
+      </a>
+      <a href="/admin/settings" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-gear"></i></div>
+        <div class="menu-title">사이트 설정</div>
+      </a>
+    </div>
+  </div>
+</div>
