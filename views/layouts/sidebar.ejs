@@ -1,9 +1,34 @@
 <!-- 카테고리 리스트 -->
 <h3>카테고리</h3>
-<ul>
-  <% categories.forEach(cat => { %>
-  <li><a href="/categories/<%= cat._id %>/posts"><%= cat.name %></a></li>
-  <% }) %>
+<ul class="category-tree">
+  <% if (locals.categoriesHierarchical && categoriesHierarchical.length > 0) {
+  %> <% // 재귀적으로 카테고리 트리 렌더링하는 함수 function
+  renderCategoryTree(categories, level = 0) { categories.forEach(cat => { const
+  postCount = categoryMap[cat._id] || 0; %>
+  <li class="category-item level-<%= level %>">
+    <a href="/categories/<%= cat._id %>/posts">
+      <%= cat.name %> <% if (postCount > 0) { %>
+      <span class="count">(<%= postCount %>)</span>
+      <% } %>
+    </a>
+    <% if (cat.children && cat.children.length > 0) { %>
+    <ul class="sub-categories">
+      <% renderCategoryTree(cat.children, level + 1) %>
+    </ul>
+    <% } %>
+  </li>
+  <% }); } // 최상위 카테고리부터 렌더링 시작
+  renderCategoryTree(categoriesHierarchical); %> <% } else { %>
+  <!-- 계층구조가 없을 경우 기존 방식으로 표시 -->
+  <% categories.forEach(cat => { const postCount = categoryMap[cat._id] || 0; %>
+  <li>
+    <a href="/categories/<%= cat._id %>/posts">
+      <%= cat.name %> <% if (postCount > 0) { %>
+      <span class="count">(<%= postCount %>)</span>
+      <% } %>
+    </a>
+  </li>
+  <% }) %> <% } %>
 </ul>
 
 <!-- 태그 리스트 -->

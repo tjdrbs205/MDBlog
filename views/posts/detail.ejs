@@ -1,13 +1,162 @@
-<%- include('../layouts/main', { body: `
-<h2>${post.title}</h2>
-<p>${post.body}</p>
-<form
-  action="/posts/${post._id}/delete"
-  method="POST"
-  onsubmit="return confirm('정말 삭제하시겠습니까?');"
->
-  <a href="/posts/${post._id}/edit">수정</a> |
-  <button type="submit">🗑 삭제</button>
-</form>
-<a href="/posts">← 목록으로</a>
-` }) %>
+<!-- 게시글 상세 정보 -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2 class="mb-0"><%= post.title %></h2>
+
+    <% if (locals.currentUser && post.author && (currentUser._id ==
+    post.author._id || currentUser.role === 'admin')) { %>
+    <div class="btn-group">
+      <a
+        href="/posts/<%= post._id %>/edit"
+        class="btn btn-sm btn-outline-primary"
+        >수정</a
+      >
+      <form
+        action="/posts/<%= post._id %>/delete"
+        method="POST"
+        class="d-inline"
+        onsubmit="return confirm('정말 삭제하시겠습니까?');"
+      >
+        <button type="submit" class="btn btn-sm btn-outline-danger">
+          삭제
+        </button>
+      </form>
+    </div>
+    <% } %>
+  </div>
+
+  <div class="card-body">
+    <div class="post-meta mb-3">
+      <% if (post.author) { %>
+      <span class="me-3">작성자: <%= post.author.username %></span>
+      <% } %> <% if (post.category) { %>
+      <span class="me-3"
+        >카테고리:
+        <a
+          href="/posts?category=<%= post.category._id %>"
+          class="text-decoration-none"
+        >
+          <%= post.category.name %>
+        </a>
+      </span>
+      <% } %>
+
+      <span class="me-3">조회수: <%= post.view || 0 %></span>
+      <span>작성일: <%= new Date(post.createdAt).toLocaleDateString() %></span>
+
+      <% if (post.updatedAt && post.updatedAt !== post.createdAt) { %>
+      <span class="ms-3"
+        >(수정일: <%= new Date(post.updatedAt).toLocaleDateString() %>)</span
+      >
+      <% } %>
+    </div>
+
+    <% if (post.tags && post.tags.length > 0) { %>
+    <div class="post-tags mb-3">
+      <% post.tags.forEach(tag => { %>
+      <a
+        href="/posts?tag=<%= tag._id %>"
+        class="badge bg-secondary text-decoration-none"
+      >
+        #<%= tag.name %>
+      </a>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <div class="post-content mb-4"><%- post.content %></div>
+  </div>
+</div>
+
+<!-- 관련 게시글 -->
+<% if (locals.relatedPosts && relatedPosts.length > 0) { %>
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">관련 게시글</h5>
+  </div>
+  <div class="card-body">
+    <ul class="list-group list-group-flush">
+      <% relatedPosts.forEach(relatedPost => { %>
+      <li class="list-group-item">
+        <a href="/posts/<%= relatedPost._id %>" class="text-decoration-none">
+          <%= relatedPost.title %>
+        </a>
+        <small class="text-muted ms-2">
+          <%= new Date(relatedPost.createdAt).toLocaleDateString() %>
+        </small>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+</div>
+<% } %>
+
+<!-- 댓글 섹션 -->
+<div class="card mb-4" id="comments">
+  <div class="card-header">
+    <h5 class="mb-0">댓글 (<%= post.comments ? post.comments.length : 0 %>)</h5>
+  </div>
+  <div class="card-body">
+    <% if (post.comments && post.comments.length > 0) { %>
+    <div class="comments-list mb-4">
+      <% post.comments.forEach(comment => { %>
+      <div class="comment mb-3 pb-3 border-bottom">
+        <div class="d-flex justify-content-between">
+          <div>
+            <strong>
+              <% if (comment.author && comment.author.username) { %> <%=
+              comment.author.username %> <% } else { %> 익명 <% } %>
+            </strong>
+            <small class="text-muted ms-2">
+              <%= new Date(comment.createdAt).toLocaleString() %>
+            </small>
+          </div>
+
+          <% if (locals.currentUser && comment.author && (currentUser._id ==
+          comment.author._id || currentUser.role === 'admin')) { %>
+          <form
+            action="/posts/<%= post._id %>/comments/<%= comment._id %>/delete"
+            method="POST"
+            onsubmit="return confirm('댓글을 삭제하시겠습니까?');"
+          >
+            <button type="submit" class="btn btn-sm text-danger" title="삭제">
+              <i class="bi bi-x-circle"></i> 삭제
+            </button>
+          </form>
+          <% } %>
+        </div>
+        <div class="comment-content mt-2"><%= comment.content %></div>
+      </div>
+      <% }) %>
+    </div>
+    <% } else { %>
+    <p class="text-muted">아직 댓글이 없습니다.</p>
+    <% } %>
+
+    <!-- 댓글 작성 폼 -->
+    <% if (locals.currentUser) { %>
+    <form action="/posts/<%= post._id %>/comments" method="POST">
+      <div class="mb-3">
+        <label for="content" class="form-label">댓글 작성</label>
+        <textarea
+          name="content"
+          id="content"
+          rows="3"
+          class="form-control"
+          required
+        ></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">댓글 등록</button>
+    </form>
+    <% } else { %>
+    <div class="alert alert-info">
+      댓글을 작성하려면
+      <a href="/auth/login" class="alert-link">로그인</a>이 필요합니다.
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="mb-4">
+  <a href="/posts" class="btn btn-secondary">목록으로</a>
+</div>

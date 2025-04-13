@@ -1,9 +1,146 @@
-<%- include('../layouts/main', { body: `
 <h2>게시글 목록</h2>
-<ul>
-  ${posts.map(post => `
-  <li><a href="/posts/${post._id}">${post.title}</a></li>
-  `).join('')}
-</ul>
-<a href="/posts/new">새 글 작성</a>
-` }) %>
+      
+<!-- 필터링 및 검색 옵션 -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form action="/posts" method="GET" class="row g-3">
+      <div class="col-md-4">
+        <label for="category" class="form-label">카테고리</label>
+        <select name="category" id="category" class="form-select">
+          <option value="">전체</option>
+          <% if (categories && categories.length > 0) { %>
+            <% categories.forEach(category => { %>
+              <option value="<%= category._id %>" <%= selectedCategory && selectedCategory == category._id ? 'selected' : '' %>>
+                <%= category.name %>
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+      
+      <div class="col-md-4">
+        <label for="sort" class="form-label">정렬</label>
+        <select name="sort" id="sort" class="form-select">
+          <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>최신순</option>
+          <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>오래된순</option>
+          <option value="title" <%= sort === 'title' ? 'selected' : '' %>>제목순</option>
+          <option value="views" <%= sort === 'views' ? 'selected' : '' %>>조회수순</option>
+        </select>
+      </div>
+      
+      <div class="col-md-4">
+        <label for="q" class="form-label">검색</label>
+        <div class="input-group">
+          <input type="text" name="q" id="q" class="form-control" placeholder="검색어" value="<%= q || '' %>">
+          <button type="submit" class="btn btn-primary">검색</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<% if (locals.tags && tags.length > 0) { %>
+  <div class="mb-4">
+    <h5>태그</h5>
+    <div class="d-flex flex-wrap gap-2">
+      <% tags.forEach(tag => { %>
+        <a href="/posts?tag=<%= tag._id %>" class="badge <%= selectedTag && selectedTag == tag._id ? 'bg-primary' : 'bg-secondary' %>">
+          #<%= tag.name %>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+<% } %>
+
+<!-- 게시글 목록 -->
+<% if (posts && posts.length > 0) { %>
+  <div class="post-list">
+    <% posts.forEach(post => { %>
+      <div class="card mb-3 post-card">
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="/posts/<%= post._id %>" class="text-decoration-none">
+              <%= post.title %>
+            </a>
+          </h5>
+          
+          <p class="post-meta">
+            <% if (post.author) { %>
+              <span class="me-2">작성자: <%= post.author.username %></span>
+            <% } %>
+            
+            <% if (post.category) { %>
+              <span class="me-2">카테고리: <%= post.category.name %></span>
+            <% } %>
+            
+            <span class="me-2">작성일: <%= new Date(post.createdAt).toLocaleDateString() %></span>
+            <span>조회수: <%= post.view || 0 %></span>
+          </p>
+          
+          <% if (post.excerpt) { %>
+            <p class="post-excerpt"><%= post.excerpt %></p>
+          <% } %>
+          
+          <% if (post.tags && post.tags.length > 0) { %>
+            <div class="post-tags">
+              <% post.tags.forEach(tag => { %>
+                <a href="/posts?tag=<%= tag._id %>" class="badge bg-secondary text-decoration-none">
+                  #<%= tag.name %>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+  
+  <!-- 페이지네이션 -->
+  <% if (locals.pagination) { %>
+    <div class="d-flex justify-content-between align-items-center">
+      <nav aria-label="Page navigation" class="me-2">
+        <ul class="pagination mb-0">
+          <% if (pagination.hasPrev) { %>
+            <li class="page-item">
+              <a class="page-link" href="/posts?page=<%= pagination.page - 1 %><%= q ? `&q=${q}` : '' %><%= sort ? `&sort=${sort}` : '' %><%= selectedCategory ? `&category=${selectedCategory}` : '' %><%= selectedTag ? `&tag=${selectedTag}` : '' %>">이전</a>
+            </li>
+          <% } else { %>
+            <li class="page-item disabled">
+              <span class="page-link">이전</span>
+            </li>
+          <% } %>
+          
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <li class="page-item <%= pagination.page === i ? 'active' : '' %>">
+              <a class="page-link" href="/posts?page=<%= i %><%= q ? `&q=${q}` : '' %><%= sort ? `&sort=${sort}` : '' %><%= selectedCategory ? `&category=${selectedCategory}` : '' %><%= selectedTag ? `&tag=${selectedTag}` : '' %>"><%= i %></a>
+            </li>
+          <% } %>
+          
+          <% if (pagination.hasNext) { %>
+            <li class="page-item">
+              <a class="page-link" href="/posts?page=<%= pagination.page + 1 %><%= q ? `&q=${q}` : '' %><%= sort ? `&sort=${sort}` : '' %><%= selectedCategory ? `&category=${selectedCategory}` : '' %><%= selectedTag ? `&tag=${selectedTag}` : '' %>">다음</a>
+            </li>
+          <% } else { %>
+            <li class="page-item disabled">
+              <span class="page-link">다음</span>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
+      
+      <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+    </div>
+  <% } else { %>
+    <div class="d-flex justify-content-end mt-3">
+      <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+    </div>
+  <% } %>
+<% } else { %>
+  <div class="alert alert-info">
+    게시글이 없습니다.
+  </div>
+  
+  <div class="d-flex justify-content-end mt-3">
+    <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+  </div>
+<% } %>

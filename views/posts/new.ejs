@@ -1,17 +1,154 @@
-<h2>새 글 작성</h2>
-<form action="/posts" method="POST">
-  <input type="text" name="title" placeholder="제목" required /><br />
-  <textarea name="body" rows="10" placeholder="내용" required></textarea><br />
+<div class="card">
+  <div class="card-header">
+    <h2 class="mb-0">새 글 작성</h2>
+  </div>
+  <div class="card-body">
+    <form action="/posts" method="POST">
+      <!-- 제목 -->
+      <div class="mb-3">
+        <label for="title" class="form-label">제목</label>
+        <input
+          type="text"
+          class="form-control"
+          id="title"
+          name="title"
+          required
+        />
+      </div>
 
-  <label>카테고리:</label>
-  <select name="category">
-    <% categories.forEach(cat => { %>
-    <option value="<%= cat._id %>"><%= cat.name %></option>
-    <% }); %></select
-  ><br />
+      <!-- 카테고리 -->
+      <div class="mb-3">
+        <label for="category" class="form-label">카테고리</label>
+        <select class="form-select" id="category" name="category">
+          <option value="">카테고리 선택</option>
+          <% if (categories && categories.length > 0) { %> <%
+          categories.forEach(cat => { %>
+          <option value="<%= cat._id %>"><%= cat.name %></option>
+          <% }); %> <% } %>
+        </select>
+      </div>
 
-  <label>태그 (쉼표로 구분):</label>
-  <input type="text" name="tags" placeholder="예: Node.js, MongoDB" /><br />
+      <!-- 태그 -->
+      <div class="mb-3">
+        <label for="tags" class="form-label">태그</label>
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            id="tags"
+            name="tags"
+            placeholder="쉼표로 구분하여 입력 (예: Node.js, MongoDB, Express)"
+          />
+          <% if (tags && tags.length > 0) { %>
+          <button
+            class="btn btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            태그 목록
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <% tags.forEach(tag => { %>
+            <li>
+              <a
+                class="dropdown-item tag-item"
+                href="#"
+                data-tag="<%= tag.name %>"
+                ><%= tag.name %></a
+              >
+            </li>
+            <% }); %>
+          </ul>
+          <% } %>
+        </div>
+        <div class="form-text">
+          쉼표로 구분하여 여러 태그를 입력할 수 있습니다.
+        </div>
+      </div>
 
-  <button type="submit">작성</button>
-</form>
+      <!-- 공개 여부 -->
+      <div class="mb-3">
+        <label class="form-label">공개 여부</label>
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="isPublic"
+            id="isPublicYes"
+            value="true"
+            checked
+          />
+          <label class="form-check-label" for="isPublicYes">공개</label>
+        </div>
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="isPublic"
+            id="isPublicNo"
+            value="false"
+          />
+          <label class="form-check-label" for="isPublicNo">비공개</label>
+        </div>
+      </div>
+
+      <!-- 상태 -->
+      <div class="mb-3">
+        <label for="status" class="form-label">상태</label>
+        <select class="form-select" id="status" name="status">
+          <option value="published" selected>게시</option>
+          <option value="draft">임시저장</option>
+        </select>
+      </div>
+
+      <!-- 내용 -->
+      <div class="mb-3">
+        <label for="content" class="form-label">내용</label>
+        <textarea
+          class="form-control"
+          id="content"
+          name="content"
+          rows="10"
+          required
+        ></textarea>
+      </div>
+
+      <!-- 버튼 -->
+      <div class="d-flex justify-content-between">
+        <a href="/posts" class="btn btn-secondary">취소</a>
+        <button type="submit" class="btn btn-primary">작성 완료</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 태그 목록에서 태그 클릭 시 입력 필드에 추가
+    const tagItems = document.querySelectorAll(".tag-item");
+    const tagsInput = document.getElementById("tags");
+
+    tagItems.forEach((item) => {
+      item.addEventListener("click", function (e) {
+        e.preventDefault();
+        const tagName = this.getAttribute("data-tag");
+
+        // 현재 입력된 태그 가져오기
+        let currentTags = tagsInput.value
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => t !== "");
+
+        // 이미 존재하는 태그인지 확인
+        if (!currentTags.includes(tagName)) {
+          if (currentTags.length > 0) {
+            tagsInput.value += ", " + tagName;
+          } else {
+            tagsInput.value = tagName;
+          }
+        }
+      });
+    });
+  });
+</script>

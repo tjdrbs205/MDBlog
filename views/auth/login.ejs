@@ -1,7 +1,82 @@
-<h2>로그인</h2>
-<form action="/auth/login" method="POST">
-  <input name="username" placeholder="아이디" required />
-  <input name="password" type="password" placeholder="비밀번호" required />
-  <button type="submit">로그인</button>
-</form>
-<a href="/auth/register">회원가입</a>
+<div class="auth-bg py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="auth-card card shadow">
+          <div class="card-header text-white">
+            <h3 class="mb-0">로그인</h3>
+          </div>
+          <div class="card-body">
+            <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+            <div class="alert alert-danger">
+              <ul class="mb-0">
+                <% errors.forEach(error => { %>
+                <li><%= error %></li>
+                <% }) %>
+              </ul>
+            </div>
+            <% } %>
+
+            <form action="/auth/login" method="POST">
+              <% if (typeof csrfToken !== 'undefined') { %>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <% } %>
+
+              <div class="mb-3">
+                <label for="username" class="form-label"
+                  >아이디 또는 이메일</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="username"
+                  name="username"
+                  value="<%= typeof username !== 'undefined' ? username : '' %>"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="password" class="form-label">비밀번호</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  required
+                />
+              </div>
+
+              <div class="mb-3 form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="rememberMe"
+                  name="rememberMe"
+                />
+                <label class="form-check-label" for="rememberMe"
+                  >로그인 상태 유지</label
+                >
+              </div>
+
+              <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary">로그인</button>
+              </div>
+
+              <div class="text-center">
+                <a href="/auth/forgot-password" class="text-decoration-none"
+                  >비밀번호를 잊으셨나요?</a
+                >
+              </div>
+            </form>
+          </div>
+          <div class="card-footer text-center">
+            <p class="mb-0">
+              계정이 없으신가요? <a href="/auth/register">회원가입</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
