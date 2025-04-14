@@ -1,0 +1,457 @@
+<!-- 통합 콘텐츠 관리 페이지 -->
+<div class="content-management">
+  <h1 class="mb-4">콘텐츠 관리</h1>
+
+  <!-- 관리 유형 탭 -->
+  <ul class="nav nav-tabs mb-4" id="contentTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link active"
+        id="categories-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#categories"
+        type="button"
+        role="tab"
+        aria-controls="categories"
+        aria-selected="true">
+        <i class="bi bi-folder me-1"></i>카테고리
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="tags-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#tags"
+        type="button"
+        role="tab"
+        aria-controls="tags"
+        aria-selected="false">
+        <i class="bi bi-tags me-1"></i>태그
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="menus-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#menus"
+        type="button"
+        role="tab"
+        aria-controls="menus"
+        aria-selected="false">
+        <i class="bi bi-list me-1"></i>메뉴
+      </button>
+    </li>
+  </ul>
+
+  <!-- 탭 콘텐츠 -->
+  <div class="tab-content" id="contentTabsContent">
+    <!-- 카테고리 관리 탭 -->
+    <div
+      class="tab-pane fade show active"
+      id="categories"
+      role="tabpanel"
+      aria-labelledby="categories-tab">
+      <div class="row">
+        <!-- 카테고리 추가 -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">카테고리 추가</h5>
+            </div>
+            <div class="card-body">
+              <form action="/categories" method="POST">
+                <div class="mb-3">
+                  <label for="categoryName" class="form-label">카테고리명</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="categoryName"
+                    name="name"
+                    placeholder="카테고리명"
+                    required />
+                </div>
+                <div class="mb-3">
+                  <label for="categoryDescription" class="form-label">설명</label>
+                  <textarea
+                    class="form-control"
+                    id="categoryDescription"
+                    name="description"
+                    placeholder="카테고리에 대한 설명"
+                    rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="categoryParent" class="form-label">상위 카테고리</label>
+                  <select class="form-select" id="categoryParent" name="parent">
+                    <option value="">최상위 카테고리로 생성</option>
+                    <% allCategories && allCategories.forEach(category => { %>
+                    <option value="<%= category._id %>"><%= category.name %></option>
+                    <% }); %>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="categoryOrder" class="form-label">표시 순서</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="categoryOrder"
+                    name="order"
+                    placeholder="순서"
+                    value="0" />
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-circle me-1"></i>카테고리 추가
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 카테고리 목록 -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">카테고리 목록</h5>
+              <span class="badge bg-primary"><%= allCategories ? allCategories.length : 0 %></span>
+            </div>
+            <div class="card-body">
+              <% if (categories && categories.length > 0) { %>
+              <ul class="list-group category-tree">
+                <%- include('../categories/_category_tree', { categories: categories, depth: 0 }) %>
+              </ul>
+              <% } else { %>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>등록된 카테고리가 없습니다.
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 태그 관리 탭 -->
+    <div class="tab-pane fade" id="tags" role="tabpanel" aria-labelledby="tags-tab">
+      <div class="row">
+        <!-- 태그 추가 -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">태그 추가</h5>
+            </div>
+            <div class="card-body">
+              <form action="/tags" method="POST">
+                <div class="mb-3">
+                  <label for="tagName" class="form-label">태그명</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="tagName"
+                    name="name"
+                    placeholder="태그명"
+                    required />
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-circle me-1"></i>태그 추가
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 태그 목록 -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">태그 목록</h5>
+              <span class="badge bg-primary"><%= tags ? tags.length : 0 %></span>
+            </div>
+            <div class="card-body">
+              <% if (tags && tags.length > 0) { %>
+              <div class="tag-cloud">
+                <% tags.forEach(tag => { %>
+                <div class="tag-item d-inline-flex align-items-center">
+                  <span class="badge bg-secondary me-2">#<%= tag.name %></span>
+                  <form
+                    action="/tags/<%= tag._id %>/delete"
+                    method="POST"
+                    class="tag-delete-form"
+                    onsubmit="return confirm('이 태그를 삭제하시겠습니까?');">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+                <% }); %>
+              </div>
+              <% } else { %>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>등록된 태그가 없습니다.
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메뉴 관리 탭 -->
+    <div class="tab-pane fade" id="menus" role="tabpanel" aria-labelledby="menus-tab">
+      <div class="row">
+        <!-- 메뉴 추가 -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">메뉴 추가</h5>
+            </div>
+            <div class="card-body">
+              <form action="/menus" method="POST">
+                <div class="mb-3">
+                  <label for="menuTitle" class="form-label">메뉴명</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="menuTitle"
+                    name="title"
+                    placeholder="메뉴명"
+                    required />
+                </div>
+                <div class="mb-3">
+                  <label for="menuUrl" class="form-label">URL</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="menuUrl"
+                    name="url"
+                    placeholder="/경로"
+                    required />
+                </div>
+                <div class="mb-3">
+                  <label for="menuOrder" class="form-label">표시 순서</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="menuOrder"
+                    name="order"
+                    placeholder="순서"
+                    value="0" />
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-circle me-1"></i>메뉴 추가
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메뉴 목록 -->
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">메뉴 목록</h5>
+              <span class="badge bg-primary"><%= menus ? menus.length : 0 %></span>
+            </div>
+            <div class="card-body">
+              <% if (menus && menus.length > 0) { %>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th width="80">순서</th>
+                    <th>메뉴명</th>
+                    <th>URL</th>
+                    <th width="100">관리</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% menus.forEach(menu => { %>
+                  <tr>
+                    <td class="text-center"><%= menu.order %></td>
+                    <td><%= menu.title %></td>
+                    <td><code><%= menu.url %></code></td>
+                    <td>
+                      <form
+                        action="/menus/<%= menu._id %>/delete"
+                        method="POST"
+                        class="d-inline"
+                        onsubmit="return confirm('이 메뉴를 삭제하시겠습니까?');">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+              <% } else { %>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>등록된 메뉴가 없습니다.
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 카테고리 수정 모달 -->
+<div
+  class="modal fade"
+  id="editCategoryModal"
+  tabindex="-1"
+  aria-labelledby="editCategoryModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editCategoryModalLabel">카테고리 수정</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/categories/update" method="POST" id="editCategoryForm">
+          <input type="hidden" id="editCategoryId" name="id" />
+          <div class="mb-3">
+            <label for="editName" class="form-label">카테고리명</label>
+            <input type="text" class="form-control" id="editName" name="name" required />
+          </div>
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">설명</label>
+            <textarea
+              class="form-control"
+              id="editDescription"
+              name="description"
+              placeholder="카테고리에 대한 설명"
+              rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="editParent" class="form-label">상위 카테고리</label>
+            <select class="form-select" id="editParent" name="parent">
+              <option value="">최상위 카테고리로 설정</option>
+              <% allCategories && allCategories.forEach(category => { %>
+              <option value="<%= category._id %>"><%= category.name %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="editOrder" class="form-label">표시 순서</label>
+            <input
+              type="number"
+              class="form-control"
+              id="editOrder"
+              name="order"
+              placeholder="순서"
+              value="0" />
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-circle me-1"></i>저장하기
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 콘텐츠 관리 스타일 -->
+<style>
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag-item {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .tag-item:hover {
+    background-color: #e9ecef;
+  }
+
+  .tag-delete-form {
+    display: inline;
+  }
+
+  .category-tree {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .category-item {
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin-bottom: 0.25rem;
+  }
+
+  .category-item:hover {
+    background-color: #f8f9fa;
+  }
+
+  .category-children {
+    list-style: none;
+    padding-left: 1.5rem;
+    border-left: 1px solid #dee2e6;
+    margin-top: 0.25rem;
+  }
+
+  .category-actions {
+    float: right;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 카테고리 수정 버튼 클릭 이벤트
+    document.querySelectorAll(".edit-category").forEach((button) => {
+      button.addEventListener("click", function () {
+        const id = this.dataset.id;
+        const name = this.dataset.name;
+        const description = this.dataset.description || "";
+        const order = this.dataset.order || 0;
+        const parent = this.dataset.parent || "";
+
+        document.getElementById("editCategoryId").value = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editDescription").value = description;
+        document.getElementById("editOrder").value = order;
+        document.getElementById("editParent").value = parent;
+
+        // 자기 자신은 부모로 선택할 수 없게 처리
+        document.querySelectorAll("#editParent option").forEach((option) => {
+          option.disabled = option.value === id;
+        });
+
+        const editModal = new bootstrap.Modal(document.getElementById("editCategoryModal"));
+        editModal.show();
+      });
+    });
+
+    // URL이 해시를 포함하는 경우 해당 탭 활성화
+    const hash = window.location.hash;
+    if (hash) {
+      const tabId = hash.replace("#", "");
+      const tab = document.querySelector(`#contentTabs button[data-bs-target="#${tabId}"]`);
+      if (tab) {
+        const bsTab = new bootstrap.Tab(tab);
+        bsTab.show();
+      }
+    }
+
+    // 탭 변경 시 URL 해시 업데이트
+    const tabs = document.querySelectorAll("#contentTabs button");
+    tabs.forEach((tab) => {
+      tab.addEventListener("shown.bs.tab", function (event) {
+        const targetId = event.target.getAttribute("data-bs-target").replace("#", "");
+        history.replaceState(null, null, `#${targetId}`);
+      });
+    });
+  });
+</script>

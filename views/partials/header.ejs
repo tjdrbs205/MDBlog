@@ -1,8 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container">
-    <a class="navbar-brand" href="/">
-      <i class="bi bi-journal-richtext me-2"></i>MDBlog
-    </a>
+    <a class="navbar-brand" href="/"> <i class="bi bi-journal-richtext me-2"></i>MDBlog </a>
     <button
       class="navbar-toggler"
       type="button"
@@ -10,107 +8,67 @@
       data-bs-target="#navbarNav"
       aria-controls="navbarNav"
       aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+      aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
+        <!-- 기본 메뉴 항목 -->
         <li class="nav-item">
-          <a class="nav-link" href="/">
-            <i class="bi bi-house-door me-1"></i>홈
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/posts">
-            <i class="bi bi-file-text me-1"></i>게시물
-          </a>
+          <a class="nav-link" href="/"> <i class="bi bi-house-door me-1"></i>홈 </a>
         </li>
 
-        <!-- 카테고리 드롭다운 메뉴 -->
+        <li class="nav-item">
+          <a class="nav-link" href="/posts/popular"> <i class="bi bi-star me-1"></i>인기 게시물 </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/posts"> <i class="bi bi-clock-history me-1"></i>최신 글 </a>
+        </li>
+
+        <!-- 토픽/주제별 드롭다운 메뉴 -->
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
             href="#"
-            id="categoryDropdown"
+            id="topicsDropdown"
             role="button"
             data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i class="bi bi-folder me-1"></i>카테고리
+            aria-expanded="false">
+            <i class="bi bi-collection me-1"></i>토픽별
           </a>
-          <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
-            <% if (typeof categories !== 'undefined' && categories.length > 0) {
-            %> <% categories.forEach(category => { %>
+          <ul class="dropdown-menu" aria-labelledby="topicsDropdown">
+            <% if (typeof categories !== 'undefined' && categories.length > 0) { %> <%
+            categories.forEach(category => { %>
             <li>
-              <a
-                class="dropdown-item"
-                href="/posts?category=<%= category._id %>"
-              >
+              <a class="dropdown-item" href="/posts?category=<%= category._id %>">
                 <%= category.name %>
               </a>
             </li>
             <% }); %> <% } else { %>
             <li>
-              <a class="dropdown-item disabled" href="#">카테고리 없음</a>
+              <a class="dropdown-item disabled" href="#">토픽 없음</a>
             </li>
             <% } %>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <a class="dropdown-item" href="/categories">
-                <i class="bi bi-folder-plus me-1"></i>모든 카테고리
-              </a>
-            </li>
           </ul>
         </li>
 
-        <!-- 태그 드롭다운 메뉴 -->
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            id="tagDropdown"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i class="bi bi-tags me-1"></i>태그
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="tagDropdown">
-            <% if (typeof tags !== 'undefined' && tags.length > 0) { %> <% const
-            topTags = tags.slice(0, 10); %>
-            <!-- 상위 10개 태그만 표시 -->
-            <% topTags.forEach(tag => { %>
-            <li>
-              <a class="dropdown-item" href="/posts?tag=<%= tag._id %>">
-                #<%= tag.name %>
-              </a>
-            </li>
-            <% }); %> <% if (tags.length > 10) { %>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <a class="dropdown-item" href="/tags">
-                <i class="bi bi-three-dots me-1"></i>더 보기...
-              </a>
-            </li>
-            <% } %> <% } else { %>
-            <li><a class="dropdown-item disabled" href="#">태그 없음</a></li>
-            <% } %>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <a class="dropdown-item" href="/tags">
-                <i class="bi bi-tag me-1"></i>모든 태그
-              </a>
-            </li>
-          </ul>
+        <!-- 아카이브 메뉴 -->
+        <li class="nav-item">
+          <a class="nav-link" href="/posts/archive"> <i class="bi bi-archive me-1"></i>아카이브 </a>
         </li>
 
-        <% if (locals.menus && menus.length > 0) { %> <% menus.forEach(menu => {
-        %>
+        <!-- 소개 페이지 -->
+        <li class="nav-item">
+          <a class="nav-link" href="/about"> <i class="bi bi-info-circle me-1"></i>소개 </a>
+        </li>
+
+        <!-- 동적으로 추가된 메뉴 항목 -->
+        <% if (locals.menus && menus.length > 0) { %> <% menus.forEach(menu => { %>
         <li class="nav-item">
           <a class="nav-link" href="<%= menu.url %>"><%= menu.title %></a>
         </li>
-        <% }) %> <% } %>
+        <% }); %> <% } %>
       </ul>
 
       <!-- 검색 폼 -->
@@ -121,14 +79,14 @@
             type="search"
             name="q"
             placeholder="검색"
-            aria-label="Search"
-          />
+            aria-label="Search" />
           <button class="btn btn-light" type="submit">
             <i class="bi bi-search"></i>
           </button>
         </div>
       </form>
 
+      <!-- 사용자 메뉴 -->
       <ul class="navbar-nav">
         <% if (locals.currentUser) { %>
         <li class="nav-item dropdown">
@@ -138,15 +96,11 @@
             id="navbarDropdown"
             role="button"
             data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
+            aria-expanded="false">
             <i class="bi bi-person-circle me-1"></i>
             <%= currentUser.username %>
           </a>
-          <ul
-            class="dropdown-menu dropdown-menu-end"
-            aria-labelledby="navbarDropdown"
-          >
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             <li>
               <a class="dropdown-item" href="/posts/my-posts">
                 <i class="bi bi-file-earmark-text me-2"></i>내 게시물
@@ -165,18 +119,13 @@
             <% if (currentUser.role === 'admin') { %>
             <li><hr class="dropdown-divider" /></li>
             <li>
-              <a class="dropdown-item" href="/menus">
-                <i class="bi bi-list me-2"></i>메뉴 관리
+              <a class="dropdown-item" href="/admin">
+                <i class="bi bi-speedometer2 me-2"></i>관리자 대시보드
               </a>
             </li>
             <li>
-              <a class="dropdown-item" href="/categories">
-                <i class="bi bi-folder-plus me-2"></i>카테고리 관리
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="/tags">
-                <i class="bi bi-tags me-2"></i>태그 관리
+              <a class="dropdown-item" href="/admin/content">
+                <i class="bi bi-grid-3x3-gap me-2"></i>콘텐츠 관리
               </a>
             </li>
             <% } %>

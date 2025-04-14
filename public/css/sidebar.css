@@ -1,0 +1,94 @@
+/* 카테고리 트리 스타일 */
+.category-tree {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.category-item {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 5px;
+  transition: transform 0.2s ease;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.toggle-placeholder {
+  width: 24px;
+  display: inline-block;
+}
+
+.toggle-btn i {
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn i.rotated {
+  transform: rotate(90deg);
+}
+
+.category-link {
+  text-decoration: none;
+  color: #333;
+  flex-grow: 1;
+  padding: 3px 0;
+  display: block;
+}
+
+.category-link.active {
+  color: #007bff;
+  font-weight: bold;
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 4px;
+  padding-left: 5px;
+}
+
+.category-link:hover {
+  color: #007bff;
+}
+
+.sub-categories {
+  list-style: none;
+  padding-left: 20px;
+  margin-top: 5px;
+  overflow: hidden;
+  max-height: 1000px;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.sub-categories.collapsed {
+  display: none;
+  max-height: 0;
+}
+
+.level-0 {
+  font-weight: 500;
+}
+
+.level-1 {
+  font-size: 0.95em;
+}
+
+.level-2 {
+  font-size: 0.9em;
+}
+
+.count {
+  color: #666;
+  font-size: 0.85em;
+}

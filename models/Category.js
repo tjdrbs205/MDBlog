@@ -28,8 +28,17 @@ const categorySchema = new mongoose.Schema(
   },
   {
     timestamps: true, // 생성 및 수정 시간 자동 관리
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// 자식 카테고리를 위한 가상 필드 추가
+categorySchema.virtual("children", {
+  ref: "Category",
+  localField: "_id",
+  foreignField: "parent",
+});
 
 // 저장 전에 slug 생성
 categorySchema.pre("save", function (next) {

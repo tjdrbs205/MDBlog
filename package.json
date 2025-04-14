@@ -31,7 +31,9 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "geoip-lite": "^1.4.10",
     "helmet": "^8.1.0",
+    "isbot": "^5.1.26",
     "mongoose": "^8.13.2",
     "morgan": "^1.10.0"
   }

@@ -23,10 +23,7 @@ exports.listPosts = async (req, res) => {
   }
 
   if (q) {
-    filter.$or = [
-      { title: new RegExp(q, "i") },
-      { content: new RegExp(q, "i") },
-    ];
+    filter.$or = [{ title: new RegExp(q, "i") }, { content: new RegExp(q, "i") }];
   }
 
   // 정렬 옵션 설정
@@ -295,10 +292,7 @@ exports.renderEditForm = async (req, res) => {
   }
 
   // 작성자 또는 관리자만 수정 가능
-  if (
-    post.author.toString() !== req.user._id.toString() &&
-    req.user.role !== "admin"
-  ) {
+  if (post.author.toString() !== req.user._id.toString() && req.user.role !== "admin") {
     const error = new Error("게시물을 수정할 권한이 없습니다");
     error.statusCode = 403;
     throw error;
@@ -328,10 +322,7 @@ exports.updatePost = async (req, res) => {
   }
 
   // 작성자 또는 관리자만 수정 가능
-  if (
-    post.author.toString() !== req.user._id.toString() &&
-    req.user.role !== "admin"
-  ) {
+  if (post.author.toString() !== req.user._id.toString() && req.user.role !== "admin") {
     const error = new Error("게시물을 수정할 권한이 없습니다");
     error.statusCode = 403;
     throw error;
@@ -388,10 +379,7 @@ exports.deletePost = async (req, res) => {
   }
 
   // 작성자 또는 관리자만 삭제 가능
-  if (
-    post.author.toString() !== req.user._id.toString() &&
-    req.user.role !== "admin"
-  ) {
+  if (post.author.toString() !== req.user._id.toString() && req.user.role !== "admin") {
     const error = new Error("게시물을 삭제할 권한이 없습니다");
     error.statusCode = 403;
     throw error;
@@ -460,10 +448,7 @@ exports.deleteComment = async (req, res) => {
   }
 
   // 댓글 작성자 또는 관리자만 삭제 가능
-  if (
-    comment.author.toString() !== req.user._id.toString() &&
-    req.user.role !== "admin"
-  ) {
+  if (comment.author.toString() !== req.user._id.toString() && req.user.role !== "admin") {
     const error = new Error("댓글을 삭제할 권한이 없습니다");
     error.statusCode = 403;
     throw error;
@@ -474,4 +459,173 @@ exports.deleteComment = async (req, res) => {
   await post.save();
 
   res.redirect(`/posts/${postId}#comments`);
+};
+
+/**
+ * 인기 게시물 목록 조회
+ */
+exports.listPopularPosts = async (req, res) => {
+  const { category, tag, q } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  // 인기 게시물은 조회수 기준으로 정렬
+  const filter = { isPublic: true };
+
+  // 카테고리 필터 추가
+  if (category) {
+    filter.category = category;
+  }
+
+  // 태그 필터 추가
+  if (tag) {
+    filter.tags = { $in: [tag] };
+  }
+
+  // 검색어 필터 추가
+  if (q) {
+    filter.$or = [{ title: new RegExp(q, "i") }, { content: new RegExp(q, "i") }];
+  }
+
+  const sortOption = { view: -1 }; // 조회수 내림차순
+
+  // 병렬 데이터 조회
+  const [posts, totalPosts, categories, tags, recentPosts] = await Promise.all([
+    Post.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .populate("author", "username")
+      .populate("category", "name")
+      .populate("tags", "name"),
+    Post.countDocuments(filter),
+    Category.find().sort({ order: 1 }),
+    Tag.find().sort({ name: 1 }),
+    Post.find({ isPublic: true })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select("title createdAt featuredImage"),
+  ]);
+
+  // 카테고리별 게시물 수 계산
+  const categoryPostCounts = await Post.aggregate([
+    { $match: { isPublic: true } },
+    { $group: { _id: "$category", count: { $sum: 1 } } },
+  ]);
+
+  // 카테고리 객체에 게시물 수 추가
+  const categoryMap = {};
+  categoryPostCounts.forEach((item) => {
+    if (item._id) {
+      categoryMap[item._id.toString()] = item.count;
+    }
+  });
+
+  // 총 게시물 수 (통계용)
+  const postStats = {
+    total: totalPosts,
+  };
+
+  // 페이지네이션 정보
+  const totalPages = Math.ceil(totalPosts / limit);
+
+  res.render("layouts/main", {
+    title: "인기 게시물",
+    posts,
+    categories,
+    tags,
+    recentPosts,
+    categoryMap,
+    postStats,
+    q, // 추가: 검색어 변수
+    sort: "views", // 정렬 방식 표시
+    selectedCategory: category || null, // 선택된 카테고리
+    selectedTag: tag || null, // 선택된 태그
+    pagination: {
+      page,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    },
+    contentView: "posts/list",
+  });
+};
+
+/**
+ * 아카이브 페이지 (월별, 연도별 게시물)
+ */
+exports.getArchive = async (req, res) => {
+  const { year, month } = req.query;
+
+  // 아카이브 데이터 구성을 위한 집계 쿼리
+  const archiveData = await Post.aggregate([
+    { $match: { isPublic: true } },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+        },
+        count: { $sum: 1 },
+        posts: { $push: { _id: "$_id", title: "$title", createdAt: "$createdAt" } },
+      },
+    },
+    { $sort: { "_id.year": -1, "_id.month": -1 } },
+  ]);
+
+  // 연도별 그룹화
+  const archiveByYear = {};
+  archiveData.forEach((item) => {
+    const year = item._id.year;
+    const month = item._id.month;
+
+    if (!archiveByYear[year]) {
+      archiveByYear[year] = [];
+    }
+
+    archiveByYear[year].push({
+      month,
+      count: item.count,
+      posts: item.posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    });
+  });
+
+  // 필터링된 게시물 조회
+  let filteredPosts = [];
+  if (year) {
+    const startDate = new Date(parseInt(year), month ? parseInt(month) - 1 : 0, 1);
+    const endDate = new Date(parseInt(year), month ? parseInt(month) : 12, 0);
+
+    filteredPosts = await Post.find({
+      isPublic: true,
+      createdAt: { $gte: startDate, $lte: endDate },
+    })
+      .sort({ createdAt: -1 })
+      .populate("author", "username")
+      .populate("category", "name")
+      .populate("tags", "name");
+  }
+
+  // 사이드바 데이터 로드
+  const [categories, tags, recentPosts] = await Promise.all([
+    Category.find().sort({ order: 1 }),
+    Tag.find().sort({ name: 1 }),
+    Post.find({ isPublic: true })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select("title createdAt featuredImage"),
+  ]);
+
+  res.render("layouts/main", {
+    title: "게시물 아카이브",
+    archiveByYear,
+    filteredPosts,
+    selectedYear: year,
+    selectedMonth: month,
+    categories,
+    tags,
+    recentPosts,
+    contentView: "posts/archive",
+  });
 };

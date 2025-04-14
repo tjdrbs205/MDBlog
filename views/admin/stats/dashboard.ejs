@@ -1,0 +1,422 @@
+<div class="container-fluid p-4">
+  <h2 class="mb-4">통계 대시보드</h2>
+
+  <!-- 요약 통계 카드 -->
+  <div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card bg-primary text-white h-100">
+        <div class="card-body">
+          <h5 class="card-title">실시간 방문자</h5>
+          <p class="card-text display-4" id="active-visitors"><%= activeVisitorsCount %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card bg-success text-white h-100">
+        <div class="card-body">
+          <h5 class="card-title">오늘 방문자</h5>
+          <p class="card-text display-4"><%= todayStats.visits.toLocaleString() %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card bg-info text-white h-100">
+        <div class="card-body">
+          <h5 class="card-title">총 유니크 방문자</h5>
+          <p class="card-text display-4"><%= totalStats.totalUniqueVisitors.toLocaleString() %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card bg-warning text-dark h-100">
+        <div class="card-body">
+          <h5 class="card-title">총 페이지뷰</h5>
+          <p class="card-text display-4"><%= totalStats.totalPageViews.toLocaleString() %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭 네비게이션 -->
+  <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link active"
+        id="visitors-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#visitors"
+        type="button"
+        role="tab"
+        aria-controls="visitors"
+        aria-selected="true"
+        >방문자 통계</button
+      >
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="realtime-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#realtime"
+        type="button"
+        role="tab"
+        aria-controls="realtime"
+        aria-selected="false"
+        >실시간 방문자</button
+      >
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="regions-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#regions"
+        type="button"
+        role="tab"
+        aria-controls="regions"
+        aria-selected="false"
+        >지역 통계</button
+      >
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="browsers-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#browsers"
+        type="button"
+        role="tab"
+        aria-controls="browsers"
+        aria-selected="false"
+        >브라우저 통계</button
+      >
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="pages-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#pages"
+        type="button"
+        role="tab"
+        aria-controls="pages"
+        aria-selected="false"
+        >인기 페이지</button
+      >
+    </li>
+  </ul>
+
+  <!-- 탭 콘텐츠 -->
+  <div class="tab-content" id="myTabContent">
+    <!-- 방문자 통계 탭 -->
+    <div
+      class="tab-pane fade show active"
+      id="visitors"
+      role="tabpanel"
+      aria-labelledby="visitors-tab">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">최근 30일 방문자 추이</h5>
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-week"
+                >7일</button
+              >
+              <button type="button" class="btn btn-sm btn-outline-secondary active" id="btn-month"
+                >30일</button
+              >
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-year"
+                >1년</button
+              >
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="visitorsChart" height="300"></canvas>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">방문자 통계 요약</h5>
+            </div>
+            <div class="card-body">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th>오늘 방문자</th>
+                    <td><%= todayStats.visits.toLocaleString() %></td>
+                  </tr>
+                  <tr>
+                    <th>어제 방문자</th>
+                    <td><%= yesterdayStats ? yesterdayStats.visits.toLocaleString() : 0 %></td>
+                  </tr>
+                  <tr>
+                    <th>이번 주 방문자</th>
+                    <td><%= weeklyStats.toLocaleString() %></td>
+                  </tr>
+                  <tr>
+                    <th>이번 달 방문자</th>
+                    <td><%= monthlyStats.toLocaleString() %></td>
+                  </tr>
+                  <tr>
+                    <th>총 방문자</th>
+                    <td><%= totalStats.totalVisits.toLocaleString() %></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">페이지뷰 통계</h5>
+            </div>
+            <div class="card-body">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th>오늘 페이지뷰</th>
+                    <td><%= todayStats.pageViews ? todayStats.pageViews.toLocaleString() : 0 %></td>
+                  </tr>
+                  <tr>
+                    <th>어제 페이지뷰</th>
+                    <td
+                      ><%= yesterdayStats && yesterdayStats.pageViews ?
+                      yesterdayStats.pageViews.toLocaleString() : 0 %></td
+                    >
+                  </tr>
+                  <tr>
+                    <th>이번 주 페이지뷰</th>
+                    <td><%= weeklyPageViews.toLocaleString() %></td>
+                  </tr>
+                  <tr>
+                    <th>이번 달 페이지뷰</th>
+                    <td><%= monthlyPageViews.toLocaleString() %></td>
+                  </tr>
+                  <tr>
+                    <th>총 페이지뷰</th>
+                    <td><%= totalStats.totalPageViews.toLocaleString() %></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실시간 방문자 탭 -->
+    <div class="tab-pane fade" id="realtime" role="tabpanel" aria-labelledby="realtime-tab">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"
+              >현재 활성 방문자:
+              <span class="badge bg-success" id="active-visitors-count"
+                ><%= activeVisitorsCount %></span
+              ></h5
+            >
+            <button class="btn btn-sm btn-outline-primary" id="refresh-active">새로고침</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="active-visitors-table">
+              <thead>
+                <tr>
+                  <th>방문자 ID</th>
+                  <th>방문 페이지</th>
+                  <th>브라우저</th>
+                  <th>지역</th>
+                  <th>최근 활동 시간</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% activeVisitors.forEach(visitor => { %>
+                <tr>
+                  <td><%= visitor.id %></td>
+                  <td><%= visitor.path %></td>
+                  <td><%= visitor.browser %></td>
+                  <td><%= visitor.region %></td>
+                  <td><%= new Date(visitor.time).toLocaleTimeString() %></td>
+                </tr>
+                <% }) %> <% if (activeVisitors.length === 0) { %>
+                <tr>
+                  <td colspan="5" class="text-center">현재 활성 방문자가 없습니다</td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 지역 통계 탭 -->
+    <div class="tab-pane fade" id="regions" role="tabpanel" aria-labelledby="regions-tab">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">지역별 방문자 분포</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="regionsChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">지역별 방문자 통계</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>지역</th>
+                      <th>방문자 수</th>
+                      <th>비율</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% let totalRegionVisits = 0; for (const count of Object.values(regionStats)) {
+                    totalRegionVisits += count; } Object.entries(regionStats) .sort((a, b) => b[1] -
+                    a[1]) .forEach(([region, count]) => { const percentage = ((count /
+                    totalRegionVisits) * 100).toFixed(1); %>
+                    <tr>
+                      <td><%= region %></td>
+                      <td><%= count.toLocaleString() %></td>
+                      <td><%= percentage %>%</td>
+                    </tr>
+                    <% }) %> <% if (Object.keys(regionStats).length === 0) { %>
+                    <tr>
+                      <td colspan="3" class="text-center">지역별 방문자 데이터가 없습니다</td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 브라우저 통계 탭 -->
+    <div class="tab-pane fade" id="browsers" role="tabpanel" aria-labelledby="browsers-tab">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">브라우저별 방문자 분포</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="browsersChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">브라우저별 방문자 통계</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>브라우저</th>
+                      <th>방문자 수</th>
+                      <th>비율</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% let totalBrowserVisits = 0; for (const count of Object.values(browserStats))
+                    { totalBrowserVisits += count; } Object.entries(browserStats) .sort((a, b) =>
+                    b[1] - a[1]) .forEach(([browser, count]) => { const percentage = ((count /
+                    totalBrowserVisits) * 100).toFixed(1); %>
+                    <tr>
+                      <td><%= browser %></td>
+                      <td><%= count.toLocaleString() %></td>
+                      <td><%= percentage %>%</td>
+                    </tr>
+                    <% }) %> <% if (Object.keys(browserStats).length === 0) { %>
+                    <tr>
+                      <td colspan="3" class="text-center">브라우저별 방문자 데이터가 없습니다</td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 인기 페이지 탭 -->
+    <div class="tab-pane fade" id="pages" role="tabpanel" aria-labelledby="pages-tab">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">가장 많이 방문한 페이지</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>페이지 경로</th>
+                  <th>조회수</th>
+                  <th>비율</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% let totalPageViews = 0; for (const count of Object.values(popularPages)) {
+                totalPageViews += count; } Object.entries(popularPages) .sort((a, b) => b[1] - a[1])
+                .slice(0, 20) // 상위 20개만 표시 .forEach(([page, count]) => { const percentage =
+                ((count / totalPageViews) * 100).toFixed(1); const displayPath = page.replace(/_/g,
+                '/'); %>
+                <tr>
+                  <td><%= displayPath %></td>
+                  <td><%= count.toLocaleString() %></td>
+                  <td><%= percentage %>%</td>
+                </tr>
+                <% }) %> <% if (Object.keys(popularPages).length === 0) { %>
+                <tr>
+                  <td colspan="3" class="text-center">페이지 방문 데이터가 없습니다</td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js 라이브러리 추가 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+<!-- 차트 데이터를 숨겨진 필드에 JSON으로 저장 -->
+<input
+  type="hidden"
+  id="chartDataJSON"
+  value="<%= JSON.stringify({
+  labels: dailyLabels || [],
+  visits: dailyVisits || [],
+  pageViews: dailyPageViews || [],
+  regionLabels: Object.keys(regionStats || {}),
+  regionData: Object.values(regionStats || {}),
+  browserLabels: Object.keys(browserStats || {}),
+  browserData: Object.values(browserStats || {})
+}) %>" />
+
+<!-- 통계 대시보드 자바스크립트 로드 -->
+<script src="/js/admin/stats-dashboard.js"></script>

@@ -61,20 +61,13 @@
               <td><%= new Date(post.createdAt).toLocaleDateString() %></td>
               <td><%= post.views %></td>
               <td class="action-buttons">
-                <a
-                  href="/posts/edit/<%= post._id %>"
-                  class="btn btn-sm btn-edit"
-                  >수정</a
-                >
+                <a href="/posts/edit/<%= post._id %>" class="btn btn-sm btn-edit">수정</a>
                 <form
                   action="/posts/<%= post._id %>?_method=DELETE"
                   method="POST"
                   class="inline-form"
-                  onsubmit="return confirm('정말 삭제하시겠습니까?');"
-                >
-                  <button type="submit" class="btn btn-sm btn-delete">
-                    삭제
-                  </button>
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                  <button type="submit" class="btn btn-sm btn-delete"> 삭제 </button>
                 </form>
               </td>
             </tr>
@@ -107,27 +100,18 @@
               <td><%= user.email %></td>
               <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
               <td>
-                <span
-                  class="status <%= user.isAdmin ? 'status-admin' : 'status-user' %>"
-                >
+                <span class="status <%= user.isAdmin ? 'status-admin' : 'status-user' %>">
                   <%= user.isAdmin ? '관리자' : '사용자' %>
                 </span>
               </td>
               <td class="action-buttons">
-                <a
-                  href="/admin/users/edit/<%= user._id %>"
-                  class="btn btn-sm btn-edit"
-                  >수정</a
-                >
+                <a href="/admin/users/edit/<%= user._id %>" class="btn btn-sm btn-edit">수정</a>
                 <form
                   action="/admin/users/<%= user._id %>?_method=DELETE"
                   method="POST"
                   class="inline-form"
-                  onsubmit="return confirm('정말 삭제하시겠습니까?');"
-                >
-                  <button type="submit" class="btn btn-sm btn-delete">
-                    삭제
-                  </button>
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                  <button type="submit" class="btn btn-sm btn-delete"> 삭제 </button>
                 </form>
               </td>
             </tr>
@@ -151,17 +135,9 @@
         <div class="menu-icon"><i class="bi bi-file-earmark-text"></i></div>
         <div class="menu-title">게시물 관리</div>
       </a>
-      <a href="/categories" class="admin-menu-item">
-        <div class="menu-icon"><i class="bi bi-folder2-open"></i></div>
-        <div class="menu-title">카테고리 관리</div>
-      </a>
-      <a href="/tags" class="admin-menu-item">
-        <div class="menu-icon"><i class="bi bi-tags"></i></div>
-        <div class="menu-title">태그 관리</div>
-      </a>
-      <a href="/menus" class="admin-menu-item">
-        <div class="menu-icon"><i class="bi bi-list"></i></div>
-        <div class="menu-title">메뉴 관리</div>
+      <a href="/admin/content" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-grid-3x3-gap"></i></div>
+        <div class="menu-title">콘텐츠 관리</div>
       </a>
       <a href="/admin/settings" class="admin-menu-item">
         <div class="menu-icon"><i class="bi bi-gear"></i></div>

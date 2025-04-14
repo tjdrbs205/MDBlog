@@ -10,6 +10,12 @@ router.get("/", asyncHandler(categoryController.list));
 // 카테고리 생성 (관리자만 가능)
 router.post("/", isLoggedIn, isAdmin, asyncHandler(categoryController.create));
 
+// 카테고리 업데이트 (관리자만 가능)
+router.post("/update", isLoggedIn, isAdmin, asyncHandler(categoryController.update));
+
+// 카테고리 삭제 (관리자만 가능)
+router.post("/:id/delete", isLoggedIn, isAdmin, asyncHandler(categoryController.delete));
+
 // 특정 카테고리의 게시물 조회
 router.get("/:id/posts", asyncHandler(categoryController.filter));
 

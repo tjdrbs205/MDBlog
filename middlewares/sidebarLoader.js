@@ -18,6 +18,8 @@ const sidebarLoader = asyncHandler(async (req, res, next) => {
     categoryPostCounts,
     todayStats,
     totalStats,
+    regionStats,
+    browserStats,
   ] = await Promise.all([
     // 계층 구조로 카테고리 목록 조회
     Category.getHierarchicalCategories(),
@@ -39,6 +41,10 @@ const sidebarLoader = asyncHandler(async (req, res, next) => {
     Stats.getToday(),
     // 전체 방문자 통계
     Stats.getTotalStats(),
+    // 지역별 방문자 통계
+    Stats.getRegionStats(),
+    // 브라우저별 방문자 통계
+    Stats.getBrowserStats(),
   ]);
 
   // 카테고리별 게시물 수를 객체로 변환
@@ -50,6 +56,9 @@ const sidebarLoader = asyncHandler(async (req, res, next) => {
     }
   });
 
+  // 실시간 활성 방문자 수 조회
+  const activeVisitorsCount = Stats.getActiveVisitorsCount();
+
   // 게시물 및 방문자 통계 정보
   const stats = {
     posts: {
@@ -57,8 +66,14 @@ const sidebarLoader = asyncHandler(async (req, res, next) => {
     },
     visits: {
       today: todayStats.visits || 0,
-      total: totalStats.totalVisits || 0,
+      total: totalStats && totalStats.totalVisits ? totalStats.totalVisits : 0,
+      totalPageViews: totalStats && totalStats.totalPageViews ? totalStats.totalPageViews : 0,
+      totalUniqueVisitors:
+        totalStats && totalStats.totalUniqueVisitors ? totalStats.totalUniqueVisitors : 0,
+      active: activeVisitorsCount,
     },
+    regions: regionStats,
+    browsers: browserStats,
   };
 
   // 원래 형식의 카테고리 목록도 함께 가져오기 (하위 호환성)
@@ -72,6 +87,26 @@ const sidebarLoader = asyncHandler(async (req, res, next) => {
   res.locals.categoryMap = categoryMap;
   res.locals.postStats = stats.posts;
   res.locals.stats = stats; // 전체 통계 정보
+
+  // selectedCategory가 정의되지 않은 경우 null로 기본값 설정
+  if (typeof res.locals.selectedCategory === "undefined") {
+    res.locals.selectedCategory = null;
+  }
+
+  // selectedTag가 정의되지 않은 경우 null로 기본값 설정
+  if (typeof res.locals.selectedTag === "undefined") {
+    res.locals.selectedTag = null;
+  }
+
+  // sort가 정의되지 않은 경우 기본값 설정
+  if (typeof res.locals.sort === "undefined") {
+    res.locals.sort = "newest";
+  }
+
+  // q(검색어)가 정의되지 않은 경우 빈 문자열로 설정
+  if (typeof res.locals.q === "undefined") {
+    res.locals.q = "";
+  }
 
   next();
 });
