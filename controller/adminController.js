@@ -40,12 +40,16 @@ exports.dashboard = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5);
 
+    // Flash 메시지 전달
+    const messages = req.flash();
+
     // 대시보드 페이지 렌더링
     res.render("layouts/main", {
       title: "관리자 대시보드",
       stats,
       recentPosts,
       recentUsers,
+      messages,
       contentView: "admin/dashboard",
     });
   } catch (error) {
@@ -105,54 +109,6 @@ exports.changeUserRole = async (req, res) => {
 
   req.flash("success", `${user.username} 사용자의 역할이 ${role}로 변경되었습니다.`);
   res.redirect("/admin/users");
-};
-
-/**
- * 사용자 삭제 (관리자용)
- */
-exports.deleteUser = async (req, res) => {
-  try {
-    const userId = req.params.id;
-
-    // 자기 자신을 삭제하는 것을 방지
-    if (userId === req.user._id.toString()) {
-      req.flash("error", "자기 자신을 삭제할 수 없습니다.");
-      return res.redirect("/admin/users");
-    }
-
-    // 사용자 찾기
-    const user = await User.findById(userId);
-    if (!user) {
-      req.flash("error", "사용자를 찾을 수 없습니다.");
-      return res.redirect("/admin/users");
-    }
-
-    // 다른 관리자를 삭제하려는 경우 추가 확인
-    if (user.role === "admin") {
-      req.flash("error", "다른 관리자를 삭제하려면 추가 확인이 필요합니다.");
-      return res.redirect("/admin/users");
-    }
-
-    // 사용자가 작성한 게시물 확인
-    const userPosts = await Post.countDocuments({ author: userId });
-    if (userPosts > 0) {
-      req.flash(
-        "error",
-        `이 사용자는 ${userPosts}개의 게시물을 작성했습니다. 먼저, 게시물을 다른 사용자에게 이전하거나 삭제해야 합니다.`
-      );
-      return res.redirect("/admin/users");
-    }
-
-    // 사용자 삭제
-    await User.findByIdAndDelete(userId);
-
-    req.flash("success", "사용자가 성공적으로 삭제되었습니다.");
-    return res.redirect("/admin/users");
-  } catch (error) {
-    console.error("사용자 삭제 오류:", error);
-    req.flash("error", "사용자 삭제 중 오류가 발생했습니다.");
-    return res.redirect("/admin/users");
-  }
 };
 
 /**

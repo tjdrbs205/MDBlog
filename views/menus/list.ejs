@@ -2,8 +2,7 @@
 <h2>사이드 메뉴 관리</h2>
 
 <form action="/menus" method="POST">
-  ${typeof csrfToken !== 'undefined' ? `<input type="hidden" name="_csrf" value="${csrfToken}" />` :
-  ''}
+  <input type="hidden" name="_csrf" value="${csrfToken}" />
   <input name="title" placeholder="메뉴 이름" required />
   <input name="url" placeholder="/경로" required />
   <input name="order" type="number" placeholder="순서" value="0" />
@@ -15,10 +14,7 @@
   <li>
     [${menu.order}] <a href="${menu.url}">${menu.title}</a>
     <form method="POST" action="/menus/${menu._id}/delete" style="display: inline">
-      ${typeof csrfToken !== 'undefined' ? `<input
-        type="hidden"
-        name="_csrf"
-        value="${csrfToken}" />` : ''}
+      <input type="hidden" name="_csrf" value="${csrfToken}" />
       <button type="submit">삭제</button>
     </form>
   </li>

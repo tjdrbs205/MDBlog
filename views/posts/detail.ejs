@@ -8,9 +8,7 @@
     <div class="btn-group">
       <a href="/posts/<%= post._id %>/edit" class="btn btn-sm btn-outline-primary">수정</a>
       <form action="/posts/<%= post._id %>/delete" method="POST" class="d-inline delete-form">
-        <% if (typeof csrfToken !== 'undefined') { %>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <% } %>
         <button type="submit" class="btn btn-sm btn-outline-danger delete-btn">삭제</button>
       </form>
     </div>
@@ -99,9 +97,7 @@
           <% if (locals.currentUser && comment.author && (currentUser._id == comment.author._id ||
           currentUser.role === 'admin')) { %>
           <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/delete" method="POST">
-            <% if (typeof csrfToken !== 'undefined') { %>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <% } %>
             <button
               type="submit"
               class="btn btn-sm text-danger"

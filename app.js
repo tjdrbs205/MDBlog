@@ -67,26 +67,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// CSRF 보호 설정
-app.use(
-  csrf({
-    cookie: true,
-    ignoreMethods: ["GET", "HEAD", "OPTIONS"], // GET, HEAD, OPTIONS 메서드는 CSRF 검사 제외
-  })
-);
-
-// CSRF 에러 처리 미들웨어 추가
-app.use((err, req, res, next) => {
-  if (err.code === "EBADCSRFTOKEN") {
-    req.flash(
-      "error",
-      "CSRF 보안 토큰이 유효하지 않습니다. 페이지를 새로고침한 후 다시 시도해주세요."
-    );
-    return res.redirect("back");
-  }
-  next(err);
+// 모든 뷰에 messages 변수를 전달
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  next();
 });
 
+// CSRF 보호 설정
+app.use(csrf({ cookie: true }));
 app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   next();
@@ -97,11 +85,13 @@ const menuLoader = require("./middlewares/menuLoader");
 const userLoader = require("./middlewares/userLoader");
 const sidebarLoader = require("./middlewares/sidebarLoader");
 const statsMiddleware = require("./middlewares/statsMiddleware"); // 통계 미들웨어 추가
+const settingsLoader = require("./middlewares/settingsLoader"); // 설정 로더 미들웨어 추가
 
 app.use(userLoader);
 app.use(statsMiddleware); // 방문자 통계 미들웨어 추가
 app.use(menuLoader);
 app.use(sidebarLoader);
+app.use(settingsLoader); // 설정 로더 미들웨어 추가
 
 // 뷰 엔진 설정
 app.set("view engine", "ejs");

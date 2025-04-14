@@ -35,6 +35,9 @@ router.post("/:id/edit", isAdmin, asyncHandler(postController.updatePost));
 // 게시물 삭제 (관리자만 가능)
 router.post("/:id/delete", isAdmin, asyncHandler(postController.deletePost));
 
+// 게시물 삭제 (DELETE 메서드 지원 추가)
+router.delete("/:id", isAdmin, asyncHandler(postController.deletePost));
+
 // 댓글 추가 (로그인 필요)
 router.post("/:id/comments", isLoggedIn, asyncHandler(postController.addComment));
 

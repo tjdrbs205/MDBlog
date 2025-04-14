@@ -94,8 +94,7 @@ postSchema.pre("save", function (next) {
   if ((this.isModified("content") || this.isNew) && !this.excerpt) {
     // HTML 태그 제거 후 첫 100자 추출
     const textContent = this.content.replace(/<[^>]*>/g, "");
-    this.excerpt =
-      textContent.substring(0, 100) + (textContent.length > 100 ? "..." : "");
+    this.excerpt = textContent.substring(0, 100) + (textContent.length > 100 ? "..." : "");
   }
 
   next();

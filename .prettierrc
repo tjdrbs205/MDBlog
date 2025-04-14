@@ -2,14 +2,17 @@
   "semi": true,
   "singleQuote": false,
   "tabWidth": 2,
-  "printWidth": 100,
+  "printWidth": 120,
+  "endOfLine": "auto",
   "overrides": [
     {
       "files": "*.ejs",
       "options": {
         "parser": "html",
         "bracketSameLine": true,
-        "htmlWhitespaceSensitivity": "strict"
+        "htmlWhitespaceSensitivity": "ignore",
+        "singleAttributePerLine": false,
+        "printWidth": 200
       }
     }
   ]

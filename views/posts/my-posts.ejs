@@ -87,9 +87,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> 취소 </button>
         <form id="deleteForm" method="POST" style="display: inline">
-          <% if (typeof csrfToken !== 'undefined') { %>
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <% } %>
           <button type="submit" class="btn btn-danger">삭제</button>
         </form>
       </div>

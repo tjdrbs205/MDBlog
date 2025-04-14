@@ -62,7 +62,7 @@
               <td><%= post.view %></td>
               <td class="action-buttons">
                 <a
-                  href="/posts/edit/<%= post._id %>"
+                  href="/posts/<%= post._id %>/edit"
                   class="btn btn-sm btn-edit"
                   style="
                     background-color: #007bff;
@@ -77,8 +77,8 @@
                 <form
                   action="/posts/<%= post._id %>/delete"
                   method="POST"
-                  class="inline-form delete-post-form"
-                  onsubmit="return confirm('정말 이 게시물을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                  class="inline-form"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
                   <% if (typeof csrfToken !== 'undefined') { %>
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <% } %>
@@ -146,10 +146,10 @@
                   >수정</a
                 >
                 <form
-                  action="/admin/users/<%= user._id %>/delete"
+                  action="/admin/users/<%= user._id %>?_method=DELETE"
                   method="POST"
-                  class="inline-form delete-user-form"
-                  onsubmit="return confirm('정말 이 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                  class="inline-form"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
                   <% if (typeof csrfToken !== 'undefined') { %>
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <% } %>
@@ -201,29 +201,14 @@
   </div>
 </div>
 
-<!-- 삭제 확인 스크립트 -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // 게시물 삭제 폼에 이벤트 리스너 추가
-    document.querySelectorAll(".delete-post-form").forEach((form) => {
-      form.addEventListener("submit", function (event) {
-        event.preventDefault(); // 폼 제출 일시 중지
-
-        // 사용자에게 확인 요청
-        if (confirm("정말 이 게시물을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-          this.submit(); // 사용자가 확인을 클릭하면 폼 제출
-        }
-      });
-    });
-
-    // 사용자 삭제 폼에 이벤트 리스너 추가
-    document.querySelectorAll(".delete-user-form").forEach((form) => {
-      form.addEventListener("submit", function (event) {
-        event.preventDefault(); // 폼 제출 일시 중지
-
-        // 사용자에게 확인 요청
-        if (confirm("정말 이 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-          this.submit(); // 사용자가 확인을 클릭하면 폼 제출
+  document.addEventListener("DOMContentLoaded", () => {
+    const forms = document.querySelectorAll(".inline-form");
+    forms.forEach((form) => {
+      form.addEventListener("submit", (event) => {
+        const confirmed = confirm("정말 삭제하시겠습니까?");
+        if (!confirmed) {
+          event.preventDefault();
         }
       });
     });

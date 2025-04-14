@@ -1,5 +1,11 @@
 <!-- 통합 콘텐츠 관리 페이지 -->
 <div class="content-management">
+  <% if (messages && messages.success) { %>
+  <div class="alert alert-success" role="alert"> <%= messages.success %> </div>
+  <% } %> <% if (messages && messages.error) { %>
+  <div class="alert alert-danger" role="alert"> <%= messages.error %> </div>
+  <% } %>
+
   <h1 class="mb-4">콘텐츠 관리</h1>
 
   <!-- 관리 유형 탭 -->
@@ -327,6 +333,9 @@
       </div>
       <div class="modal-body">
         <form action="/categories/update" method="POST" id="editCategoryForm">
+          <% if (typeof csrfToken !== 'undefined') { %>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <% } %>
           <input type="hidden" id="editCategoryId" name="id" />
           <div class="mb-3">
             <label for="editName" class="form-label">카테고리명</label>

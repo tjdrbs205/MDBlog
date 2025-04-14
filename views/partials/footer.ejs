@@ -2,10 +2,13 @@
   <div class="container">
     <div class="row">
       <div class="col-md-4 mb-4 mb-md-0">
-        <h5 class="mb-3"><i class="bi bi-journal-richtext me-2"></i>MDBlog</h5>
+        <h5 class="mb-3">
+          <i class="bi bi-journal-richtext me-2"></i>
+          MDBlog
+        </h5>
         <p class="text-muted">
-          MongoDB와 Express.js를 사용한 현대적인 블로그 시스템입니다. 마크다운을
-          지원하고 태그와 카테고리로 콘텐츠를 관리할 수 있습니다.
+          <% if (typeof siteDescription !== 'undefined') { %> <%= siteDescription %> <% } else { %> MongoDB와 Express.js를 사용한 현대적인 블로그 시스템입니다. 마크다운을 지원하고 태그와 카테고리로
+          콘텐츠를 관리할 수 있습니다. <% } %>
         </p>
       </div>
       <div class="col-md-3 mb-4 mb-md-0">
@@ -13,22 +16,14 @@
         <ul class="list-unstyled">
           <li class="mb-2">
             <a href="/" class="text-decoration-none">
-              <i class="bi bi-house-door me-1"></i>홈
+              <i class="bi bi-house-door me-1"></i>
+              홈
             </a>
           </li>
           <li class="mb-2">
             <a href="/posts" class="text-decoration-none">
-              <i class="bi bi-file-text me-1"></i>최신 게시물
-            </a>
-          </li>
-          <li class="mb-2">
-            <a href="/categories" class="text-decoration-none">
-              <i class="bi bi-folder me-1"></i>카테고리 목록
-            </a>
-          </li>
-          <li>
-            <a href="/tags" class="text-decoration-none">
-              <i class="bi bi-tags me-1"></i>태그 목록
+              <i class="bi bi-file-text me-1"></i>
+              최신 게시물
             </a>
           </li>
         </ul>
@@ -39,28 +34,33 @@
           <% if (locals.currentUser) { %>
           <li class="mb-2">
             <a href="/auth/profile" class="text-decoration-none">
-              <i class="bi bi-person me-1"></i>내 프로필
+              <i class="bi bi-person me-1"></i>
+              내 프로필
             </a>
           </li>
           <li class="mb-2">
             <a href="/posts/my-posts" class="text-decoration-none">
-              <i class="bi bi-file-earmark-text me-1"></i>내 게시물
+              <i class="bi bi-file-earmark-text me-1"></i>
+              내 게시물
             </a>
           </li>
           <li>
             <a href="/auth/logout" class="text-decoration-none">
-              <i class="bi bi-box-arrow-right me-1"></i>로그아웃
+              <i class="bi bi-box-arrow-right me-1"></i>
+              로그아웃
             </a>
           </li>
           <% } else { %>
           <li class="mb-2">
             <a href="/auth/login" class="text-decoration-none">
-              <i class="bi bi-box-arrow-in-right me-1"></i>로그인
+              <i class="bi bi-box-arrow-in-right me-1"></i>
+              로그인
             </a>
           </li>
           <li>
             <a href="/auth/register" class="text-decoration-none">
-              <i class="bi bi-person-plus me-1"></i>회원가입
+              <i class="bi bi-person-plus me-1"></i>
+              회원가입
             </a>
           </li>
           <% } %>
@@ -68,75 +68,18 @@
       </div>
       <div class="col-md-3">
         <h5 class="mb-3">소셜 미디어</h5>
-        <div class="d-flex gap-3">
-          <a
-            href="#"
-            target="_blank"
-            class="text-decoration-none fs-4"
-            title="GitHub"
-          >
+        <div class="d-flex justify-content-center gap-3">
+          <a href="#" target="_blank" class="text-decoration-none fs-4" title="GitHub">
             <i class="bi bi-github"></i>
           </a>
-          <a
-            href="#"
-            target="_blank"
-            class="text-decoration-none fs-4"
-            title="Twitter"
-          >
-            <i class="bi bi-twitter"></i>
-          </a>
-          <a
-            href="#"
-            target="_blank"
-            class="text-decoration-none fs-4"
-            title="Facebook"
-          >
-            <i class="bi bi-facebook"></i>
-          </a>
-          <a
-            href="#"
-            target="_blank"
-            class="text-decoration-none fs-4"
-            title="LinkedIn"
-          >
-            <i class="bi bi-linkedin"></i>
-          </a>
-          <a
-            href="#"
-            target="_blank"
-            class="text-decoration-none fs-4"
-            title="Instagram"
-          >
-            <i class="bi bi-instagram"></i>
-          </a>
-        </div>
-        <div class="mt-3">
-          <h6 class="mb-2">뉴스레터 구독</h6>
-          <form>
-            <div class="input-group">
-              <input
-                type="email"
-                class="form-control"
-                placeholder="이메일 주소"
-                aria-label="Newsletter email"
-              />
-              <button class="btn btn-primary" type="submit">구독</button>
-            </div>
-          </form>
         </div>
       </div>
     </div>
     <hr class="my-4" />
-    <div
-      class="d-flex flex-column flex-md-row justify-content-between align-items-center"
-    >
-      <p class="text-muted mb-3 mb-md-0">
-        © <%= new Date().getFullYear() %> MDBlog. All rights reserved.
-      </p>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <p class="text-muted mb-3 mb-md-0">© <%= new Date().getFullYear() %> MDBlog. All rights reserved.</p>
       <div>
-        <a href="#" class="text-decoration-none text-muted me-3"
-          >개인정보처리방침</a
-        >
+        <a href="#" class="text-decoration-none text-muted me-3">개인정보처리방침</a>
         <a href="#" class="text-decoration-none text-muted">이용약관</a>
       </div>
     </div>
