@@ -24,9 +24,7 @@
       <% posts.forEach(post => { %>
       <tr>
         <td>
-          <a href="/posts/<%= post._id %>" class="text-decoration-none">
-            <%= post.title %>
-          </a>
+          <a href="/posts/<%= post._id %>" class="text-decoration-none"> <%= post.title %> </a>
         </td>
         <td>
           <% if (post.category) { %>
@@ -36,8 +34,7 @@
           <% } %>
         </td>
         <td>
-          <% if (post.tags && post.tags.length > 0) { %> <%
-          post.tags.forEach(tag => { %>
+          <% if (post.tags && post.tags.length > 0) { %> <% post.tags.forEach(tag => { %>
           <span class="badge bg-secondary me-1">#<%= tag.name %></span>
           <% }) %> <% } else { %>
           <span class="text-muted">없음</span>
@@ -53,17 +50,13 @@
         <td><%= new Date(post.createdAt).toLocaleDateString() %></td>
         <td>
           <div class="btn-group btn-group-sm">
-            <a
-              href="/posts/<%= post._id %>/edit"
-              class="btn btn-outline-primary"
-            >
+            <a href="/posts/<%= post._id %>/edit" class="btn btn-outline-primary">
               <i class="bi bi-pencil-square"></i>
             </a>
             <button
               type="button"
               class="btn btn-outline-danger"
-              onclick="confirmDelete('<%= post._id %>', '<%= post.title %>')"
-            >
+              onclick="confirmDelete('<%= post._id %>', '<%= post.title %>')">
               <i class="bi bi-trash"></i>
             </button>
           </div>
@@ -85,22 +78,18 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">게시물 삭제 확인</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <p>정말로 "<span id="postTitle"></span>" 게시물을 삭제하시겠습니까?</p>
         <p class="text-danger">이 작업은 되돌릴 수 없습니다.</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          취소
-        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> 취소 </button>
         <form id="deleteForm" method="POST" style="display: inline">
+          <% if (typeof csrfToken !== 'undefined') { %>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <% } %>
           <button type="submit" class="btn btn-danger">삭제</button>
         </form>
       </div>

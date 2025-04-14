@@ -6,8 +6,7 @@
     <title>카테고리 관리 - MDBlog</title>
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-    />
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/css/categories.css" />
   </head>
   <body>
@@ -19,15 +18,12 @@
         <div class="category-form-container">
           <h3>새 카테고리 추가</h3>
           <form action="/categories" method="POST" class="category-form">
+            <% if (typeof csrfToken !== 'undefined') { %>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <% } %>
             <div class="form-group">
               <label for="name">카테고리명</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="카테고리명"
-                required
-              />
+              <input type="text" id="name" name="name" placeholder="카테고리명" required />
             </div>
 
             <div class="form-group">
@@ -35,9 +31,7 @@
               <select name="parent" id="parent">
                 <option value="">최상위 카테고리로 생성</option>
                 <% allCategories.forEach(category => { %>
-                <option value="<%= category._id %>">
-                  <%= category.name %>
-                </option>
+                <option value="<%= category._id %>"> <%= category.name %> </option>
                 <% }); %>
               </select>
             </div>
@@ -51,8 +45,7 @@
           <h3>카테고리 목록</h3>
           <% if (categories && categories.length > 0) { %>
           <ul class="category-tree">
-            <%- include('_category_tree', { categories: categories, depth: 0 })
-            %>
+            <%- include('_category_tree', { categories: categories, depth: 0 }) %>
           </ul>
           <% } else { %>
           <p>등록된 카테고리가 없습니다.</p>
@@ -69,6 +62,9 @@
           <h3>카테고리 수정</h3>
           <form action="/categories/update" method="POST" id="editCategoryForm">
             <input type="hidden" id="editCategoryId" name="id" />
+            <% if (typeof csrfToken !== 'undefined') { %>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <% } %>
             <div class="form-group">
               <label for="editName">카테고리명</label>
               <input type="text" id="editName" name="name" required />
@@ -78,9 +74,7 @@
               <select name="parent" id="editParent">
                 <option value="">최상위 카테고리로 설정</option>
                 <% allCategories.forEach(category => { %>
-                <option value="<%= category._id %>">
-                  <%= category.name %>
-                </option>
+                <option value="<%= category._id %>"> <%= category.name %> </option>
                 <% }); %>
               </select>
             </div>
@@ -127,6 +121,59 @@
               });
 
             modal.style.display = "block";
+          });
+        });
+
+        // 삭제 폼에 CSRF 토큰 추가 (프로덕션 환경에서만 필요함)
+        const deleteForms = document.querySelectorAll('.delete-category-form');
+        <% if (typeof csrfToken !== 'undefined') { %>
+        deleteForms.forEach(form => {
+          const csrfInput = document.createElement('input');
+          csrfInput.type = 'hidden';
+          csrfInput.name = '_csrf';
+          csrfInput.value = '<%= csrfToken %>';
+          form.appendChild(csrfInput);
+        });
+        <% } %>
+
+        // AJAX로 삭제 요청 처리
+        deleteForms.forEach(form => {
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (confirm('정말 이 카테고리를 삭제하시겠습니까? 이 카테고리를 사용하는 게시물이 있거나 하위 카테고리가 있으면 삭제할 수 없습니다.')) {
+              const formUrl = this.getAttribute('action');
+
+              fetch(formUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  <% if (typeof csrfToken !== 'undefined') { %>
+                  'CSRF-Token': '<%= csrfToken %>'
+                  <% } %>
+                },
+                credentials: 'same-origin'
+              })
+              .then(response => {
+                if (response.redirected) {
+                  window.location.href = response.url;
+                } else {
+                  return response.json();
+                }
+              })
+              .then(data => {
+                if (data && data.error) {
+                  alert(data.error);
+                } else if (data && data.success) {
+                  alert(data.success);
+                  location.reload();
+                }
+              })
+              .catch(error => {
+                console.error('카테고리 삭제 오류:', error);
+                alert('카테고리 삭제 중 오류가 발생했습니다.');
+              });
+            }
           });
         });
       });

@@ -7,12 +7,11 @@
     currentUser.role === 'admin')) { %>
     <div class="btn-group">
       <a href="/posts/<%= post._id %>/edit" class="btn btn-sm btn-outline-primary">수정</a>
-      <form
-        action="/posts/<%= post._id %>/delete"
-        method="POST"
-        class="d-inline"
-        onsubmit="return confirm('정말 삭제하시겠습니까?');">
-        <button type="submit" class="btn btn-sm btn-outline-danger">삭제</button>
+      <form action="/posts/<%= post._id %>/delete" method="POST" class="d-inline delete-form">
+        <% if (typeof csrfToken !== 'undefined') { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <% } %>
+        <button type="submit" class="btn btn-sm btn-outline-danger delete-btn">삭제</button>
       </form>
     </div>
     <% } %>
@@ -99,11 +98,15 @@
 
           <% if (locals.currentUser && comment.author && (currentUser._id == comment.author._id ||
           currentUser.role === 'admin')) { %>
-          <form
-            action="/posts/<%= post._id %>/comments/<%= comment._id %>/delete"
-            method="POST"
-            onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
-            <button type="submit" class="btn btn-sm text-danger" title="삭제">
+          <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/delete" method="POST">
+            <% if (typeof csrfToken !== 'undefined') { %>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <% } %>
+            <button
+              type="submit"
+              class="btn btn-sm text-danger"
+              title="삭제"
+              onclick="return confirm('댓글을 삭제하시겠습니까?');">
               <i class="bi bi-x-circle"></i> 삭제
             </button>
           </form>
@@ -120,6 +123,7 @@
     <!-- 댓글 작성 폼 -->
     <% if (locals.currentUser) { %>
     <form action="/posts/<%= post._id %>/comments" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div class="mb-3">
         <label for="content" class="form-label">댓글 작성</label>
         <textarea name="content" id="content" rows="3" class="form-control" required></textarea>
@@ -137,3 +141,18 @@
 <div class="mb-4">
   <a href="/posts" class="btn btn-secondary">목록으로</a>
 </div>
+
+<script>
+  // 삭제 폼에 이벤트 리스너 추가
+  document.addEventListener("DOMContentLoaded", function () {
+    const deleteForm = document.querySelector(".delete-form");
+    if (deleteForm) {
+      deleteForm.addEventListener("submit", function (event) {
+        event.preventDefault(); // 폼 제출 일시 중지
+        if (confirm("정말 삭제하시겠습니까?")) {
+          this.submit(); // 사용자가 확인을 누르면 폼 제출
+        }
+      });
+    }
+  });
+</script>

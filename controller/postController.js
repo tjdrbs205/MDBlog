@@ -385,7 +385,8 @@ exports.deletePost = async (req, res) => {
     throw error;
   }
 
-  await post.delete();
+  // post.delete() 대신 findByIdAndDelete 사용
+  await Post.findByIdAndDelete(post._id);
 
   req.flash("success", "게시물이 성공적으로 삭제되었습니다.");
   res.redirect("/posts");
@@ -454,8 +455,8 @@ exports.deleteComment = async (req, res) => {
     throw error;
   }
 
-  // 댓글 삭제
-  comment.remove();
+  // 댓글 삭제 - pull 메소드를 사용하여 배열에서 댓글 제거
+  post.comments.pull({ _id: commentId });
   await post.save();
 
   res.redirect(`/posts/${postId}#comments`);

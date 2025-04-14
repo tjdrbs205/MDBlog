@@ -4,16 +4,13 @@
   </div>
   <div class="card-body">
     <form action="/posts" method="POST">
+      <!-- CSRF 토큰 -->
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
       <!-- 제목 -->
       <div class="mb-3">
         <label for="title" class="form-label">제목</label>
-        <input
-          type="text"
-          class="form-control"
-          id="title"
-          name="title"
-          required
-        />
+        <input type="text" class="form-control" id="title" name="title" required />
       </div>
 
       <!-- 카테고리 -->
@@ -21,8 +18,7 @@
         <label for="category" class="form-label">카테고리</label>
         <select class="form-select" id="category" name="category">
           <option value="">카테고리 선택</option>
-          <% if (categories && categories.length > 0) { %> <%
-          categories.forEach(cat => { %>
+          <% if (categories && categories.length > 0) { %> <% categories.forEach(cat => { %>
           <option value="<%= cat._id %>"><%= cat.name %></option>
           <% }); %> <% } %>
         </select>
@@ -37,24 +33,19 @@
             class="form-control"
             id="tags"
             name="tags"
-            placeholder="쉼표로 구분하여 입력 (예: Node.js, MongoDB, Express)"
-          />
+            placeholder="쉼표로 구분하여 입력 (예: Node.js, MongoDB, Express)" />
           <% if (tags && tags.length > 0) { %>
           <button
             class="btn btn-outline-secondary dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
+            aria-expanded="false">
             태그 목록
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <% tags.forEach(tag => { %>
             <li>
-              <a
-                class="dropdown-item tag-item"
-                href="#"
-                data-tag="<%= tag.name %>"
+              <a class="dropdown-item tag-item" href="#" data-tag="<%= tag.name %>"
                 ><%= tag.name %></a
               >
             </li>
@@ -62,9 +53,7 @@
           </ul>
           <% } %>
         </div>
-        <div class="form-text">
-          쉼표로 구분하여 여러 태그를 입력할 수 있습니다.
-        </div>
+        <div class="form-text"> 쉼표로 구분하여 여러 태그를 입력할 수 있습니다. </div>
       </div>
 
       <!-- 공개 여부 -->
@@ -77,8 +66,7 @@
             name="isPublic"
             id="isPublicYes"
             value="true"
-            checked
-          />
+            checked />
           <label class="form-check-label" for="isPublicYes">공개</label>
         </div>
         <div class="form-check">
@@ -87,8 +75,7 @@
             type="radio"
             name="isPublic"
             id="isPublicNo"
-            value="false"
-          />
+            value="false" />
           <label class="form-check-label" for="isPublicNo">비공개</label>
         </div>
       </div>
@@ -105,13 +92,7 @@
       <!-- 내용 -->
       <div class="mb-3">
         <label for="content" class="form-label">내용</label>
-        <textarea
-          class="form-control"
-          id="content"
-          name="content"
-          rows="10"
-          required
-        ></textarea>
+        <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
       </div>
 
       <!-- 버튼 -->

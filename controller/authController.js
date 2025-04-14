@@ -125,13 +125,22 @@ exports.login = async (req, res) => {
     req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
   }
 
-  req.flash("success", `${user.username}님, 환영합니다!`);
+  // 세션이 저장된 후에 리다이렉트 처리
+  req.session.save((err) => {
+    if (err) {
+      console.error("세션 저장 중 오류 발생:", err);
+      req.flash("error", "로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+      return res.redirect("/auth/login");
+    }
 
-  // 이전 페이지가 있다면 해당 페이지로, 없으면 홈으로 리다이렉트
-  const redirectUrl = req.session.returnTo || "/";
-  delete req.session.returnTo;
+    req.flash("success", `${user.username}님, 환영합니다!`);
 
-  res.redirect(redirectUrl);
+    // 이전 페이지가 있다면 해당 페이지로, 없으면 홈으로 리다이렉트
+    const redirectUrl = req.session.returnTo || "/";
+    delete req.session.returnTo;
+
+    res.redirect(redirectUrl);
+  });
 };
 
 /**
@@ -177,20 +186,14 @@ exports.forgotPassword = async (req, res) => {
 
   // 사용자가 없어도 보안을 위해 성공 메시지 표시 (이메일이 존재하는지 여부를 노출하지 않기 위함)
   if (!user) {
-    req.flash(
-      "success",
-      "비밀번호 재설정 안내 이메일이 발송되었습니다. 이메일을 확인해주세요."
-    );
+    req.flash("success", "비밀번호 재설정 안내 이메일이 발송되었습니다. 이메일을 확인해주세요.");
     return res.redirect("/auth/login");
   }
 
   // TODO: 비밀번호 재설정 토큰 생성 및 이메일 발송 로직 구현
   // 현재는 실제 이메일 발송 없이 성공 메시지만 표시
 
-  req.flash(
-    "success",
-    "비밀번호 재설정 안내 이메일이 발송되었습니다. 이메일을 확인해주세요."
-  );
+  req.flash("success", "비밀번호 재설정 안내 이메일이 발송되었습니다. 이메일을 확인해주세요.");
   res.redirect("/auth/login");
 };
 
@@ -273,8 +276,17 @@ exports.updateProfile = async (req, res) => {
     role: user.role,
   };
 
-  req.flash("success", "프로필이 성공적으로 업데이트되었습니다.");
-  res.redirect("/auth/profile");
+  // 세션이 저장된 후에 리다이렉트 처리
+  req.session.save((err) => {
+    if (err) {
+      console.error("세션 저장 중 오류 발생:", err);
+      req.flash("error", "프로필 업데이트 중 오류가 발생했습니다. 다시 시도해주세요.");
+      return res.redirect("/auth/profile");
+    }
+
+    req.flash("success", "프로필이 성공적으로 업데이트되었습니다.");
+    res.redirect("/auth/profile");
+  });
 };
 
 /**
@@ -328,6 +340,15 @@ exports.changePassword = async (req, res) => {
   user.password = newPassword;
   await user.save();
 
-  req.flash("success", "비밀번호가 성공적으로 변경되었습니다.");
-  res.redirect("/auth/profile");
+  // 세션이 저장된 후에 리다이렉트 처리
+  req.session.save((err) => {
+    if (err) {
+      console.error("세션 저장 중 오류 발생:", err);
+      req.flash("error", "비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.");
+      return res.redirect("/auth/change-password");
+    }
+
+    req.flash("success", "비밀번호가 성공적으로 변경되었습니다.");
+    res.redirect("/auth/profile");
+  });
 };

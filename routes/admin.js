@@ -16,6 +16,9 @@ router.get("/users", asyncHandler(adminController.listUsers));
 // POST /admin/users/role - 사용자 역할 변경 (관리자용)
 router.post("/users/role", asyncHandler(adminController.changeUserRole));
 
+// POST /admin/users/:id/delete - 사용자 삭제 (관리자용)
+router.post("/users/:id/delete", asyncHandler(adminController.deleteUser));
+
 // GET /admin/content - 통합 콘텐츠 관리 페이지 (카테고리, 태그, 메뉴)
 router.get("/content", asyncHandler(adminController.contentManagement));
 

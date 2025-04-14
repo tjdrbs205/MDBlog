@@ -1,5 +1,8 @@
 // 통계 대시보드용 JavaScript 파일
 document.addEventListener("DOMContentLoaded", function () {
+  // CSRF 토큰 가져오기
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
   // hidden input 필드에서 차트 데이터 가져오기
   const chartDataElement = document.getElementById("chartDataJSON");
   let chartData;
@@ -187,7 +190,11 @@ document.addEventListener("DOMContentLoaded", function () {
     buttonEl.classList.add("active");
 
     // AJAX로 서버에 데이터 요청
-    fetch(`/admin/stats/chart-data?period=${period}`)
+    fetch(`/admin/stats/chart-data?period=${period}`, {
+      headers: {
+        "CSRF-Token": csrfToken,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         // 차트 데이터 업데이트
@@ -201,7 +208,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 활성 방문자 데이터 가져오기
   function fetchActiveVisitors() {
-    fetch("/admin/stats/active-visitors")
+    fetch("/admin/stats/active-visitors", {
+      headers: {
+        "CSRF-Token": csrfToken,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         // 활성 방문자 수 업데이트

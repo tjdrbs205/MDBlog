@@ -29,3 +29,16 @@ exports.filter = async (req, res) => {
     posts,
   });
 };
+
+exports.delete = async (req, res) => {
+  const tagId = req.params.id;
+
+  // 해당 태그를 사용하는 게시물에서 태그 제거
+  await Post.updateMany({ tags: tagId }, { $pull: { tags: tagId } });
+
+  // 태그 삭제
+  await Tag.findByIdAndDelete(tagId);
+
+  req.flash("success", "태그가 삭제되었습니다.");
+  res.redirect("/tags");
+};

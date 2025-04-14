@@ -36,19 +36,20 @@ h3 {
   font-size: 1.3rem;
 }
 
-.category-tree {
+/* 카테고리 관리 페이지에만 적용되는 카테고리 트리 스타일 */
+.category-list-container .category-tree {
   list-style: none;
   padding-left: 0;
 }
 
-.category-tree ul {
+.category-list-container .category-tree ul {
   list-style: none;
   padding-left: 1.5rem;
   border-left: 2px solid #e9ecef;
   margin-left: 0.5rem;
 }
 
-.category-item {
+.category-list-container .category-item {
   margin: 0.5rem 0;
   padding: 0.8rem;
   border-radius: 6px;
@@ -60,7 +61,7 @@ h3 {
   transition: all 0.2s ease;
 }
 
-.category-item:hover {
+.category-list-container .category-item:hover {
   background-color: #e9ecef;
 }
 

@@ -22,18 +22,8 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "cdn.jsdelivr.net",
-          "code.jquery.com",
-        ],
-        styleSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "cdn.jsdelivr.net",
-          "fonts.googleapis.com",
-        ],
+        scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "code.jquery.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com"],
         fontSrc: ["'self'", "fonts.gstatic.com", "cdn.jsdelivr.net"],
         imgSrc: ["'self'", "data:", "cdn.jsdelivr.net", "*.unsplash.com"],
         connectSrc: ["'self'"],
@@ -56,6 +46,7 @@ app.use(
       maxAge: 1000 * 60 * 60,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // CSRF 공격 방지를 위한 sameSite 설정 추가
     },
   })
 );
@@ -77,13 +68,29 @@ app.use((req, res, next) => {
 });
 
 // CSRF 보호 설정
-if (process.env.NODE_ENV === "production") {
-  app.use(csrf({ cookie: true }));
-  app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken();
-    next();
-  });
-}
+app.use(
+  csrf({
+    cookie: true,
+    ignoreMethods: ["GET", "HEAD", "OPTIONS"], // GET, HEAD, OPTIONS 메서드는 CSRF 검사 제외
+  })
+);
+
+// CSRF 에러 처리 미들웨어 추가
+app.use((err, req, res, next) => {
+  if (err.code === "EBADCSRFTOKEN") {
+    req.flash(
+      "error",
+      "CSRF 보안 토큰이 유효하지 않습니다. 페이지를 새로고침한 후 다시 시도해주세요."
+    );
+    return res.redirect("back");
+  }
+  next(err);
+});
+
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 // 사용자 정의 미들웨어
 const menuLoader = require("./middlewares/menuLoader");

@@ -59,15 +59,42 @@
               <td><a href="/posts/<%= post._id %>"><%= post.title %></a></td>
               <td><%= post.author.username %></td>
               <td><%= new Date(post.createdAt).toLocaleDateString() %></td>
-              <td><%= post.views %></td>
+              <td><%= post.view %></td>
               <td class="action-buttons">
-                <a href="/posts/edit/<%= post._id %>" class="btn btn-sm btn-edit">수정</a>
+                <a
+                  href="/posts/edit/<%= post._id %>"
+                  class="btn btn-sm btn-edit"
+                  style="
+                    background-color: #007bff;
+                    color: white;
+                    padding: 0.25rem 0.5rem;
+                    text-decoration: none;
+                    border-radius: 0.25rem;
+                    display: inline-block;
+                  "
+                  >수정</a
+                >
                 <form
-                  action="/posts/<%= post._id %>?_method=DELETE"
+                  action="/posts/<%= post._id %>/delete"
                   method="POST"
-                  class="inline-form"
-                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                  <button type="submit" class="btn btn-sm btn-delete"> 삭제 </button>
+                  class="inline-form delete-post-form"
+                  onsubmit="return confirm('정말 이 게시물을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                  <% if (typeof csrfToken !== 'undefined') { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <% } %>
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-delete"
+                    style="
+                      background-color: #dc3545;
+                      color: white;
+                      padding: 0.25rem 0.5rem;
+                      border: none;
+                      border-radius: 0.25rem;
+                      cursor: pointer;
+                    ">
+                    삭제
+                  </button>
                 </form>
               </td>
             </tr>
@@ -105,13 +132,40 @@
                 </span>
               </td>
               <td class="action-buttons">
-                <a href="/admin/users/edit/<%= user._id %>" class="btn btn-sm btn-edit">수정</a>
+                <a
+                  href="/admin/users/edit/<%= user._id %>"
+                  class="btn btn-sm btn-edit"
+                  style="
+                    background-color: #007bff;
+                    color: white;
+                    padding: 0.25rem 0.5rem;
+                    text-decoration: none;
+                    border-radius: 0.25rem;
+                    display: inline-block;
+                  "
+                  >수정</a
+                >
                 <form
-                  action="/admin/users/<%= user._id %>?_method=DELETE"
+                  action="/admin/users/<%= user._id %>/delete"
                   method="POST"
-                  class="inline-form"
-                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                  <button type="submit" class="btn btn-sm btn-delete"> 삭제 </button>
+                  class="inline-form delete-user-form"
+                  onsubmit="return confirm('정말 이 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                  <% if (typeof csrfToken !== 'undefined') { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <% } %>
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-delete"
+                    style="
+                      background-color: #dc3545;
+                      color: white;
+                      padding: 0.25rem 0.5rem;
+                      border: none;
+                      border-radius: 0.25rem;
+                      cursor: pointer;
+                    ">
+                    삭제
+                  </button>
                 </form>
               </td>
             </tr>
@@ -146,3 +200,32 @@
     </div>
   </div>
 </div>
+
+<!-- 삭제 확인 스크립트 -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 게시물 삭제 폼에 이벤트 리스너 추가
+    document.querySelectorAll(".delete-post-form").forEach((form) => {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault(); // 폼 제출 일시 중지
+
+        // 사용자에게 확인 요청
+        if (confirm("정말 이 게시물을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+          this.submit(); // 사용자가 확인을 클릭하면 폼 제출
+        }
+      });
+    });
+
+    // 사용자 삭제 폼에 이벤트 리스너 추가
+    document.querySelectorAll(".delete-user-form").forEach((form) => {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault(); // 폼 제출 일시 중지
+
+        // 사용자에게 확인 요청
+        if (confirm("정말 이 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+          this.submit(); // 사용자가 확인을 클릭하면 폼 제출
+        }
+      });
+    });
+  });
+</script>
