@@ -74,24 +74,36 @@ app.use((req, res, next) => {
 });
 
 // CSRF 보호 설정
+// CSRF 검증에서 제외할 경로들
+const csrfExcludedPaths = [
+  { path: "/admin/settings/profile-image", method: "POST" },
+  { path: "/auth/profile/image", method: "POST" },
+  { path: "/auth/profile/image/delete", method: "GET" },
+];
+
+// CSRF 미들웨어 설정
+const csrfProtection = csrf({ cookie: true });
+
+// CSRF 미들웨어를 조건부로 적용
 app.use((req, res, next) => {
-  // 프로필 이미지 업로드 경로는 CSRF 검증에서 제외
-  if (req.path === "/admin/settings/profile-image" && req.method === "POST") {
+  // 현재 요청이 CSRF 검증에서 제외되어야 하는지 확인
+  const shouldExclude = csrfExcludedPaths.some((item) => item.path === req.path && item.method === req.method);
+
+  if (shouldExclude) {
     return next();
   }
 
   // 다른 모든 경로는 CSRF 검증 적용
-  csrf({ cookie: true })(req, res, next);
+  csrfProtection(req, res, next);
 });
 
 // CSRF 토큰을 locals에 추가
 app.use((req, res, next) => {
-  // 프로필 이미지 업로드 경로가 아닌 경우에만 csrfToken 생성
-  if (!(req.path === "/admin/settings/profile-image" && req.method === "POST")) {
+  if (req.csrfToken) {
     try {
       res.locals.csrfToken = req.csrfToken();
     } catch (err) {
-      // csrfToken을 생성할 수 없는 경우 (예: 이미 응답이 전송된 경우) 오류 무시
+      // csrfToken을 생성할 수 없는 경우 오류 무시
       console.log("CSRF 토큰 생성 오류 (무시됨):", err.message);
     }
   }

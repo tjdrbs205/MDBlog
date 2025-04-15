@@ -49,10 +49,7 @@ exports.listPosts = async (req, res) => {
     Post.countDocuments(filter),
     Category.find().sort({ order: 1 }),
     Tag.find().sort({ name: 1 }),
-    Post.find({ isPublic: true })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("title createdAt featuredImage"),
+    Post.find({ isPublic: true }).sort({ createdAt: -1 }).limit(5).select("title createdAt featuredImage"),
   ]);
 
   // 카테고리별 게시물 수 계산
@@ -107,10 +104,7 @@ exports.listPosts = async (req, res) => {
 exports.getMyPosts = async (req, res) => {
   // 데이터 병렬 로드
   const [posts, categories, tags] = await Promise.all([
-    Post.find({ author: req.user._id })
-      .sort({ createdAt: -1 })
-      .populate("category", "name")
-      .populate("tags", "name"),
+    Post.find({ author: req.user._id }).sort({ createdAt: -1 }).populate("category", "name").populate("tags", "name"),
     Category.find().sort({ name: 1 }), // 사이드바용 카테고리
     Tag.find().sort({ name: 1 }), // 사이드바용 태그
   ]);
@@ -128,10 +122,7 @@ exports.getMyPosts = async (req, res) => {
  * 게시물 작성 폼 렌더링
  */
 exports.renderNewForm = async (req, res) => {
-  const [categories, tags] = await Promise.all([
-    Category.find().sort({ name: 1 }),
-    Tag.find().sort({ name: 1 }),
-  ]);
+  const [categories, tags] = await Promise.all([Category.find().sort({ name: 1 }), Tag.find().sort({ name: 1 })]);
 
   res.render("layouts/main", {
     title: "새 게시물 작성",
@@ -234,10 +225,7 @@ exports.getPostDetail = async (req, res) => {
   const promises = [
     Category.find().sort({ name: 1 }),
     Tag.find().sort({ name: 1 }),
-    Post.find({ isPublic: true })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("title createdAt featuredImage"),
+    Post.find({ isPublic: true }).sort({ createdAt: -1 }).limit(5).select("title createdAt featuredImage"),
   ];
 
   // 관련 게시물 조회 조건 추가
@@ -389,6 +377,25 @@ exports.deletePost = async (req, res) => {
   await Post.findByIdAndDelete(post._id);
 
   req.flash("success", "게시물이 성공적으로 삭제되었습니다.");
+
+  // 요청 출처 확인 - 폼에서 전송된 source 필드 확인
+  const source = req.body.source;
+
+  if (source === "admin") {
+    return res.redirect("/admin/posts");
+  }
+
+  if (source === "my-posts") {
+    return res.redirect("/posts/my-posts");
+  }
+
+  // 내 게시물 목록에서의 요청인 경우 (이전 방식도 유지)
+  const referer = req.get("referer") || "";
+  if (referer.includes("/posts/my-posts")) {
+    return res.redirect("/posts/my-posts");
+  }
+
+  // 기본 경로 (일반 게시물 목록)
   res.redirect("/posts");
 };
 
@@ -503,10 +510,7 @@ exports.listPopularPosts = async (req, res) => {
     Post.countDocuments(filter),
     Category.find().sort({ order: 1 }),
     Tag.find().sort({ name: 1 }),
-    Post.find({ isPublic: true })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("title createdAt featuredImage"),
+    Post.find({ isPublic: true }).sort({ createdAt: -1 }).limit(5).select("title createdAt featuredImage"),
   ]);
 
   // 카테고리별 게시물 수 계산
@@ -612,10 +616,7 @@ exports.getArchive = async (req, res) => {
   const [categories, tags, recentPosts] = await Promise.all([
     Category.find().sort({ order: 1 }),
     Tag.find().sort({ name: 1 }),
-    Post.find({ isPublic: true })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("title createdAt featuredImage"),
+    Post.find({ isPublic: true }).sort({ createdAt: -1 }).limit(5).select("title createdAt featuredImage"),
   ]);
 
   res.render("layouts/main", {

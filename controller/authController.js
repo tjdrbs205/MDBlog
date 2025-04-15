@@ -111,6 +111,10 @@ exports.login = async (req, res) => {
     });
   }
 
+  // 마지막 로그인 시간 업데이트
+  user.lastLogin = new Date();
+  await user.save();
+
   // 세션에 사용자 정보 저장
   req.session.user = {
     _id: user._id,
@@ -201,7 +205,13 @@ exports.forgotPassword = async (req, res) => {
  * 프로필 페이지 렌더링
  */
 exports.renderProfile = async (req, res) => {
-  const user = await User.findById(req.user._id);
+  const Post = require("../models/Post"); // Post 모델 가져오기
+
+  // 사용자 정보와 작성한 글 수를 병렬로 조회
+  const [user, postCount] = await Promise.all([
+    User.findById(req.user._id),
+    Post.countDocuments({ author: req.user._id }),
+  ]);
 
   if (!user) {
     const error = new Error("사용자를 찾을 수 없습니다");
@@ -212,6 +222,8 @@ exports.renderProfile = async (req, res) => {
   res.render("layouts/main", {
     title: "내 프로필",
     user,
+    postCount, // 작성한 글 수 전달
+    lastLogin: user.lastLogin, // 마지막 로그인 시간 전달
     contentView: "auth/profile", // 경로 수정 (../auth/profile -> auth/profile)
   });
 };

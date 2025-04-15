@@ -67,7 +67,7 @@
                   style="background-color: #007bff; color: white; padding: 0.25rem 0.5rem; text-decoration: none; border-radius: 0.25rem; display: inline-block">
                   수정
                 </a>
-                <form action="/posts/<%= post._id %>/delete" method="POST" class="inline-form" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <form action="/admin/posts/<%= post._id %>/delete" method="POST" class="inline-form" onsubmit="return confirm('정말 삭제하시겠습니까?');">
                   <% if (typeof csrfToken !== 'undefined') { %>
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <% } %>

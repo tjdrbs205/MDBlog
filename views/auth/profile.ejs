@@ -22,45 +22,44 @@
       <div class="row mb-4">
         <div class="col-md-3 text-center">
           <img
-            src="/images/default-profile.png"
+            src="<%= user.profileImage && (user.profileImage.startsWith('http') || user.profileImage.startsWith('/uploads/')) ? user.profileImage : '/images/default-profile.png' %>"
             alt="Profile"
-            class="img-thumbnail rounded-circle mb-3"
+            class="img-thumbnail rounded-circle mb-3 profile-preview"
             style="width: 150px; height: 150px; object-fit: cover"
-          />
-          <!-- 향후 프로필 이미지 업로드 기능 추가 예정 -->
-          <div class="small text-muted">프로필 이미지</div>
+            onerror="this.src='/images/default-profile.png'" />
+
+          <!-- 프로필 이미지 관리 영역 (별도 폼으로 분리) -->
+          <div class="profile-image-controls">
+            <!-- 이미지 업로드 버튼 (폼 태그 밖으로 이동) -->
+            <div class="mb-2">
+              <a href="#" class="btn btn-sm btn-primary w-100" id="uploadImageBtn">
+                <i class="bi bi-upload me-1"></i>
+                이미지 업로드
+              </a>
+            </div>
+            <% if (user.profileImage && user.profileImage !== '/images/default-profile.png') { %>
+            <a href="/auth/profile/image/delete" class="btn btn-sm btn-outline-danger w-100" onclick="return confirm('프로필 이미지를 삭제하시겠습니까?')">
+              <i class="bi bi-trash me-1"></i>
+              이미지 삭제
+            </a>
+            <% } %>
+          </div>
         </div>
 
         <div class="col-md-9">
           <div class="mb-3">
             <label for="username" class="form-label">사용자 이름</label>
-            <input
-              type="text"
-              class="form-control"
-              id="username"
-              name="username"
-              value="<%= user.username %>"
-              required
-            />
+            <input type="text" class="form-control" id="username" name="username" value="<%= user.username %>" required />
           </div>
 
           <div class="mb-3">
             <label for="email" class="form-label">이메일</label>
-            <input
-              type="email"
-              class="form-control"
-              id="email"
-              name="email"
-              value="<%= user.email %>"
-              required
-            />
+            <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required />
           </div>
 
           <div class="mb-3">
             <label for="bio" class="form-label">소개</label>
-            <textarea class="form-control" id="bio" name="bio" rows="3">
-<%= user.bio || '' %></textarea
-            >
+            <textarea class="form-control" id="bio" name="bio" rows="3"><%= user.bio || '' %></textarea>
             <div class="form-text">자신을 소개하는 짧은 글을 작성해보세요.</div>
           </div>
         </div>
@@ -68,12 +67,22 @@
 
       <div class="d-flex justify-content-between">
         <a href="/auth/change-password" class="btn btn-outline-secondary">
-          <i class="bi bi-key me-1"></i>비밀번호 변경
+          <i class="bi bi-key me-1"></i>
+          비밀번호 변경
         </a>
         <button type="submit" class="btn btn-primary">
-          <i class="bi bi-save me-1"></i>프로필 저장
+          <i class="bi bi-save me-1"></i>
+          프로필 저장
         </button>
       </div>
+    </form>
+
+    <!-- 이미지 업로드를 위한 별도의 숨겨진 폼 -->
+    <form id="imageUploadForm" action="/auth/profile/image" method="POST" enctype="multipart/form-data" style="display: none">
+      <% if (typeof csrfToken !== 'undefined') { %>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <% } %>
+      <input type="file" name="profileImage" id="profileImageUpload" accept="image/*" />
     </form>
   </div>
 </div>
@@ -86,24 +95,55 @@
     <div class="row">
       <div class="col-md-6">
         <p>
-          <strong>가입일:</strong> <%= new
-          Date(user.createdAt).toLocaleDateString() %>
+          <strong>가입일:</strong>
+          <%= new Date(user.createdAt).toLocaleDateString() %>
         </p>
         <p>
-          <strong>마지막 로그인:</strong> <%= user.lastLogin ? new
-          Date(user.lastLogin).toLocaleDateString() : '정보 없음' %>
+          <strong>마지막 로그인:</strong>
+          <%= lastLogin ? new Date(lastLogin).toLocaleDateString() : '정보 없음' %>
         </p>
       </div>
       <div class="col-md-6">
         <p>
-          <strong>계정 유형:</strong> <%= user.role === 'admin' ? '관리자' :
-          '일반 사용자' %>
+          <strong>계정 유형:</strong>
+          <%= user.role === 'admin' ? '관리자' : '일반 사용자' %>
         </p>
         <p>
           <strong>작성한 글:</strong>
-          <a href="/posts/my-posts"><%= user.postCount || 0 %>개의 게시물</a>
+          <a href="/posts/my-posts"><%= postCount || 0 %>개의 게시물</a>
         </p>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  // 이미지 미리보기 및 업로드 스크립트
+  document.addEventListener("DOMContentLoaded", function () {
+    const imageUploadForm = document.getElementById("imageUploadForm");
+    const profileImageUpload = document.getElementById("profileImageUpload");
+    const uploadImageBtn = document.getElementById("uploadImageBtn");
+
+    // 이미지 업로드 버튼 클릭 시 파일 선택 창 열기
+    uploadImageBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      profileImageUpload.click();
+    });
+
+    // 파일 선택 완료 시 자동으로 폼 제출
+    profileImageUpload.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        // 이미지 미리보기
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.querySelector(".profile-preview").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        // 폼 자동 제출
+        imageUploadForm.submit();
+      }
+    });
+  });
+</script>

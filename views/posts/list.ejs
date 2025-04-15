@@ -128,11 +128,15 @@
         </ul>
       </nav>
       
-      <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+      <% if (locals.currentUser && currentUser.role === 'admin') { %>
+        <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+      <% } %>
     </div>
   <% } else { %>
     <div class="d-flex justify-content-end mt-3">
-      <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+      <% if (locals.currentUser && currentUser.role === 'admin') { %>
+        <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+      <% } %>
     </div>
   <% } %>
 <% } else { %>
@@ -141,6 +145,8 @@
   </div>
   
   <div class="d-flex justify-content-end mt-3">
-    <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+    <% if (locals.currentUser && currentUser.role === 'admin') { %>
+      <a href="/posts/new" class="btn btn-primary">새 글 작성</a>
+    <% } %>
   </div>
 <% } %>

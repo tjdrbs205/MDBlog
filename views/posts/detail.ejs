@@ -3,12 +3,13 @@
   <div class="card-header d-flex justify-content-between align-items-center">
     <h2 class="mb-0"><%= post.title %></h2>
 
-    <% if (locals.currentUser && post.author && (currentUser._id == post.author._id ||
-    currentUser.role === 'admin')) { %>
+    <% if (locals.currentUser && post.author && (currentUser._id == post.author._id || currentUser.role === 'admin')) { %>
     <div class="btn-group">
       <a href="/posts/<%= post._id %>/edit" class="btn btn-sm btn-outline-primary">수정</a>
       <form action="/posts/<%= post._id %>/delete" method="POST" class="d-inline delete-form">
+        <% if (typeof csrfToken !== 'undefined') { %>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <% } %>
         <button type="submit" class="btn btn-sm btn-outline-danger delete-btn">삭제</button>
       </form>
     </div>
@@ -20,11 +21,9 @@
       <% if (post.author) { %>
       <span class="me-3">작성자: <%= post.author.username %></span>
       <% } %> <% if (post.category) { %>
-      <span class="me-3"
-        >카테고리:
-        <a href="/posts?category=<%= post.category._id %>" class="text-decoration-none">
-          <%= post.category.name %>
-        </a>
+      <span class="me-3">
+        카테고리:
+        <a href="/posts?category=<%= post.category._id %>" class="text-decoration-none"><%= post.category.name %></a>
       </span>
       <% } %>
 
@@ -39,9 +38,7 @@
     <% if (post.tags && post.tags.length > 0) { %>
     <div class="post-tags mb-3">
       <% post.tags.forEach(tag => { %>
-      <a href="/posts?tag=<%= tag._id %>" class="badge bg-secondary text-decoration-none"
-        >#<%= tag.name %></a
-      >
+      <a href="/posts?tag=<%= tag._id %>" class="badge bg-secondary text-decoration-none">#<%= tag.name %></a>
       <% }) %>
     </div>
     <% } %>
@@ -60,12 +57,8 @@
     <ul class="list-group list-group-flush">
       <% relatedPosts.forEach(relatedPost => { %>
       <li class="list-group-item">
-        <a href="/posts/<%= relatedPost._id %>" class="text-decoration-none"
-          ><%= relatedPost.title %></a
-        >
-        <small class="text-muted ms-2"
-          ><%= new Date(relatedPost.createdAt).toLocaleDateString() %></small
-        >
+        <a href="/posts/<%= relatedPost._id %>" class="text-decoration-none"><%= relatedPost.title %></a>
+        <small class="text-muted ms-2"><%= new Date(relatedPost.createdAt).toLocaleDateString() %></small>
       </li>
       <% }) %>
     </ul>
@@ -85,25 +78,18 @@
       <div class="comment mb-3 pb-3 border-bottom">
         <div class="d-flex justify-content-between">
           <div>
-            <strong>
-              <% if (comment.author && comment.author.username) { %> <%= comment.author.username %>
-              <% } else { %> 익명 <% } %>
-            </strong>
-            <small class="text-muted ms-2"
-              ><%= new Date(comment.createdAt).toLocaleString() %></small
-            >
+            <strong><% if (comment.author && comment.author.username) { %> <%= comment.author.username %> <% } else { %> 익명 <% } %></strong>
+            <small class="text-muted ms-2"><%= new Date(comment.createdAt).toLocaleString() %></small>
           </div>
 
-          <% if (locals.currentUser && comment.author && (currentUser._id == comment.author._id ||
-          currentUser.role === 'admin')) { %>
+          <% if (locals.currentUser && comment.author && (currentUser._id == comment.author._id || currentUser.role === 'admin')) { %>
           <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/delete" method="POST">
+            <% if (typeof csrfToken !== 'undefined') { %>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <button
-              type="submit"
-              class="btn btn-sm text-danger"
-              title="삭제"
-              onclick="return confirm('댓글을 삭제하시겠습니까?');">
-              <i class="bi bi-x-circle"></i> 삭제
+            <% } %>
+            <button type="submit" class="btn btn-sm text-danger" title="삭제" onclick="return confirm('댓글을 삭제하시겠습니까?');">
+              <i class="bi bi-x-circle"></i>
+              삭제
             </button>
           </form>
           <% } %>
@@ -119,7 +105,9 @@
     <!-- 댓글 작성 폼 -->
     <% if (locals.currentUser) { %>
     <form action="/posts/<%= post._id %>/comments" method="POST">
+      <% if (typeof csrfToken !== 'undefined') { %>
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <% } %>
       <div class="mb-3">
         <label for="content" class="form-label">댓글 작성</label>
         <textarea name="content" id="content" rows="3" class="form-control" required></textarea>
@@ -128,7 +116,9 @@
     </form>
     <% } else { %>
     <div class="alert alert-info">
-      댓글을 작성하려면 <a href="/auth/login" class="alert-link">로그인</a>이 필요합니다.
+      댓글을 작성하려면
+      <a href="/auth/login" class="alert-link">로그인</a>
+      이 필요합니다.
     </div>
     <% } %>
   </div>

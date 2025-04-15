@@ -1,45 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const csrf = require("csurf");
-const { Readable } = require("stream");
 const cloudinary = require("../config/cloudinary");
 const adminController = require("../controller/adminController");
+const postController = require("../controller/postController"); // postController 추가
 const { isLoggedIn, isAdmin } = require("../middlewares/authMiddleware");
 const asyncHandler = require("../middlewares/asyncHandler");
 const Setting = require("../models/Setting"); // Setting 모델 추가
 const Post = require("../models/Post"); // Post 모델 추가
 const Category = require("../models/Category"); // Category 모델 추가
+const { imageUpload, bufferToStream } = require("../utils/fileUpload"); // 파일 업로드 유틸리티 추가
 
 // CSRF 보호 미들웨어 설정
 const csrfProtection = csrf({ cookie: true });
-
-// 메모리 저장소 설정
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("이미지 파일만 업로드할 수 있습니다."), false);
-    }
-  },
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB 제한
-});
-
-// 버퍼를 스트림으로 변환하는 유틸리티 함수
-function bufferToStream(buffer) {
-  const readable = new Readable({
-    read() {
-      this.push(buffer);
-      this.push(null);
-    },
-  });
-  return readable;
-}
 
 // 모든 관리자 라우트에 로그인 및 관리자 권한 확인 미들웨어 적용
 router.use(isLoggedIn, isAdmin);
@@ -118,7 +93,7 @@ router.post(
 // 프로필 이미지 업로드 라우트
 router.post(
   "/settings/profile-image",
-  upload.single("profileImage"),
+  imageUpload.single("profileImage"),
   asyncHandler(async (req, res) => {
     try {
       if (!req.file) {
@@ -199,10 +174,29 @@ router.get(
   })
 );
 
+// 관리자 페이지 게시물 삭제 라우트
+router.post(
+  "/posts/:id/delete",
+  csrfProtection,
+  asyncHandler(async (req, res) => {
+    try {
+      // source 파라미터를 추가하여 관리자 페이지에서의 삭제임을 표시
+      req.body.source = "admin";
+
+      // postController의 deletePost 함수 호출
+      await postController.deletePost(req, res);
+    } catch (error) {
+      console.error("게시물 삭제 중 오류:", error);
+      req.flash("error", "게시물을 삭제하는 중 오류가 발생했습니다.");
+      res.redirect("/admin/posts");
+    }
+  })
+);
+
 // 게시물 이미지 업로드 라우트
 router.post(
   "/posts/upload-image",
-  upload.single("postImage"),
+  imageUpload.single("postImage"),
   asyncHandler(async (req, res) => {
     try {
       if (!req.file) {

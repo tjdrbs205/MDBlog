@@ -17,10 +17,7 @@ const userSchema = new mongoose.Schema(
       unique: true, // 이메일은 고유해야 함
       lowercase: true, // 소문자로 저장
       trim: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "유효한 이메일 주소를 입력해주세요.",
-      ],
+      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "유효한 이메일 주소를 입력해주세요."],
     },
     password: {
       type: String,
@@ -39,6 +36,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["user", "admin"],
       default: "user",
+    },
+    lastLogin: {
+      type: Date,
+      default: null,
     },
   },
   {

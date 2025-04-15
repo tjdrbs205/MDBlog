@@ -3,7 +3,8 @@
 
 <div class="mb-3">
   <a href="/posts/new" class="btn btn-primary">
-    <i class="bi bi-plus-circle me-1"></i>새 글 작성
+    <i class="bi bi-plus-circle me-1"></i>
+    새 글 작성
   </a>
 </div>
 
@@ -24,7 +25,7 @@
       <% posts.forEach(post => { %>
       <tr>
         <td>
-          <a href="/posts/<%= post._id %>" class="text-decoration-none"> <%= post.title %> </a>
+          <a href="/posts/<%= post._id %>" class="text-decoration-none"><%= post.title %></a>
         </td>
         <td>
           <% if (post.category) { %>
@@ -53,10 +54,7 @@
             <a href="/posts/<%= post._id %>/edit" class="btn btn-outline-primary">
               <i class="bi bi-pencil-square"></i>
             </a>
-            <button
-              type="button"
-              class="btn btn-outline-danger"
-              onclick="confirmDelete('<%= post._id %>', '<%= post.title %>')">
+            <button type="button" class="btn btn-outline-danger" onclick="confirmDelete('<%= post._id %>', '<%= post.title %>')">
               <i class="bi bi-trash"></i>
             </button>
           </div>
@@ -68,7 +66,8 @@
 </div>
 <% } else { %>
 <div class="alert alert-info">
-  <i class="bi bi-info-circle me-2"></i>아직 작성한 게시물이 없습니다.
+  <i class="bi bi-info-circle me-2"></i>
+  아직 작성한 게시물이 없습니다.
 </div>
 <% } %>
 
@@ -81,13 +80,18 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>정말로 "<span id="postTitle"></span>" 게시물을 삭제하시겠습니까?</p>
+        <p>
+          정말로 "
+          <span id="postTitle"></span>
+          " 게시물을 삭제하시겠습니까?
+        </p>
         <p class="text-danger">이 작업은 되돌릴 수 없습니다.</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> 취소 </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
         <form id="deleteForm" method="POST" style="display: inline">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <input type="hidden" name="source" value="my-posts" />
           <button type="submit" class="btn btn-danger">삭제</button>
         </form>
       </div>

@@ -5,7 +5,9 @@
   <div class="card-body">
     <form action="/posts/<%= post._id %>/edit" method="POST">
       <!-- CSRF 토큰 -->
+      <% if (typeof csrfToken !== 'undefined') { %>
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% } %>
       <!-- 제목 -->
       <div class="mb-3">
         <label for="title" class="form-label">제목</label>
