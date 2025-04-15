@@ -1,124 +1,123 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controller/authController");
-const { isLoggedIn } = require("../middlewares/authMiddleware");
+const { isLoggedIn, isNotLoggedIn } = require("../middlewares/authMiddleware");
 const asyncHandler = require("../middlewares/asyncHandler");
-const cloudinary = require("../config/cloudinary");
-const User = require("../models/User");
-const csrf = require("csurf");
-const { imageUpload, bufferToStream } = require("../utils/fileUpload"); // 파일 업로드 유틸리티 추가
+const { body } = require("express-validator");
+const validationMiddleware = require("../middlewares/validationMiddleware");
+const passport = require("passport");
 
-// CSRF 보호 미들웨어 설정
-const csrfProtection = csrf({ cookie: true });
+/**
+ * 로그인 관련 라우트
+ */
 
-// 회원가입 관련 라우트
-router.get("/register", authController.renderRegisterForm);
-router.post("/register", asyncHandler(authController.register));
+// GET /auth/login - 로그인 페이지 렌더링
+router.get("/login", isNotLoggedIn, authController.renderLogin);
 
-// 로그인 관련 라우트
-router.get("/login", authController.renderLoginForm);
-router.post("/login", asyncHandler(authController.login));
-router.get("/logout", authController.logout);
-
-// 프로필 관련 라우트 (로그인 필요)
-router.get("/profile", isLoggedIn, asyncHandler(authController.renderProfile));
-router.post("/profile", isLoggedIn, asyncHandler(authController.updateProfile));
-
-// 프로필 이미지 업로드 라우트
+// POST /auth/login - 로그인 처리
 router.post(
-  "/profile/image",
-  isLoggedIn,
-  imageUpload.single("profileImage"),
-  asyncHandler(async (req, res) => {
-    try {
-      if (!req.file) {
-        req.flash("error", "이미지를 선택해주세요.");
-        return res.redirect("/auth/profile");
-      }
-
-      // Cloudinary에 이미지 업로드
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: "user-profile-images",
-            transformation: [{ width: 300, height: 300, crop: "fill", gravity: "face" }],
-          },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          }
-        );
-
-        bufferToStream(req.file.buffer).pipe(uploadStream);
-      });
-
-      // 이전 프로필 이미지가 Cloudinary 이미지인 경우 삭제
-      const prevProfileImage = req.user.profileImage;
-      if (prevProfileImage && prevProfileImage.includes("cloudinary.com")) {
-        const urlParts = prevProfileImage.split("/");
-        const filenameWithExtension = urlParts[urlParts.length - 1];
-        const publicId = `user-profile-images/${filenameWithExtension.split(".")[0]}`;
-
-        // 이전 이미지 삭제 시도 (실패해도 진행)
-        try {
-          await cloudinary.uploader.destroy(publicId);
-        } catch (deleteError) {
-          console.error("이전 프로필 이미지 삭제 실패:", deleteError);
-        }
-      }
-
-      // 사용자 프로필 이미지 URL 업데이트
-      await User.findByIdAndUpdate(req.user._id, {
-        profileImage: result.secure_url,
-      });
-
-      req.flash("success", "프로필 이미지가 성공적으로 업로드되었습니다.");
-      res.redirect("/auth/profile");
-    } catch (error) {
-      console.error("프로필 이미지 업로드 중 오류:", error);
-      req.flash("error", "이미지 업로드 중 오류가 발생했습니다.");
-      res.redirect("/auth/profile");
-    }
+  "/login",
+  isNotLoggedIn,
+  [
+    body("email").isEmail().withMessage("유효한 이메일 주소를 입력해주세요.").normalizeEmail(),
+    body("password").notEmpty().withMessage("비밀번호를 입력해주세요."),
+    validationMiddleware,
+  ],
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/auth/login",
+    failureFlash: true,
   })
 );
 
-// 프로필 이미지 삭제 라우트
-router.get(
-  "/profile/image/delete",
-  isLoggedIn,
-  csrfProtection,
-  asyncHandler(async (req, res) => {
-    try {
-      const currentUser = await User.findById(req.user._id);
-      const currentProfileImage = currentUser.profileImage;
+// GET /auth/logout - 로그아웃 처리
+router.get("/logout", isLoggedIn, authController.logout);
 
-      // Cloudinary에 저장된 이미지인 경우 삭제
-      if (currentProfileImage && currentProfileImage.includes("cloudinary.com")) {
-        const urlParts = currentProfileImage.split("/");
-        const filenameWithExtension = urlParts[urlParts.length - 1];
-        const publicId = `user-profile-images/${filenameWithExtension.split(".")[0]}`;
+/**
+ * 회원가입 관련 라우트
+ */
 
-        // Cloudinary에서 이미지 삭제
-        await cloudinary.uploader.destroy(publicId);
+// GET /auth/register - 회원가입 페이지 렌더링
+router.get("/register", isNotLoggedIn, authController.renderRegister);
+
+// POST /auth/register - 회원가입 처리
+router.post(
+  "/register",
+  isNotLoggedIn,
+  [
+    body("username")
+      .notEmpty()
+      .withMessage("사용자명을 입력해주세요.")
+      .isAlphanumeric()
+      .withMessage("사용자명은 영문과 숫자만 포함할 수 있습니다.")
+      .isLength({ min: 3, max: 20 })
+      .withMessage("사용자명은 3~20자 사이여야 합니다.")
+      .trim(),
+    body("email").isEmail().withMessage("유효한 이메일 주소를 입력해주세요.").normalizeEmail(),
+    body("password").isLength({ min: 6 }).withMessage("비밀번호는 최소 6자 이상이어야 합니다.").trim(),
+    body("passwordConfirm").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("비밀번호가 일치하지 않습니다.");
       }
-
-      // DB에서 사용자 프로필 이미지를 기본 이미지로 재설정
-      await User.findByIdAndUpdate(req.user._id, {
-        profileImage: "/images/default-profile.png",
-      });
-
-      req.flash("success", "프로필 이미지가 성공적으로 삭제되었습니다.");
-      res.redirect("/auth/profile");
-    } catch (error) {
-      console.error("프로필 이미지 삭제 중 오류:", error);
-      req.flash("error", "이미지 삭제 중 오류가 발생했습니다.");
-      res.redirect("/auth/profile");
-    }
-  })
+      return true;
+    }),
+    validationMiddleware,
+  ],
+  asyncHandler(authController.register)
 );
 
-// 비밀번호 변경 라우트 (로그인 필요)
-router.get("/change-password", isLoggedIn, authController.renderChangePasswordForm);
-router.post("/change-password", isLoggedIn, asyncHandler(authController.changePassword));
+/**
+ * 프로필 관련 라우트
+ */
+
+// GET /auth/profile - 프로필 페이지 렌더링
+router.get("/profile", isLoggedIn, asyncHandler(authController.renderProfile));
+
+// POST /auth/profile - 프로필 업데이트 처리
+router.post(
+  "/profile",
+  isLoggedIn,
+  [
+    body("displayName")
+      .notEmpty()
+      .withMessage("표시 이름을 입력해주세요.")
+      .isLength({ max: 50 })
+      .withMessage("표시 이름은 최대 50자까지 가능합니다.")
+      .trim(),
+    body("bio")
+      .optional({ nullable: true })
+      .isLength({ max: 200 })
+      .withMessage("자기소개는 최대 200자까지 가능합니다.")
+      .trim(),
+    body("website").optional({ nullable: true }).isURL().withMessage("유효한 웹사이트 URL을 입력해주세요.").trim(),
+    validationMiddleware,
+  ],
+  asyncHandler(authController.updateProfile)
+);
+
+/**
+ * 비밀번호 변경 관련 라우트
+ */
+
+// GET /auth/change-password - 비밀번호 변경 페이지 렌더링
+router.get("/change-password", isLoggedIn, asyncHandler(authController.renderChangePassword));
+
+// POST /auth/change-password - 비밀번호 변경 처리
+router.post(
+  "/change-password",
+  isLoggedIn,
+  [
+    body("currentPassword").notEmpty().withMessage("현재 비밀번호를 입력해주세요.").trim(),
+    body("newPassword").isLength({ min: 6 }).withMessage("새 비밀번호는 최소 6자 이상이어야 합니다.").trim(),
+    body("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error("새 비밀번호가 일치하지 않습니다.");
+      }
+      return true;
+    }),
+    validationMiddleware,
+  ],
+  asyncHandler(authController.changePassword)
+);
 
 module.exports = router;

@@ -1,12 +1,61 @@
-const User = require("../models/User");
+/**
+ * Auth Controller
+ * 인증 관련 요청을 처리하는 컨트롤러
+ */
+const authService = require("../services/authService");
+const postService = require("../services/postService");
 
 /**
- * 회원가입 폼 렌더링
+ * 로그인 페이지 렌더링
  */
-exports.renderRegisterForm = (req, res) => {
+exports.renderLogin = (req, res) => {
+  // 이미 로그인한 사용자는 홈으로 리다이렉트
+  if (req.isAuthenticated()) {
+    return res.redirect("/");
+  }
+
+  res.render("auth/login", {
+    title: "로그인",
+    error: req.flash("error"),
+  });
+};
+
+/**
+ * 로그인 처리
+ * 참고: Passport 미들웨어는 라우터에서 처리되므로 직접 구현하지 않음
+ */
+exports.login = (req, res) => {
+  // 로그인 성공 후 리다이렉트는 Passport에서 처리
+  // 이 함수는 로그인 실패 시 처리를 위해 존재
+  req.flash("error", "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+  res.redirect("/auth/login");
+};
+
+/**
+ * 로그아웃 처리
+ */
+exports.logout = (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    req.flash("success", "로그아웃 되었습니다.");
+    res.redirect("/");
+  });
+};
+
+/**
+ * 회원가입 페이지 렌더링
+ */
+exports.renderRegister = (req, res) => {
+  // 이미 로그인한 사용자는 홈으로 리다이렉트
+  if (req.isAuthenticated()) {
+    return res.redirect("/");
+  }
+
   res.render("auth/register", {
     title: "회원가입",
-    user: {}, // 빈 사용자 객체 (폼 재사용을 위해)
+    error: req.flash("error"),
   });
 };
 
@@ -14,313 +63,143 @@ exports.renderRegisterForm = (req, res) => {
  * 회원가입 처리
  */
 exports.register = async (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
+  try {
+    const { username, email, password, passwordConfirm, displayName } = req.body;
 
-  // 기본 유효성 검사
-  const validationErrors = [];
-
-  if (!username || !email || !password) {
-    validationErrors.push("모든 필드를 채워주세요.");
-  }
-
-  if (password !== confirmPassword) {
-    validationErrors.push("비밀번호가 일치하지 않습니다.");
-  }
-
-  if (password && password.length < 6) {
-    validationErrors.push("비밀번호는 최소 6자 이상이어야 합니다.");
-  }
-
-  // 유효성 검사 에러가 있을 경우
-  if (validationErrors.length > 0) {
-    return res.render("auth/register", {
-      title: "회원가입",
-      errors: validationErrors,
-      user: { username, email }, // 기존 입력값 유지
-    });
-  }
-
-  // 사용자명 중복 검사
-  const existingUsername = await User.findOne({ username });
-  if (existingUsername) {
-    return res.render("auth/register", {
-      title: "회원가입",
-      errors: ["이미 사용 중인 사용자 이름입니다."],
-      user: { username, email },
-    });
-  }
-
-  // 이메일 중복 검사
-  const existingEmail = await User.findOne({ email });
-  if (existingEmail) {
-    return res.render("auth/register", {
-      title: "회원가입",
-      errors: ["이미 사용 중인 이메일입니다."],
-      user: { username, email },
-    });
-  }
-
-  // 새 사용자 생성
-  await User.create({
-    username,
-    email,
-    password,
-    role: "user", // 기본 역할 설정
-  });
-
-  req.flash("success", "가입이 완료되었습니다. 로그인해주세요.");
-  res.redirect("/auth/login");
-};
-
-/**
- * 로그인 폼 렌더링
- */
-exports.renderLoginForm = (req, res) => {
-  res.render("auth/login", {
-    title: "로그인",
-    username: "", // 기본값 설정
-  });
-};
-
-/**
- * 로그인 처리
- */
-exports.login = async (req, res) => {
-  const { username, password, rememberMe } = req.body;
-
-  // 입력값 유효성 검사
-  if (!username || !password) {
-    return res.render("auth/login", {
-      title: "로그인",
-      errors: ["사용자 이름과 비밀번호를 입력해주세요."],
-      username,
-    });
-  }
-
-  // 사용자 조회
-  const user = await User.findOne({
-    $or: [{ username }, { email: username }], // 사용자 이름 또는 이메일로 로그인 가능
-  });
-
-  // 사용자가 없거나 비밀번호가 일치하지 않는 경우
-  if (!user || !(await user.comparePassword(password))) {
-    return res.render("auth/login", {
-      title: "로그인",
-      errors: ["아이디 또는 비밀번호가 일치하지 않습니다."],
-      username,
-    });
-  }
-
-  // 마지막 로그인 시간 업데이트
-  user.lastLogin = new Date();
-  await user.save();
-
-  // 세션에 사용자 정보 저장
-  req.session.user = {
-    _id: user._id,
-    username: user.username,
-    email: user.email,
-    role: user.role,
-  };
-
-  // 자동 로그인 설정 (Remember me)
-  if (rememberMe) {
-    // 쿠키 만료 시간을 30일로 설정
-    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
-  }
-
-  // 세션이 저장된 후에 리다이렉트 처리
-  req.session.save((err) => {
-    if (err) {
-      console.error("세션 저장 중 오류 발생:", err);
-      req.flash("error", "로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
-      return res.redirect("/auth/login");
+    // 비밀번호 확인
+    if (password !== passwordConfirm) {
+      req.flash("error", "비밀번호가 일치하지 않습니다.");
+      return res.redirect("/auth/register");
     }
 
-    req.flash("success", `${user.username}님, 환영합니다!`);
+    // 서비스 호출
+    await authService.registerUser({
+      username,
+      email,
+      password,
+      displayName,
+    });
 
-    // 이전 페이지가 있다면 해당 페이지로, 없으면 홈으로 리다이렉트
-    const redirectUrl = req.session.returnTo || "/";
-    delete req.session.returnTo;
-
-    res.redirect(redirectUrl);
-  });
-};
-
-/**
- * 로그아웃 처리
- */
-exports.logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("로그아웃 중 오류 발생:", err);
-    }
-    // 세션 쿠키 삭제
-    res.clearCookie("connect.sid");
-    res.redirect("/");
-  });
+    req.flash("success", "회원가입이 완료되었습니다. 로그인해주세요.");
+    res.redirect("/auth/login");
+  } catch (error) {
+    req.flash("error", error.message || "회원가입 중 오류가 발생했습니다.");
+    res.redirect("/auth/register");
+  }
 };
 
 /**
  * 프로필 페이지 렌더링
  */
 exports.renderProfile = async (req, res) => {
-  const Post = require("../models/Post"); // Post 모델 가져오기
+  try {
+    // 로그인 여부 확인
+    if (!req.isAuthenticated()) {
+      req.flash("error", "로그인이 필요합니다.");
+      return res.redirect("/auth/login");
+    }
 
-  // 사용자 정보와 작성한 글 수를 병렬로 조회
-  const [user, postCount] = await Promise.all([
-    User.findById(req.user._id),
-    Post.countDocuments({ author: req.user._id }),
-  ]);
+    // 서비스 호출
+    const user = await authService.getUserById(req.user._id);
 
-  if (!user) {
-    const error = new Error("사용자를 찾을 수 없습니다");
-    error.statusCode = 404;
-    throw error;
+    // 사이드바 데이터 조회
+    const { categories, tags, recentPosts } = await postService.getSidebarData();
+
+    res.render("layouts/main", {
+      title: "내 프로필",
+      user,
+      categories,
+      tags,
+      recentPosts,
+      contentView: "auth/profile",
+    });
+  } catch (error) {
+    req.flash("error", error.message || "프로필을 불러오는 중 오류가 발생했습니다.");
+    res.redirect("/");
   }
-
-  res.render("layouts/main", {
-    title: "내 프로필",
-    user,
-    postCount, // 작성한 글 수 전달
-    lastLogin: user.lastLogin, // 마지막 로그인 시간 전달
-    contentView: "auth/profile", // 경로 수정 (../auth/profile -> auth/profile)
-  });
 };
 
 /**
- * 프로필 업데이트
+ * 프로필 업데이트 처리
  */
 exports.updateProfile = async (req, res) => {
-  const { username, email, bio } = req.body;
-  const userId = req.user._id;
+  try {
+    // 로그인 여부 확인
+    if (!req.isAuthenticated()) {
+      req.flash("error", "로그인이 필요합니다.");
+      return res.redirect("/auth/login");
+    }
 
-  // 입력값 유효성 검사
-  if (!username || !email) {
-    return res.render("auth/profile", {
-      title: "내 프로필",
-      errors: ["사용자 이름과 이메일은 필수입니다."],
-      user: { ...req.user, username, email, bio },
+    const { displayName, bio, website } = req.body;
+
+    // 서비스 호출
+    await authService.updateProfile(req.user._id, {
+      displayName,
+      bio,
+      website,
     });
-  }
-
-  // 사용자 업데이트
-  const user = await User.findById(userId);
-
-  // 중복 검사 (다른 사용자와 중복되지 않는지)
-  if (username !== user.username) {
-    const existingUsername = await User.findOne({
-      username,
-      _id: { $ne: userId },
-    });
-    if (existingUsername) {
-      return res.render("auth/profile", {
-        title: "내 프로필",
-        errors: ["이미 사용 중인 사용자 이름입니다."],
-        user: { ...user.toObject(), username, email, bio },
-      });
-    }
-  }
-
-  if (email !== user.email) {
-    const existingEmail = await User.findOne({ email, _id: { $ne: userId } });
-    if (existingEmail) {
-      return res.render("auth/profile", {
-        title: "내 프로필",
-        errors: ["이미 사용 중인 이메일입니다."],
-        user: { ...user.toObject(), username, email, bio },
-      });
-    }
-  }
-
-  // 사용자 정보 업데이트
-  user.username = username;
-  user.email = email;
-  user.bio = bio;
-
-  await user.save();
-
-  // 세션 업데이트
-  req.session.user = {
-    _id: user._id,
-    username: user.username,
-    email: user.email,
-    role: user.role,
-  };
-
-  // 세션이 저장된 후에 리다이렉트 처리
-  req.session.save((err) => {
-    if (err) {
-      console.error("세션 저장 중 오류 발생:", err);
-      req.flash("error", "프로필 업데이트 중 오류가 발생했습니다. 다시 시도해주세요.");
-      return res.redirect("/auth/profile");
-    }
 
     req.flash("success", "프로필이 성공적으로 업데이트되었습니다.");
     res.redirect("/auth/profile");
-  });
+  } catch (error) {
+    req.flash("error", error.message || "프로필 업데이트 중 오류가 발생했습니다.");
+    res.redirect("/auth/profile");
+  }
 };
 
 /**
- * 비밀번호 변경 폼 렌더링
+ * 비밀번호 변경 페이지 렌더링
  */
-exports.renderChangePasswordForm = (req, res) => {
-  res.render("auth/change-password", {
-    title: "비밀번호 변경",
-  });
+exports.renderChangePassword = async (req, res) => {
+  try {
+    // 로그인 여부 확인
+    if (!req.isAuthenticated()) {
+      req.flash("error", "로그인이 필요합니다.");
+      return res.redirect("/auth/login");
+    }
+
+    // 사이드바 데이터 조회
+    const { categories, tags, recentPosts } = await postService.getSidebarData();
+
+    res.render("layouts/main", {
+      title: "비밀번호 변경",
+      categories,
+      tags,
+      recentPosts,
+      contentView: "auth/change-password",
+    });
+  } catch (error) {
+    req.flash("error", error.message || "페이지를 불러오는 중 오류가 발생했습니다.");
+    res.redirect("/auth/profile");
+  }
 };
 
 /**
  * 비밀번호 변경 처리
  */
 exports.changePassword = async (req, res) => {
-  const { currentPassword, newPassword, confirmPassword } = req.body;
+  try {
+    // 로그인 여부 확인
+    if (!req.isAuthenticated()) {
+      req.flash("error", "로그인이 필요합니다.");
+      return res.redirect("/auth/login");
+    }
 
-  // 입력값 유효성 검사
-  const validationErrors = [];
+    const { currentPassword, newPassword, confirmPassword } = req.body;
 
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    validationErrors.push("모든 필드를 채워주세요.");
-  }
-
-  if (newPassword !== confirmPassword) {
-    validationErrors.push("새 비밀번호가 일치하지 않습니다.");
-  }
-
-  if (newPassword && newPassword.length < 6) {
-    validationErrors.push("비밀번호는 최소 6자 이상이어야 합니다.");
-  }
-
-  if (validationErrors.length > 0) {
-    return res.render("auth/change-password", {
-      title: "비밀번호 변경",
-      errors: validationErrors,
-    });
-  }
-
-  // 사용자 조회 및 현재 비밀번호 확인
-  const user = await User.findById(req.user._id);
-
-  if (!user || !(await user.comparePassword(currentPassword))) {
-    return res.render("auth/change-password", {
-      title: "비밀번호 변경",
-      errors: ["현재 비밀번호가 일치하지 않습니다."],
-    });
-  }
-
-  // 비밀번호 업데이트
-  user.password = newPassword;
-  await user.save();
-
-  // 세션이 저장된 후에 리다이렉트 처리
-  req.session.save((err) => {
-    if (err) {
-      console.error("세션 저장 중 오류 발생:", err);
-      req.flash("error", "비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.");
+    // 새 비밀번호 확인
+    if (newPassword !== confirmPassword) {
+      req.flash("error", "새 비밀번호가 일치하지 않습니다.");
       return res.redirect("/auth/change-password");
     }
 
+    // 서비스 호출
+    await authService.changePassword(req.user._id, currentPassword, newPassword);
+
     req.flash("success", "비밀번호가 성공적으로 변경되었습니다.");
     res.redirect("/auth/profile");
-  });
+  } catch (error) {
+    req.flash("error", error.message || "비밀번호 변경 중 오류가 발생했습니다.");
+    res.redirect("/auth/change-password");
+  }
 };
