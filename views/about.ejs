@@ -69,18 +69,24 @@
             <h2 class="h3 border-bottom pb-2 mb-3">연락처</h2>
             <p>블로그와 관련된 문의나 제안이 있으시면 아래 연락처로 연락해주세요.</p>
             <ul class="list-unstyled">
+              <% if (locals.contactEmail) { %>
               <li class="mb-2">
                 <i class="bi bi-envelope me-2"></i>
-                <a href="mailto:contact@mdblog.com">contact@mdblog.com</a>
+                <a href="mailto:<%= contactEmail %>"><%= contactEmail %></a>
               </li>
+              <% } %> <% if (locals.contactGithub) { %>
               <li class="mb-2">
                 <i class="bi bi-github me-2"></i>
-                <a href="https://github.com/mdblog" target="_blank">github.com/mdblog</a>
+                <a href="<%= contactGithub.includes('http') ? contactGithub : 'https://github.com/' + contactGithub %>" target="_blank">
+                  <%= contactGithub.includes('github.com') ? contactGithub : 'github.com/' + contactGithub %>
+                </a>
               </li>
+              <% } %> <% if (locals.contactTwitter) { %>
               <li class="mb-2">
                 <i class="bi bi-twitter me-2"></i>
-                <a href="https://twitter.com/mdblog" target="_blank">@mdblog</a>
+                <a href="https://twitter.com/<%= contactTwitter.replace('@', '') %>" target="_blank"><%= contactTwitter.startsWith('@') ? contactTwitter : '@' + contactTwitter %></a>
               </li>
+              <% } %>
             </ul>
           </div>
         </div>

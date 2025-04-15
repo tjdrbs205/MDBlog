@@ -64,35 +64,14 @@
                 <a
                   href="/posts/<%= post._id %>/edit"
                   class="btn btn-sm btn-edit"
-                  style="
-                    background-color: #007bff;
-                    color: white;
-                    padding: 0.25rem 0.5rem;
-                    text-decoration: none;
-                    border-radius: 0.25rem;
-                    display: inline-block;
-                  "
-                  >수정</a
-                >
-                <form
-                  action="/posts/<%= post._id %>/delete"
-                  method="POST"
-                  class="inline-form"
-                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                  style="background-color: #007bff; color: white; padding: 0.25rem 0.5rem; text-decoration: none; border-radius: 0.25rem; display: inline-block">
+                  수정
+                </a>
+                <form action="/posts/<%= post._id %>/delete" method="POST" class="inline-form" onsubmit="return confirm('정말 삭제하시겠습니까?');">
                   <% if (typeof csrfToken !== 'undefined') { %>
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <% } %>
-                  <button
-                    type="submit"
-                    class="btn btn-sm btn-delete"
-                    style="
-                      background-color: #dc3545;
-                      color: white;
-                      padding: 0.25rem 0.5rem;
-                      border: none;
-                      border-radius: 0.25rem;
-                      cursor: pointer;
-                    ">
+                  <button type="submit" class="btn btn-sm btn-delete" style="background-color: #dc3545; color: white; padding: 0.25rem 0.5rem; border: none; border-radius: 0.25rem; cursor: pointer">
                     삭제
                   </button>
                 </form>
@@ -127,43 +106,20 @@
               <td><%= user.email %></td>
               <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
               <td>
-                <span class="status <%= user.isAdmin ? 'status-admin' : 'status-user' %>">
-                  <%= user.isAdmin ? '관리자' : '사용자' %>
-                </span>
+                <span class="status <%= user.isAdmin ? 'status-admin' : 'status-user' %>"><%= user.isAdmin ? '관리자' : '사용자' %></span>
               </td>
               <td class="action-buttons">
                 <a
                   href="/admin/users/edit/<%= user._id %>"
                   class="btn btn-sm btn-edit"
-                  style="
-                    background-color: #007bff;
-                    color: white;
-                    padding: 0.25rem 0.5rem;
-                    text-decoration: none;
-                    border-radius: 0.25rem;
-                    display: inline-block;
-                  "
-                  >수정</a
-                >
-                <form
-                  action="/admin/users/<%= user._id %>?_method=DELETE"
-                  method="POST"
-                  class="inline-form"
-                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                  style="background-color: #007bff; color: white; padding: 0.25rem 0.5rem; text-decoration: none; border-radius: 0.25rem; display: inline-block">
+                  수정
+                </a>
+                <form action="/admin/users/<%= user._id %>?_method=DELETE" method="POST" class="inline-form" onsubmit="return confirm('정말 삭제하시겠습니까?');">
                   <% if (typeof csrfToken !== 'undefined') { %>
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <% } %>
-                  <button
-                    type="submit"
-                    class="btn btn-sm btn-delete"
-                    style="
-                      background-color: #dc3545;
-                      color: white;
-                      padding: 0.25rem 0.5rem;
-                      border: none;
-                      border-radius: 0.25rem;
-                      cursor: pointer;
-                    ">
+                  <button type="submit" class="btn btn-sm btn-delete" style="background-color: #dc3545; color: white; padding: 0.25rem 0.5rem; border: none; border-radius: 0.25rem; cursor: pointer">
                     삭제
                   </button>
                 </form>
@@ -188,6 +144,10 @@
       <a href="/admin/posts" class="admin-menu-item">
         <div class="menu-icon"><i class="bi bi-file-earmark-text"></i></div>
         <div class="menu-title">게시물 관리</div>
+      </a>
+      <a href="/admin/comments" class="admin-menu-item">
+        <div class="menu-icon"><i class="bi bi-chat-dots"></i></div>
+        <div class="menu-title">댓글 관리</div>
       </a>
       <a href="/admin/content" class="admin-menu-item">
         <div class="menu-icon"><i class="bi bi-grid-3x3-gap"></i></div>

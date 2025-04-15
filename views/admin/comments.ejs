@@ -1,0 +1,169 @@
+<!-- 관리자 댓글 관리 페이지 -->
+<div class="admin-comments container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>댓글 관리</h1>
+  </div>
+
+  <!-- 검색 및 필터링 -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form action="/admin/comments" method="GET" class="row g-3">
+        <div class="col-md-5">
+          <div class="input-group">
+            <input
+              type="text"
+              name="search"
+              class="form-control"
+              placeholder="댓글 내용 검색..."
+              value="<%= searchQuery %>"
+            />
+            <button type="submit" class="btn btn-outline-secondary">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="col-md-5">
+          <select name="post" class="form-select">
+            <option value="">모든 게시물</option>
+            <% posts.forEach(post => { %>
+            <option value="<%= post._id %>" <%= selectedPost == post._id ? 'selected' : '' %>>
+              <%= post.title %>
+            </option>
+            <% }); %>
+          </select>
+        </div>
+        
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">적용</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 댓글 목록 -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <% if (comments && comments.length > 0) { %>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 5%">#</th>
+              <th scope="col" style="width: 40%">내용</th>
+              <th scope="col" style="width: 15%">작성자</th>
+              <th scope="col" style="width: 20%">게시물</th>
+              <th scope="col" style="width: 10%">
+                작성일
+                <a href="/admin/comments?sort=createdAt&order=asc<%= searchQuery ? `&search=${searchQuery}` : '' %><%= selectedPost ? `&post=${selectedPost}` : '' %>">
+                  <i class="bi bi-arrow-up<%= sortField === 'createdAt' && sortOrder === 'asc' ? '-circle-fill' : '' %>"></i>
+                </a>
+                <a href="/admin/comments?sort=createdAt&order=desc<%= searchQuery ? `&search=${searchQuery}` : '' %><%= selectedPost ? `&post=${selectedPost}` : '' %>">
+                  <i class="bi bi-arrow-down<%= sortField === 'createdAt' && sortOrder === 'desc' ? '-circle-fill' : '' %>"></i>
+                </a>
+              </th>
+              <th scope="col" style="width: 10%">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% comments.forEach((comment, index) => { %>
+            <tr>
+              <td><%= (currentPage - 1) * 15 + index + 1 %></td>
+              <td>
+                <div class="comment-content">
+                  <%= comment.content %>
+                </div>
+              </td>
+              <td>
+                <% if (comment.author) { %>
+                  <%= comment.author.username %>
+                <% } else { %>
+                  <span class="text-muted">삭제된 사용자</span>
+                <% } %>
+              </td>
+              <td>
+                <a href="/posts/<%= comment.postId %>" class="text-decoration-none">
+                  <%= comment.postTitle %>
+                </a>
+              </td>
+              <td><%= new Date(comment.createdAt).toLocaleDateString() %></td>
+              <td class="text-nowrap">
+                <form action="/admin/comments/<%= comment.postId %>/<%= comment._id %>/delete" method="POST" class="d-inline-block delete-form">
+                  <% if (typeof csrfToken !== 'undefined') { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <% } %>
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 페이지네이션 -->
+      <% if (totalPages > 1) { %>
+      <div class="pagination-container d-flex justify-content-center p-3">
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+            <li class="page-item <%= !hasPrevPage ? 'disabled' : '' %>">
+              <a class="page-link" href="/admin/comments?page=<%= currentPage - 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %><%= selectedPost ? `&post=${selectedPost}` : '' %><%= sortField ? `&sort=${sortField}` : '' %><%= sortOrder ? `&order=${sortOrder}` : '' %>" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            
+            <% for(let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+              <a class="page-link" href="/admin/comments?page=<%= i %><%= searchQuery ? `&search=${searchQuery}` : '' %><%= selectedPost ? `&post=${selectedPost}` : '' %><%= sortField ? `&sort=${sortField}` : '' %><%= sortOrder ? `&order=${sortOrder}` : '' %>">
+                <%= i %>
+              </a>
+            </li>
+            <% } %>
+            
+            <li class="page-item <%= !hasNextPage ? 'disabled' : '' %>">
+              <a class="page-link" href="/admin/comments?page=<%= currentPage + 1 %><%= searchQuery ? `&search=${searchQuery}` : '' %><%= selectedPost ? `&post=${selectedPost}` : '' %><%= sortField ? `&sort=${sortField}` : '' %><%= sortOrder ? `&order=${sortOrder}` : '' %>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <% } %>
+      
+      <% } else { %>
+      <div class="alert alert-info m-3">
+        <i class="bi bi-info-circle me-2"></i>
+        댓글이 없습니다.
+      </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <div class="mt-4 text-muted">
+    <p>총 <%= totalComments %> 개의 댓글이 있습니다.</p>
+  </div>
+</div>
+
+<style>
+  .comment-content {
+    max-height: 80px;
+    overflow: auto;
+    white-space: pre-line;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 삭제 폼 제출 시 확인 메시지
+    const deleteForms = document.querySelectorAll('.delete-form');
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        if (!confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+          e.preventDefault();
+        }
+      });
+    });
+  });
+</script>
