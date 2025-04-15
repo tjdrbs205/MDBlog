@@ -3,7 +3,7 @@
   <div class="card mb-4">
     <div class="card-body">
       <div class="text-center mb-4">
-        <img src="/images/default-profile.png" alt="프로필 이미지" class="rounded-circle mb-3" style="width: 150px; height: 150px" />
+        <img src="<%= locals.profileImage ? profileImage : '/images/default-profile.png' %>" alt="프로필 이미지" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover" />
         <h1 class="display-5 fw-bold">MDBlog</h1>
         <p class="lead text-muted">마크다운을 지원하는 개발 블로그</p>
       </div>

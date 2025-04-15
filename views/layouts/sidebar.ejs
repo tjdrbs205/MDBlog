@@ -4,14 +4,18 @@
 <div class="card mb-4">
   <div class="card-body text-center">
     <img
-      src="/images/default-profile.png"
+      src="<%= profileImage && (profileImage.startsWith('http') || profileImage.startsWith('/uploads/')) ? profileImage : '/images/default-profile.png' %>"
       alt="Profile"
       class="rounded-circle mb-3"
-      style="width: 100px; height: 100px" />
+      style="width: 100px; height: 100px; object-fit: cover"
+      onerror="this.src='/images/default-profile.png'" />
     <h5 class="card-title">블로그 소개</h5>
     <p class="card-text text-muted">개발 관련 정보와 팁을 공유하는 블로그입니다.</p>
     <% if (locals.currentUser) { %>
-    <p class="card-text"><strong><%= currentUser.username %></strong>님 환영합니다!</p>
+    <p class="card-text">
+      <strong><%= currentUser.username %></strong>
+      님 환영합니다!
+    </p>
     <% } else { %>
     <a href="/auth/login" class="btn btn-primary btn-sm">로그인</a>
     <% } %>
@@ -21,29 +25,30 @@
 <!-- 계층형 카테고리 영역 - Tistory 스타일 -->
 <div class="card mb-4">
   <div class="card-header">
-    <h5 class="mb-0"><i class="bi bi-folder me-2"></i>카테고리</h5>
+    <h5 class="mb-0">
+      <i class="bi bi-folder me-2"></i>
+      카테고리
+    </h5>
   </div>
   <div class="card-body p-2">
     <!-- 카테고리 트리 -->
     <ul class="category-tree">
-      <% if (locals.categoriesHierarchical && categoriesHierarchical.length > 0) { %> <%# 전체
-      게시물 수 계산 %> <% let totalPostCount = 0; Object.values(categoryMap || {}).forEach(count =>
-      { totalPostCount += count; }); %>
+      <% if (locals.categoriesHierarchical && categoriesHierarchical.length > 0) { %> <%# 전체 게시물 수 계산 %> <% let totalPostCount = 0; Object.values(categoryMap || {}).forEach(count => {
+      totalPostCount += count; }); %>
 
       <!-- 전체 글 카테고리 (Tistory 스타일) -->
       <li class="category-item level-0">
         <div class="category-header">
           <span class="toggle-placeholder"></span>
           <a href="/posts" class="category-link <%= !selectedCategory ? 'active' : '' %>">
-            <i class="bi bi-journals category-icon"></i>전체 글<span class="count"
-              >(<%= totalPostCount %>)</span
-            >
+            <i class="bi bi-journals category-icon"></i>
+            전체 글
+            <span class="count">(<%= totalPostCount %>)</span>
           </a>
         </div>
       </li>
 
-      <%# 재귀적으로 카테고리 트리 렌더링하는 함수 %> <% function renderCategoryTree(categories,
-      level = 0) { categories.forEach(cat => { const postCount = categoryMap[cat._id] || 0; %>
+      <%# 재귀적으로 카테고리 트리 렌더링하는 함수 %> <% function renderCategoryTree(categories, level = 0) { categories.forEach(cat => { const postCount = categoryMap[cat._id] || 0; %>
       <li class="category-item level-<%= level %>">
         <div class="category-header">
           <% if (cat.children && cat.children.length > 0) { %>
@@ -53,13 +58,11 @@
           <% } else { %>
           <span class="toggle-placeholder"></span>
           <% } %>
-          <a
-            href="/categories/<%= cat._id %>/posts"
-            class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
-            <i class="bi bi-folder category-icon"></i><%= cat.name %><% if (postCount > 0) { %><span
-              class="count"
-              >(<%= postCount %>)</span
-            ><% } %>
+          <a href="/categories/<%= cat._id %>/posts" class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
+            <i class="bi bi-folder category-icon"></i>
+            <%= cat.name %><% if (postCount > 0) { %>
+            <span class="count">(<%= postCount %>)</span>
+            <% } %>
           </a>
         </div>
         <% if (cat.children && cat.children.length > 0) { %>
@@ -68,14 +71,14 @@
         </ul>
         <% } %>
       </li>
-      <% }); } %> <%# 최상위 카테고리부터 렌더링 시작 %> <%
-      renderCategoryTree(categoriesHierarchical); %> <% } else { %>
+      <% }); } %> <%# 최상위 카테고리부터 렌더링 시작 %> <% renderCategoryTree(categoriesHierarchical); %> <% } else { %>
       <!-- 계층구조가 없을 경우 기존 방식으로 표시 -->
       <li class="category-item">
         <div class="category-header">
           <span class="toggle-placeholder"></span>
           <a href="/posts" class="category-link active">
-            <i class="bi bi-journals category-icon"></i>전체 글
+            <i class="bi bi-journals category-icon"></i>
+            전체 글
           </a>
         </div>
       </li>
@@ -83,13 +86,11 @@
       <li class="category-item">
         <div class="category-header">
           <span class="toggle-placeholder"></span>
-          <a
-            href="/categories/<%= cat._id %>/posts"
-            class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
-            <i class="bi bi-folder category-icon"></i><%= cat.name %><% if (postCount > 0) { %><span
-              class="count"
-              >(<%= postCount %>)</span
-            ><% } %>
+          <a href="/categories/<%= cat._id %>/posts" class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
+            <i class="bi bi-folder category-icon"></i>
+            <%= cat.name %><% if (postCount > 0) { %>
+            <span class="count">(<%= postCount %>)</span>
+            <% } %>
           </a>
         </div>
       </li>
@@ -101,7 +102,10 @@
 <!-- 태그 클라우드 -->
 <div class="card mb-4">
   <div class="card-header">
-    <h5 class="mb-0"><i class="bi bi-tags me-2"></i>태그 클라우드</h5>
+    <h5 class="mb-0">
+      <i class="bi bi-tags me-2"></i>
+      태그 클라우드
+    </h5>
   </div>
   <div class="card-body">
     <div class="d-flex flex-wrap gap-2">
@@ -119,35 +123,29 @@
 <!-- 최근 게시물 -->
 <div class="card mb-4">
   <div class="card-header">
-    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>최근 게시물</h5>
+    <h5 class="mb-0">
+      <i class="bi bi-clock-history me-2"></i>
+      최근 게시물
+    </h5>
   </div>
   <div class="card-body p-0">
     <ul class="list-group list-group-flush">
-      <% if (typeof recentPosts !== 'undefined' && recentPosts && recentPosts.length > 0) { %> <%
-      recentPosts.forEach(post => { %>
+      <% if (typeof recentPosts !== 'undefined' && recentPosts && recentPosts.length > 0) { %> <% recentPosts.forEach(post => { %>
       <li class="list-group-item">
         <a href="/posts/<%= post._id %>" class="text-decoration-none">
           <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
               <% if (post.featuredImage) { %>
-              <img
-                src="<%= post.featuredImage %>"
-                class="me-2"
-                alt="thumbnail"
-                style="width: 40px; height: 40px; object-fit: cover" />
+              <img src="<%= post.featuredImage %>" class="me-2" alt="thumbnail" style="width: 40px; height: 40px; object-fit: cover" />
               <% } else { %>
-              <div
-                class="bg-light me-2 d-flex align-items-center justify-content-center"
-                style="width: 40px; height: 40px">
+              <div class="bg-light me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
                 <i class="bi bi-file-text"></i>
               </div>
               <% } %>
             </div>
             <div class="flex-grow-1 ms-2">
               <p class="mb-0 text-truncate"><%= post.title %></p>
-              <small class="text-muted">
-                <%= new Date(post.createdAt).toLocaleDateString() %>
-              </small>
+              <small class="text-muted"><%= new Date(post.createdAt).toLocaleDateString() %></small>
             </div>
           </div>
         </a>
@@ -162,7 +160,10 @@
 <!-- 방문자 통계 -->
 <div class="card mb-4">
   <div class="card-header">
-    <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>통계</h5>
+    <h5 class="mb-0">
+      <i class="bi bi-graph-up me-2"></i>
+      통계
+    </h5>
   </div>
   <div class="card-body p-0">
     <ul class="list-group list-group-flush">
@@ -170,47 +171,32 @@
       <!-- 관리자에게만 보이는 상세 통계 -->
       <li class="list-group-item d-flex justify-content-between">
         <span>실시간 방문자</span>
-        <strong class="text-success">
-          <%= typeof stats !== 'undefined' && stats.visits.active ?
-          stats.visits.active.toLocaleString() : '0' %>
-        </strong>
+        <strong class="text-success"><%= typeof stats !== 'undefined' && stats.visits.active ? stats.visits.active.toLocaleString() : '0' %></strong>
       </li>
       <% } %>
       <li class="list-group-item d-flex justify-content-between">
         <span>오늘 방문자</span>
-        <strong>
-          <%= typeof stats !== 'undefined' ? stats.visits.today.toLocaleString() : '0' %>
-        </strong>
+        <strong><%= typeof stats !== 'undefined' ? stats.visits.today.toLocaleString() : '0' %></strong>
       </li>
       <% if (locals.currentUser && currentUser.role === 'admin') { %>
       <li class="list-group-item d-flex justify-content-between">
         <span>유니크 방문자</span>
-        <strong>
-          <%= typeof stats !== 'undefined' && stats.visits.totalUniqueVisitors ?
-          stats.visits.totalUniqueVisitors.toLocaleString() : '0' %>
-        </strong>
+        <strong><%= typeof stats !== 'undefined' && stats.visits.totalUniqueVisitors ? stats.visits.totalUniqueVisitors.toLocaleString() : '0' %></strong>
       </li>
       <% } %>
       <li class="list-group-item d-flex justify-content-between">
         <span>총 방문자</span>
-        <strong>
-          <%= typeof stats !== 'undefined' ? stats.visits.total.toLocaleString() : '0' %>
-        </strong>
+        <strong><%= typeof stats !== 'undefined' ? stats.visits.total.toLocaleString() : '0' %></strong>
       </li>
       <% if (locals.currentUser && currentUser.role === 'admin') { %>
       <li class="list-group-item d-flex justify-content-between">
         <span>총 페이지뷰</span>
-        <strong>
-          <%= typeof stats !== 'undefined' && stats.visits.totalPageViews ?
-          stats.visits.totalPageViews.toLocaleString() : '0' %>
-        </strong>
+        <strong><%= typeof stats !== 'undefined' && stats.visits.totalPageViews ? stats.visits.totalPageViews.toLocaleString() : '0' %></strong>
       </li>
       <% } %>
       <li class="list-group-item d-flex justify-content-between">
         <span>총 게시물</span>
-        <strong>
-          <%= typeof postStats !== 'undefined' ? postStats.total.toLocaleString() : '0' %>
-        </strong>
+        <strong><%= typeof postStats !== 'undefined' ? postStats.total.toLocaleString() : '0' %></strong>
       </li>
     </ul>
   </div>

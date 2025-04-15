@@ -2,6 +2,50 @@
 <div class="settings-container">
   <h1 class="mb-4">사이트 설정</h1>
 
+  <!-- 프로필 이미지 업로드 카드 -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">프로필 이미지</h5>
+    </div>
+    <div class="card-body">
+      <form action="/admin/settings/profile-image" method="POST" enctype="multipart/form-data">
+        <% if (typeof csrfToken !== 'undefined') { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <% } %>
+
+        <div class="row align-items-center">
+          <div class="col-md-4 text-center">
+            <img
+              src="<%= profileImage ? profileImage : '/images/default-profile.png' %>"
+              alt="프로필 이미지"
+              class="rounded-circle mb-3 profile-preview"
+              style="width: 150px; height: 150px; object-fit: cover" />
+          </div>
+          <div class="col-md-8">
+            <div class="mb-3">
+              <label for="profileImage" class="form-label">프로필 이미지 업로드</label>
+              <input type="file" name="profileImage" id="profileImage" class="form-control" accept="image/*" />
+              <div class="form-text">블로그 소개 페이지에 표시되는 프로필 이미지입니다. 권장 크기: 300x300 픽셀</div>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <% if (profileImage && profileImage !== '/images/default-profile.png') { %>
+              <a href="/admin/settings/profile-image/delete" class="btn btn-danger" onclick="return confirm('프로필 이미지를 삭제하시겠습니까? 기본 이미지로 되돌아갑니다.')">
+                <i class="bi bi-trash me-2"></i>
+                이미지 삭제
+              </a>
+              <% } %>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-upload me-2"></i>
+                이미지 업로드
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 기존 기본 설정 카드 -->
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-light">
       <h5 class="mb-0">기본 설정</h5>
@@ -55,3 +99,17 @@
     </div>
   </div>
 </div>
+
+<script>
+  // 이미지 미리보기 스크립트
+  document.getElementById("profileImage").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.querySelector(".profile-preview").src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>

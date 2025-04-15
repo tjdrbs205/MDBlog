@@ -25,7 +25,7 @@ app.use(
         scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "code.jquery.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com"],
         fontSrc: ["'self'", "fonts.gstatic.com", "cdn.jsdelivr.net"],
-        imgSrc: ["'self'", "data:", "cdn.jsdelivr.net", "*.unsplash.com"],
+        imgSrc: ["'self'", "data:", "cdn.jsdelivr.net", "*.unsplash.com", "res.cloudinary.com", "*.cloudinary.com"],
         connectSrc: ["'self'"],
       },
     },
@@ -74,9 +74,27 @@ app.use((req, res, next) => {
 });
 
 // CSRF 보호 설정
-app.use(csrf({ cookie: true }));
 app.use((req, res, next) => {
-  res.locals.csrfToken = req.csrfToken();
+  // 프로필 이미지 업로드 경로는 CSRF 검증에서 제외
+  if (req.path === "/admin/settings/profile-image" && req.method === "POST") {
+    return next();
+  }
+
+  // 다른 모든 경로는 CSRF 검증 적용
+  csrf({ cookie: true })(req, res, next);
+});
+
+// CSRF 토큰을 locals에 추가
+app.use((req, res, next) => {
+  // 프로필 이미지 업로드 경로가 아닌 경우에만 csrfToken 생성
+  if (!(req.path === "/admin/settings/profile-image" && req.method === "POST")) {
+    try {
+      res.locals.csrfToken = req.csrfToken();
+    } catch (err) {
+      // csrfToken을 생성할 수 없는 경우 (예: 이미 응답이 전송된 경우) 오류 무시
+      console.log("CSRF 토큰 생성 오류 (무시됨):", err.message);
+    }
+  }
   next();
 });
 

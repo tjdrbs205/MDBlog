@@ -19,6 +19,9 @@ const settingsLoader = async (req, res, next) => {
     // 연락처 정보 가져오기 - Github 링크
     const contactGithub = await Setting.getSetting("contactGithub", "github.com/mdblog");
 
+    // 프로필 이미지 경로 가져오기
+    const profileImage = await Setting.getSetting("profileImage", "/images/default-profile.png");
+
     // 마크다운을 HTML로 변환
     const aboutBlogHtml = marked(aboutBlog);
 
@@ -27,6 +30,7 @@ const settingsLoader = async (req, res, next) => {
     res.locals.aboutBlog = aboutBlog;
     res.locals.aboutBlogHtml = aboutBlogHtml;
     res.locals.contactGithub = contactGithub;
+    res.locals.profileImage = profileImage;
 
     next();
   } catch (error) {

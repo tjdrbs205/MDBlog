@@ -1,5 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const csrf = require("csurf");
+const { Readable } = require("stream");
+const cloudinary = require("../config/cloudinary");
 const adminController = require("../controller/adminController");
 const { isLoggedIn, isAdmin } = require("../middlewares/authMiddleware");
 const asyncHandler = require("../middlewares/asyncHandler");
@@ -7,33 +13,50 @@ const Setting = require("../models/Setting"); // Setting 모델 추가
 const Post = require("../models/Post"); // Post 모델 추가
 const Category = require("../models/Category"); // Category 모델 추가
 
+// CSRF 보호 미들웨어 설정
+const csrfProtection = csrf({ cookie: true });
+
+// 메모리 저장소 설정
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("이미지 파일만 업로드할 수 있습니다."), false);
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB 제한
+});
+
+// 버퍼를 스트림으로 변환하는 유틸리티 함수
+function bufferToStream(buffer) {
+  const readable = new Readable({
+    read() {
+      this.push(buffer);
+      this.push(null);
+    },
+  });
+  return readable;
+}
+
 // 모든 관리자 라우트에 로그인 및 관리자 권한 확인 미들웨어 적용
 router.use(isLoggedIn, isAdmin);
 
-// GET /admin - 관리자 대시보드
-router.get("/", asyncHandler(adminController.dashboard));
-
-// GET /admin/users - 사용자 목록 페이지 (관리자용)
-router.get("/users", asyncHandler(adminController.listUsers));
-
-// POST /admin/users/role - 사용자 역할 변경 (관리자용)
-router.post("/users/role", asyncHandler(adminController.changeUserRole));
-
-// GET /admin/content - 통합 콘텐츠 관리 페이지 (카테고리, 태그, 메뉴)
-router.get("/content", asyncHandler(adminController.contentManagement));
-
-// GET /admin/stats - 통계 대시보드 페이지
-router.get("/stats", asyncHandler(adminController.stats));
-
-// GET /admin/stats/chart-data - 통계 API 엔드포인트 (차트 데이터)
-router.get("/stats/chart-data", asyncHandler(adminController.getChartData));
-
-// GET /admin/stats/active-visitors - 통계 API 엔드포인트 (활성 방문자)
-router.get("/stats/active-visitors", asyncHandler(adminController.getActiveVisitors));
+// 기본 관리자 라우트들에는 CSRF 보호 적용
+router.get("/", csrfProtection, asyncHandler(adminController.dashboard));
+router.get("/users", csrfProtection, asyncHandler(adminController.listUsers));
+router.post("/users/role", csrfProtection, asyncHandler(adminController.changeUserRole));
+router.get("/content", csrfProtection, asyncHandler(adminController.contentManagement));
+router.get("/stats", csrfProtection, asyncHandler(adminController.stats));
+router.get("/stats/chart-data", csrfProtection, asyncHandler(adminController.getChartData));
+router.get("/stats/active-visitors", csrfProtection, asyncHandler(adminController.getActiveVisitors));
 
 // GET /admin/settings - 사이트 설정 페이지
 router.get(
   "/settings",
+  csrfProtection,
   asyncHandler(async (req, res) => {
     // 현재 저장된 모든 설정 가져오기
     const settings = await Setting.find().sort({ key: 1 });
@@ -54,6 +77,9 @@ router.get(
     const contactEmail = await Setting.getSetting("contactEmail", "contact@mdblog.com");
     const contactGithub = await Setting.getSetting("contactGithub", "github.com/mdblog");
 
+    // 프로필 이미지 가져오기
+    const profileImage = await Setting.getSetting("profileImage", "/uploads/profile/default-profile.png");
+
     res.render("layouts/main", {
       title: "사이트 설정",
       contentView: "admin/settings",
@@ -62,6 +88,7 @@ router.get(
       aboutBlog,
       contactEmail,
       contactGithub,
+      profileImage,
     });
   })
 );
@@ -69,6 +96,7 @@ router.get(
 // POST /admin/settings - 사이트 설정 업데이트
 router.post(
   "/settings",
+  csrfProtection,
   asyncHandler(async (req, res) => {
     const { siteDescription, aboutBlog, contactEmail, contactGithub } = req.body;
 
@@ -81,16 +109,133 @@ router.post(
     // 연락처 정보 업데이트
     await Setting.updateSetting("contactEmail", contactEmail, "연락 이메일 주소");
     await Setting.updateSetting("contactGithub", contactGithub, "GitHub 사용자명 또는 URL");
-    // 트위터 관련 코드 제거
 
     req.flash("success", "사이트 설정이 업데이트되었습니다.");
     res.redirect("/admin/settings");
   })
 );
 
+// 프로필 이미지 업로드 라우트
+router.post(
+  "/settings/profile-image",
+  upload.single("profileImage"),
+  asyncHandler(async (req, res) => {
+    try {
+      if (!req.file) {
+        req.flash("error", "이미지를 선택해주세요.");
+        return res.redirect("/admin/settings");
+      }
+
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "profile-images",
+            transformation: [{ width: 300, height: 300, crop: "fill", gravity: "face" }],
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+
+        bufferToStream(req.file.buffer).pipe(uploadStream);
+      });
+
+      const prevImagePath = await Setting.getSetting("profileImage", "");
+
+      if (prevImagePath && prevImagePath.includes("cloudinary.com")) {
+        const urlParts = prevImagePath.split("/");
+        const filenameWithExtension = urlParts[urlParts.length - 1];
+        const publicId = `profile-images/${filenameWithExtension.split(".")[0]}`;
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      await Setting.updateSetting("profileImage", result.secure_url, "블로그 소개 페이지에 표시되는 프로필 이미지");
+
+      req.flash("success", "프로필 이미지가 성공적으로 업로드되었습니다.");
+      res.redirect("/admin/settings");
+    } catch (error) {
+      console.error("프로필 이미지 업로드 중 오류:", error);
+      req.flash("error", "이미지 업로드 중 오류가 발생했습니다.");
+      res.redirect("/admin/settings");
+    }
+  })
+);
+
+// 프로필 이미지 삭제 라우트
+router.get(
+  "/settings/profile-image/delete",
+  csrfProtection,
+  asyncHandler(async (req, res) => {
+    try {
+      // 현재 프로필 이미지 경로 가져오기
+      const currentProfileImage = await Setting.getSetting("profileImage", "");
+
+      // Cloudinary에 저장된 이미지인 경우 삭제
+      if (currentProfileImage && currentProfileImage.includes("cloudinary.com")) {
+        // Cloudinary 이미지 URL에서 public_id 추출
+        const urlParts = currentProfileImage.split("/");
+        const filenameWithExtension = urlParts[urlParts.length - 1];
+        const publicId = `profile-images/${filenameWithExtension.split(".")[0]}`;
+
+        // Cloudinary에서 이미지 삭제
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      // DB 설정 기본 이미지로 재설정
+      await Setting.updateSetting(
+        "profileImage",
+        "/images/default-profile.png",
+        "블로그 소개 페이지에 표시되는 프로필 이미지"
+      );
+
+      req.flash("success", "프로필 이미지가 성공적으로 삭제되었습니다.");
+      res.redirect("/admin/settings");
+    } catch (error) {
+      console.error("프로필 이미지 삭제 중 오류:", error);
+      req.flash("error", "이미지 삭제 중 오류가 발생했습니다.");
+      res.redirect("/admin/settings");
+    }
+  })
+);
+
+// 게시물 이미지 업로드 라우트
+router.post(
+  "/posts/upload-image",
+  upload.single("postImage"),
+  asyncHandler(async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "이미지를 선택해주세요." });
+      }
+
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "post-images",
+            transformation: [{ width: 800, height: 600, crop: "limit" }],
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+
+        bufferToStream(req.file.buffer).pipe(uploadStream);
+      });
+
+      res.status(200).json({ imageUrl: result.secure_url });
+    } catch (error) {
+      console.error("게시물 이미지 업로드 중 오류:", error);
+      res.status(500).json({ error: "이미지 업로드 중 오류가 발생했습니다." });
+    }
+  })
+);
+
 // GET /admin/posts - 관리자용 게시물 관리 페이지
 router.get(
   "/posts",
+  csrfProtection,
   asyncHandler(async (req, res) => {
     try {
       // 페이지네이션 및 필터링 설정
@@ -164,6 +309,7 @@ router.get(
 // GET /admin/comments - 관리자용 댓글 관리 페이지
 router.get(
   "/comments",
+  csrfProtection,
   asyncHandler(async (req, res) => {
     try {
       // 페이지네이션 및 필터링 설정
@@ -274,6 +420,7 @@ router.get(
 // POST /admin/comments/:commentId/delete - 댓글 삭제
 router.post(
   "/comments/:postId/:commentId/delete",
+  csrfProtection,
   asyncHandler(async (req, res) => {
     try {
       const { postId, commentId } = req.params;
