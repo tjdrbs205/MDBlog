@@ -32,12 +32,14 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
     "geoip-lite": "^1.4.10",
     "helmet": "^8.1.0",
     "isbot": "^5.1.26",
     "marked": "^15.0.8",
     "mongoose": "^8.13.2",
     "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.2"
+    "multer": "^1.4.5-lts.2",
+    "passport": "^0.7.0"
   }
 }

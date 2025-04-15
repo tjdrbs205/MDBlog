@@ -3,7 +3,7 @@
  * 인증 관련 비즈니스 로직을 처리하는 서비스 계층
  */
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
 /**

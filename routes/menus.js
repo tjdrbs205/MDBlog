@@ -11,19 +11,9 @@ router.get("/", isLoggedIn, isAdmin, asyncHandler(menuController.list));
 router.post("/", isLoggedIn, isAdmin, asyncHandler(menuController.create));
 
 // 메뉴 삭제 (관리자만 가능)
-router.post(
-  "/:id/delete",
-  isLoggedIn,
-  isAdmin,
-  asyncHandler(menuController.delete)
-);
+router.post("/:id/delete", isLoggedIn, isAdmin, asyncHandler(menuController.delete));
 
 // 메뉴 순서 변경 (관리자만 가능)
-router.post(
-  "/reorder",
-  isLoggedIn,
-  isAdmin,
-  asyncHandler(menuController.reorder)
-);
+router.post("/reorder", isLoggedIn, isAdmin, asyncHandler(menuController.reorder));
 
 module.exports = router;

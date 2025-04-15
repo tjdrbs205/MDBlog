@@ -22,6 +22,16 @@ exports.isLoggedIn = async (req, res, next) => {
   }
 };
 
+// 로그인하지 않은 사용자만 접근 가능한 미들웨어
+exports.isNotLoggedIn = (req, res, next) => {
+  // 세션이 있고 사용자가 로그인 한 경우 메인 페이지로 리다이렉트
+  if (req.session && req.session.user) {
+    return res.redirect("/");
+  }
+  // 로그인하지 않은 경우 다음 미들웨어로 진행
+  next();
+};
+
 exports.isAuthor = (model) => {
   return async (req, res, next) => {
     // 세션이 없는 경우 바로 차단
