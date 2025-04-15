@@ -69,7 +69,11 @@
       <div class="col-md-3">
         <h5 class="mb-3">소셜 미디어</h5>
         <div class="d-flex justify-content-center gap-3">
-          <a href="#" target="_blank" class="text-decoration-none fs-4" title="GitHub">
+          <a
+            href="<%= locals.contactGithub ? (contactGithub.includes('http') ? contactGithub : 'https://github.com/' + contactGithub.replace('github.com/', '')) : '#' %>"
+            target="_blank"
+            class="text-decoration-none fs-4"
+            title="GitHub">
             <i class="bi bi-github"></i>
           </a>
         </div>

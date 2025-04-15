@@ -16,6 +16,9 @@ const settingsLoader = async (req, res, next) => {
       "## 안녕하세요! MDBlog에 오신 것을 환영합니다.\n\n이 블로그는 MongoDB와 Express.js를 사용하여 개발된 현대적인 블로그 시스템입니다. 개발 관련 지식과 경험을 공유하기 위한 공간입니다.\n\n### 주요 기능\n\n- 마크다운 지원으로 쉽고 빠른 글 작성\n- 카테고리와 태그를 활용한 콘텐츠 관리\n- 반응형 디자인으로 모바일 환경 지원\n\n더 많은 정보는 블로그 글을 통해 확인하세요!"
     );
 
+    // 연락처 정보 가져오기 - Github 링크
+    const contactGithub = await Setting.getSetting("contactGithub", "github.com/mdblog");
+
     // 마크다운을 HTML로 변환
     const aboutBlogHtml = marked(aboutBlog);
 
@@ -23,6 +26,7 @@ const settingsLoader = async (req, res, next) => {
     res.locals.siteDescription = siteDescription;
     res.locals.aboutBlog = aboutBlog;
     res.locals.aboutBlogHtml = aboutBlogHtml;
+    res.locals.contactGithub = contactGithub;
 
     next();
   } catch (error) {

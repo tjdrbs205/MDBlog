@@ -81,7 +81,7 @@ router.get(
     // 연락처 정보 가져오기
     const contactEmail = await Setting.getSetting("contactEmail", "contact@mdblog.com");
     const contactGithub = await Setting.getSetting("contactGithub", "github.com/mdblog");
-    const contactTwitter = await Setting.getSetting("contactTwitter", "mdblog");
+    // 트위터 관련 코드 제거
 
     // 마크다운을 HTML로 변환
     const aboutBlogHtml = marked(aboutBlog);
@@ -92,7 +92,6 @@ router.get(
       aboutBlogHtml,
       contactEmail,
       contactGithub,
-      contactTwitter,
     });
   })
 );

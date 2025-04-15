@@ -81,12 +81,9 @@
                   <%= contactGithub.includes('github.com') ? contactGithub : 'github.com/' + contactGithub %>
                 </a>
               </li>
-              <% } %> <% if (locals.contactTwitter) { %>
-              <li class="mb-2">
-                <i class="bi bi-twitter me-2"></i>
-                <a href="https://twitter.com/<%= contactTwitter.replace('@', '') %>" target="_blank"><%= contactTwitter.startsWith('@') ? contactTwitter : '@' + contactTwitter %></a>
-              </li>
               <% } %>
+
+              <!-- 트위터 관련 코드 제거 -->
             </ul>
           </div>
         </div>

@@ -53,7 +53,6 @@ router.get(
     // 연락처 정보 가져오기
     const contactEmail = await Setting.getSetting("contactEmail", "contact@mdblog.com");
     const contactGithub = await Setting.getSetting("contactGithub", "github.com/mdblog");
-    const contactTwitter = await Setting.getSetting("contactTwitter", "mdblog");
 
     res.render("layouts/main", {
       title: "사이트 설정",
@@ -63,7 +62,6 @@ router.get(
       aboutBlog,
       contactEmail,
       contactGithub,
-      contactTwitter,
     });
   })
 );
@@ -72,7 +70,7 @@ router.get(
 router.post(
   "/settings",
   asyncHandler(async (req, res) => {
-    const { siteDescription, aboutBlog, contactEmail, contactGithub, contactTwitter } = req.body;
+    const { siteDescription, aboutBlog, contactEmail, contactGithub } = req.body;
 
     // 사이트 설명 업데이트
     await Setting.updateSetting("siteDescription", siteDescription, "사이트 푸터에 표시되는 설명 텍스트");
@@ -83,7 +81,7 @@ router.post(
     // 연락처 정보 업데이트
     await Setting.updateSetting("contactEmail", contactEmail, "연락 이메일 주소");
     await Setting.updateSetting("contactGithub", contactGithub, "GitHub 사용자명 또는 URL");
-    await Setting.updateSetting("contactTwitter", contactTwitter, "Twitter 사용자명");
+    // 트위터 관련 코드 제거
 
     req.flash("success", "사이트 설정이 업데이트되었습니다.");
     res.redirect("/admin/settings");
