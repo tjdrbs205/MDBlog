@@ -162,46 +162,6 @@ exports.logout = (req, res) => {
 };
 
 /**
- * 비밀번호 찾기 폼 렌더링
- */
-exports.renderForgotPasswordForm = (req, res) => {
-  res.render("auth/forgot-password", {
-    title: "비밀번호 찾기",
-    email: "",
-  });
-};
-
-/**
- * 비밀번호 찾기 처리 (이메일 발송)
- */
-exports.forgotPassword = async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.render("auth/forgot-password", {
-      title: "비밀번호 찾기",
-      errors: ["이메일을 입력해주세요."],
-      email,
-    });
-  }
-
-  // 해당 이메일로 사용자 조회
-  const user = await User.findOne({ email });
-
-  // 사용자가 없어도 보안을 위해 성공 메시지 표시 (이메일이 존재하는지 여부를 노출하지 않기 위함)
-  if (!user) {
-    req.flash("success", "비밀번호 재설정 안내 이메일이 발송되었습니다. 이메일을 확인해주세요.");
-    return res.redirect("/auth/login");
-  }
-
-  // TODO: 비밀번호 재설정 토큰 생성 및 이메일 발송 로직 구현
-  // 현재는 실제 이메일 발송 없이 성공 메시지만 표시
-
-  req.flash("success", "비밀번호 재설정 안내 이메일이 발송되었습니다. 이메일을 확인해주세요.");
-  res.redirect("/auth/login");
-};
-
-/**
  * 프로필 페이지 렌더링
  */
 exports.renderProfile = async (req, res) => {

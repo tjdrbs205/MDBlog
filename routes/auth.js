@@ -20,11 +20,6 @@ router.get("/login", authController.renderLoginForm);
 router.post("/login", asyncHandler(authController.login));
 router.get("/logout", authController.logout);
 
-// 비밀번호 찾기 관련 라우트
-router.get("/forgot-password", authController.renderForgotPasswordForm);
-router.post("/forgot-password", asyncHandler(authController.forgotPassword));
-// TODO: 비밀번호 재설정 라우트 추가
-
 // 프로필 관련 라우트 (로그인 필요)
 router.get("/profile", isLoggedIn, asyncHandler(authController.renderProfile));
 router.post("/profile", isLoggedIn, asyncHandler(authController.updateProfile));
