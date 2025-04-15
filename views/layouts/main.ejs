@@ -5,17 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= title || 'MDBlog' %></title>
     <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
     <!-- Bootstrap Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
     <!-- Google Fonts - Noto Sans KR -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
-      rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/style.css" />
     <!-- 사이드바 CSS -->
@@ -32,11 +26,6 @@
     <link rel="stylesheet" href="/css/dashboard.css" />
     <% } %>
 
-    <!-- 디버깅용 -->
-    <script>
-      console.log("페이지 제목: <%= title %>");
-    </script>
-
     <!-- CSRF Token -->
     <% if (typeof csrfToken !== 'undefined') { %>
     <meta name="csrf-token" content="<%= csrfToken %>" />
@@ -47,8 +36,7 @@
     <%- include('../partials/header') %>
 
     <!-- 플래시 메시지 표시 -->
-    <% if (locals.flash && (flash.success?.length > 0 || flash.error?.length > 0 ||
-    flash.info?.length > 0)) { %>
+    <% if (locals.flash && (flash.success?.length > 0 || flash.error?.length > 0 || flash.info?.length > 0)) { %>
     <div class="container mt-3">
       <% if (flash.success?.length > 0) { %>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -71,16 +59,16 @@
 
     <!-- 추가 메시지 표시 -->
     <% if (messages && messages.success) { %>
-    <div class="alert alert-success" role="alert"> <%= messages.success %> </div>
+    <div class="alert alert-success" role="alert"><%= messages.success %></div>
     <% } %> <% if (messages && messages.error) { %>
-    <div class="alert alert-danger" role="alert"> <%= messages.error %> </div>
+    <div class="alert alert-danger" role="alert"><%= messages.error %></div>
     <% } %>
 
     <!-- 메인 콘텐츠 (Tistory 스타일) -->
     <div class="container mt-4">
       <div class="row">
         <!-- 사이드바 (왼쪽, Tistory 스타일) -->
-        <div class="col-md-3"> <%- include('./sidebar') %> </div>
+        <div class="col-md-3"><%- include('./sidebar') %></div>
 
         <!-- 메인 콘텐츠 (오른쪽) -->
         <div class="col-md-9">
@@ -99,8 +87,7 @@
           <!-- 문자열로 전달된 전체 콘텐츠 경우 -->
           <%- body %> <% } else { %>
           <!-- view 이름으로 다른 템플릿을 include하는 경우 -->
-          <%- include(locals.contentView ? ('../' + locals.contentView) : '../partials/loading') %>
-          <% } %>
+          <%- include(locals.contentView ? ('../' + locals.contentView) : '../partials/loading') %> <% } %>
           <!-- 페이지 콘텐츠 끝 -->
         </div>
       </div>
@@ -115,71 +102,19 @@
     <!-- Bootstrap JS Bundle (Popper 포함) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- 공통 JS -->
+    <script src="/js/main.js"></script>
+
     <!-- 사이드바 JS -->
     <script src="/js/sidebar.js"></script>
 
-    <!-- 기본 AJAX 설정 (CSRF 토큰) -->
-    <% if (typeof csrfToken !== 'undefined') { %>
-    <script>
-      $.ajaxSetup({
-        headers: {
-          "CSRF-Token": $('meta[name="csrf-token"]').attr("content"),
-        },
-      });
-    </script>
+    <!-- 페이지별 JS 로드 - 페이지 제목 기반 -->
+    <% if (title && title.includes('카테고리')) { %>
+    <script src="/js/categories.js"></script>
+    <% } %> <% if (contentView && (contentView.includes('posts/edit') || contentView.includes('posts/new'))) { %>
+    <script src="/js/posts.js"></script>
+    <% } %> <% if (contentView && contentView.includes('admin/stats/dashboard')) { %>
+    <script src="/js/admin/stats-dashboard.js"></script>
     <% } %>
-
-    <!-- 자동 알림 닫기 및 드롭다운 초기화 -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // 5초 후 자동으로 알림 닫기
-        setTimeout(function () {
-          const alerts = document.querySelectorAll(".alert");
-          alerts.forEach(function (alert) {
-            if (bootstrap && bootstrap.Alert) {
-              const bsAlert = new bootstrap.Alert(alert);
-              bsAlert.close();
-            }
-          });
-        }, 5000);
-
-        // 드롭다운 메뉴 수동 초기화
-        var dropdownElementList = [].slice.call(document.querySelectorAll(".dropdown-toggle"));
-        dropdownElementList.forEach(function (dropdownToggleEl) {
-          if (bootstrap && bootstrap.Dropdown) {
-            new bootstrap.Dropdown(dropdownToggleEl);
-          }
-        });
-
-        // 추가적인 드롭다운 기능 처리
-        document.querySelectorAll(".dropdown-toggle").forEach(function (element) {
-          element.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // 클릭된 요소의 다음 형제 요소 (드롭다운 메뉴)를 토글
-            var dropdownMenu = this.nextElementSibling;
-            if (dropdownMenu.classList.contains("show")) {
-              dropdownMenu.classList.remove("show");
-            } else {
-              // 다른 열린 드롭다운 메뉴 닫기
-              document.querySelectorAll(".dropdown-menu.show").forEach(function (menu) {
-                menu.classList.remove("show");
-              });
-              dropdownMenu.classList.add("show");
-            }
-          });
-        });
-
-        // 드롭다운 외부 클릭 시 닫기
-        document.addEventListener("click", function (e) {
-          if (!e.target.closest(".dropdown")) {
-            document.querySelectorAll(".dropdown-menu.show").forEach(function (menu) {
-              menu.classList.remove("show");
-            });
-          }
-        });
-      });
-    </script>
   </body>
 </html>

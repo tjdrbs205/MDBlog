@@ -86,30 +86,3 @@
     </form>
   </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // 태그 목록에서 태그 클릭 시 입력 필드에 추가
-    const tagItems = document.querySelectorAll('.tag-item');
-    const tagsInput = document.getElementById('tags');
-    
-    tagItems.forEach(item => {
-      item.addEventListener('click', function(e) {
-        e.preventDefault();
-        const tagName = this.getAttribute('data-tag');
-        
-        // 현재 입력된 태그 가져오기
-        let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
-        
-        // 이미 존재하는 태그인지 확인
-        if (!currentTags.includes(tagName)) {
-          if (currentTags.length > 0) {
-            tagsInput.value += ', ' + tagName;
-          } else {
-            tagsInput.value = tagName;
-          }
-        }
-      });
-    });
-  });
-</script>
