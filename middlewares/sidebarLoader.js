@@ -1,7 +1,7 @@
 // middlewares/sidebarLoader.js
 const Category = require("../models/Category");
 const Tag = require("../models/Tag");
-const Post = require("../models/Post_temp");
+const Post = require("../models/Post");
 const Stats = require("../models/Stats"); // Stats 모델 추가
 const asyncHandler = require("./asyncHandler");
 
