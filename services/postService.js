@@ -2,7 +2,7 @@
  * Post Service
  * 게시물 관련 비즈니스 로직을 처리하는 서비스 계층
  */
-const Post = require("../models/Post");
+const Post = require("../models/Post_temp");
 const Category = require("../models/Category");
 const Tag = require("../models/Tag");
 

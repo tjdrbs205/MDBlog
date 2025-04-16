@@ -1,7 +1,7 @@
 // middlewares/sidebarLoader.js
 const Category = require("../models/Category");
 const Tag = require("../models/Tag");
-const Post = require("../models/Post");
+const Post = require("../models/Post_temp");
 const Stats = require("../models/Stats"); // Stats 모델 추가
 const asyncHandler = require("./asyncHandler");
 
@@ -26,17 +26,11 @@ const sidebarLoader = asyncHandler(async (req, res, next) => {
     // 태그 목록 조회
     Tag.find().sort({ name: 1 }),
     // 최근 게시물 조회
-    Post.find({ isPublic: true })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("title createdAt featuredImage"),
+    Post.find({ isPublic: true }).sort({ createdAt: -1 }).limit(5).select("title createdAt featuredImage"),
     // 전체 게시물 수 조회
     Post.countDocuments({ isPublic: true }),
     // 카테고리별 게시물 수 계산
-    Post.aggregate([
-      { $match: { isPublic: true } },
-      { $group: { _id: "$category", count: { $sum: 1 } } },
-    ]),
+    Post.aggregate([{ $match: { isPublic: true } }, { $group: { _id: "$category", count: { $sum: 1 } } }]),
     // 오늘 방문자 통계
     Stats.getToday(),
     // 전체 방문자 통계
@@ -68,8 +62,7 @@ const sidebarLoader = asyncHandler(async (req, res, next) => {
       today: todayStats.visits || 0,
       total: totalStats && totalStats.totalVisits ? totalStats.totalVisits : 0,
       totalPageViews: totalStats && totalStats.totalPageViews ? totalStats.totalPageViews : 0,
-      totalUniqueVisitors:
-        totalStats && totalStats.totalUniqueVisitors ? totalStats.totalUniqueVisitors : 0,
+      totalUniqueVisitors: totalStats && totalStats.totalUniqueVisitors ? totalStats.totalUniqueVisitors : 0,
       active: activeVisitorsCount,
     },
     regions: regionStats,
