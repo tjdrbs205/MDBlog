@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const csrf = require("csurf");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
+const passport = require("./config/passport"); // Passport 추가
 
 const connectDB = require("./config/db");
 const MongoStore = require("connect-mongo");
@@ -41,15 +42,23 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGOOSE_URI,
       collectionName: "sessions",
+      ttl: 60 * 60, // 1시간 (초 단위)
+      autoRemove: "native", // MongoDB의 TTL 인덱스 사용
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60,
+      maxAge: 1000 * 60 * 60, // 1시간 (밀리초 단위)
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", // CSRF 공격 방지를 위한 sameSite 설정 추가
+      sameSite: "lax", // CSRF 공격 방지를 위한 sameSite 설정
     },
+    name: "mdblog.sid", // 기본 이름인 connect.sid 대신 사용자 정의 이름 사용
   })
 );
+
+// Passport 초기화 - 세션 설정 바로 다음에 위치해야 함
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(morgan(process.env.NODE_ENV || "dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -86,15 +95,25 @@ const csrfProtection = csrf({ cookie: true });
 
 // CSRF 미들웨어를 조건부로 적용
 app.use((req, res, next) => {
+  // 디버깅 로그 추가
+  console.log(`요청 경로: ${req.path}, 메서드: ${req.method}`);
+
   // 현재 요청이 CSRF 검증에서 제외되어야 하는지 확인
   const shouldExclude = csrfExcludedPaths.some((item) => item.path === req.path && item.method === req.method);
 
   if (shouldExclude) {
+    console.log("CSRF 검증에서 제외된 경로:", req.path);
     return next();
   }
 
   // 다른 모든 경로는 CSRF 검증 적용
-  csrfProtection(req, res, next);
+  try {
+    csrfProtection(req, res, next);
+  } catch (err) {
+    console.error("CSRF 처리 오류:", err);
+    console.error("오류 세부 정보:", err.stack);
+    next(err);
+  }
 });
 
 // CSRF 토큰을 locals에 추가
@@ -102,10 +121,14 @@ app.use((req, res, next) => {
   if (req.csrfToken) {
     try {
       res.locals.csrfToken = req.csrfToken();
+      console.log("CSRF 토큰 생성 성공");
     } catch (err) {
       // csrfToken을 생성할 수 없는 경우 오류 무시
-      console.log("CSRF 토큰 생성 오류 (무시됨):", err.message);
+      console.error("CSRF 토큰 생성 오류:", err.message);
+      console.error("오류 세부 정보:", err.stack);
     }
+  } else {
+    console.log("req.csrfToken 함수가 없음");
   }
   next();
 });

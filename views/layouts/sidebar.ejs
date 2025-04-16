@@ -157,7 +157,8 @@
   </div>
 </div>
 
-<!-- 방문자 통계 -->
+<!-- 방문자 통계 - 대시보드 페이지에서는 표시하지 않음 -->
+<% if (typeof hideSidebarStats === 'undefined' || !hideSidebarStats) { %>
 <div class="card mb-4">
   <div class="card-header">
     <h5 class="mb-0">
@@ -201,7 +202,7 @@
     </ul>
   </div>
 </div>
-<% } else { %>
+<% } %> <% } else { %>
 <!-- 사이드바 데이터가 없을 경우 -->
 <div class="card">
   <div class="card-body">

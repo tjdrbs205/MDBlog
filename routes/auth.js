@@ -5,7 +5,6 @@ const { isLoggedIn, isNotLoggedIn } = require("../middlewares/authMiddleware");
 const asyncHandler = require("../middlewares/asyncHandler");
 const { body } = require("express-validator");
 const validationMiddleware = require("../middlewares/validationMiddleware");
-const passport = require("passport");
 
 /**
  * 로그인 관련 라우트
@@ -23,11 +22,7 @@ router.post(
     body("password").notEmpty().withMessage("비밀번호를 입력해주세요."),
     validationMiddleware,
   ],
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/auth/login",
-    failureFlash: true,
-  })
+  asyncHandler(authController.login)
 );
 
 // GET /auth/logout - 로그아웃 처리

@@ -337,6 +337,18 @@ exports.getPostsByYearMonth = async (year, month = null) => {
 };
 
 /**
+ * 특정 사용자의 게시물 수 조회 서비스
+ * @param {string} userId - 사용자 ID
+ * @returns {Promise<number>} 사용자가 작성한 게시물 수
+ */
+exports.getUserPostCount = async (userId) => {
+  if (!userId) {
+    return 0;
+  }
+  return await Post.countDocuments({ author: userId });
+};
+
+/**
  * 태그 입력 처리 유틸리티 함수
  * @param {string|Array} tags - 태그 문자열 또는 배열
  * @returns {Promise<Array>} 태그 ID 배열
