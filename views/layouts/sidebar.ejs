@@ -58,7 +58,7 @@
           <% } else { %>
           <span class="toggle-placeholder"></span>
           <% } %>
-          <a href="/categories/<%= cat._id %>/posts" class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
+          <a href="/categories/<%= cat._id %>" class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
             <i class="bi bi-folder category-icon"></i>
             <%= cat.name %><% if (postCount > 0) { %>
             <span class="count">(<%= postCount %>)</span>
@@ -86,7 +86,7 @@
       <li class="category-item">
         <div class="category-header">
           <span class="toggle-placeholder"></span>
-          <a href="/categories/<%= cat._id %>/posts" class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
+          <a href="/categories/<%= cat._id %>" class="category-link <%= selectedCategory && selectedCategory.toString() === cat._id.toString() ? 'active' : '' %>">
             <i class="bi bi-folder category-icon"></i>
             <%= cat.name %><% if (postCount > 0) { %>
             <span class="count">(<%= postCount %>)</span>
