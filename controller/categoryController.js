@@ -10,19 +10,27 @@ const postService = require("../services/postService");
  */
 exports.list = async (req, res) => {
   try {
-    // 계층 구조의 카테고리 조회
-    const categories = await categoryService.getHierarchicalCategories();
+    // API 요청인 경우 JSON 응답 형식 사용
+    const isApiRequest = req.xhr || req.headers.accept.includes("json");
 
-    // 모든 카테고리 조회 (플랫 구조)
-    const allCategories = await categoryService.getAllCategories();
-
-    // 응답 렌더링
-    res.render("categories/list", {
-      title: "카테고리 관리",
-      categories,
-      allCategories,
-    });
+    if (isApiRequest) {
+      // API 요청인 경우 카테고리 데이터 JSON으로 반환
+      const categories = await categoryService.getHierarchicalCategories();
+      const allCategories = await categoryService.getAllCategories();
+      return res.json({ categories, allCategories });
+    } else {
+      // 일반 브라우저 요청인 경우 관리자 콘텐츠 페이지로 리다이렉트
+      return res.redirect("/admin/content#categories");
+    }
   } catch (error) {
+    const isApiRequest = req.xhr || req.headers.accept.includes("json");
+
+    if (isApiRequest) {
+      return res.status(error.statusCode || 500).json({
+        error: error.message || "카테고리 목록을 불러오는 중 오류가 발생했습니다.",
+      });
+    }
+
     req.flash("error", error.message || "카테고리 목록을 불러오는 중 오류가 발생했습니다.");
     res.redirect("/");
   }
@@ -39,17 +47,17 @@ exports.create = async (req, res) => {
     // 이름이 비어있는 경우 처리
     if (!name || !name.trim()) {
       req.flash("error", "카테고리 이름을 입력해주세요.");
-      return res.redirect("/categories");
+      return res.redirect("/admin/content#categories");
     }
 
     // 서비스 호출
     await categoryService.createCategory({ name, parent });
 
     req.flash("success", "카테고리가 성공적으로 생성되었습니다.");
-    res.redirect("/categories");
+    res.redirect("/admin/content#categories");
   } catch (error) {
     req.flash("error", error.message || "카테고리 생성 중 오류가 발생했습니다.");
-    res.redirect("/categories");
+    res.redirect("/admin/content#categories");
   }
 };
 
@@ -64,22 +72,22 @@ exports.update = async (req, res) => {
     // 필수 데이터 확인
     if (!id) {
       req.flash("error", "카테고리 ID가 필요합니다.");
-      return res.redirect("/categories");
+      return res.redirect("/admin/content#categories");
     }
 
     if (!name || !name.trim()) {
       req.flash("error", "카테고리 이름을 입력해주세요.");
-      return res.redirect("/categories");
+      return res.redirect("/admin/content#categories");
     }
 
     // 서비스 호출
     await categoryService.updateCategory(id, { name, parent });
 
     req.flash("success", "카테고리가 성공적으로 업데이트되었습니다.");
-    res.redirect("/categories");
+    res.redirect("/admin/content#categories");
   } catch (error) {
     req.flash("error", error.message || "카테고리 업데이트 중 오류가 발생했습니다.");
-    res.redirect("/categories");
+    res.redirect("/admin/content#categories");
   }
 };
 
@@ -106,7 +114,7 @@ exports.delete = async (req, res) => {
       }
 
       req.flash("error", errorMessage);
-      return res.redirect("/categories");
+      return res.redirect("/admin/content#categories");
     }
 
     // 서비스 호출
@@ -117,7 +125,7 @@ exports.delete = async (req, res) => {
     }
 
     req.flash("success", "카테고리가 성공적으로 삭제되었습니다.");
-    res.redirect("/categories");
+    res.redirect("/admin/content#categories");
   } catch (error) {
     const isApiRequest = req.xhr || req.headers.accept.includes("json");
 
@@ -128,7 +136,7 @@ exports.delete = async (req, res) => {
     }
 
     req.flash("error", error.message || "카테고리 삭제 중 오류가 발생했습니다.");
-    res.redirect("/categories");
+    res.redirect("/admin/content#categories");
   }
 };
 
