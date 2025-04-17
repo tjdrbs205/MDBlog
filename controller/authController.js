@@ -47,10 +47,19 @@ exports.login = (req, res, next) => {
     }
 
     if (!user) {
-      // 인증 실패시 오류 메시지 표시
+      // 인증 실패 시 보안을 위해 일관된 오류 메시지 표시
       console.log("로그인 실패:", info.message);
-      req.flash("error", info.message || "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
-      return res.redirect("/auth/login");
+      // 내부적으로는 실제 오류 로깅
+      console.log("실제 오류 원인:", info.message);
+
+      // 사용자에게는 일반적인 메시지만 표시
+      const genericErrorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
+
+      return res.render("auth/login", {
+        title: "로그인",
+        error: [genericErrorMessage],
+        email: req.body.email || "",
+      });
     }
 
     // 로그인 처리
