@@ -128,11 +128,15 @@ exports.renderRegister = (req, res) => {
 exports.register = async (req, res) => {
   try {
     const { username, email, password, passwordConfirm, displayName } = req.body;
-
     // 비밀번호 확인
     if (password !== passwordConfirm) {
       req.flash("error", "비밀번호가 일치하지 않습니다.");
-      return res.redirect("/auth/register");
+      // 리다이렉트 대신 직접 렌더링
+      return res.render("auth/register", {
+        title: "회원가입",
+        error: ["비밀번호가 일치하지 않습니다."],
+        user: { username, email, displayName }, // 사용자가 입력한 데이터 유지
+      });
     }
 
     // 서비스 호출
@@ -147,7 +151,12 @@ exports.register = async (req, res) => {
     res.redirect("/auth/login");
   } catch (error) {
     req.flash("error", error.message || "회원가입 중 오류가 발생했습니다.");
-    res.redirect("/auth/register");
+    // 리다이렉트 대신 직접 렌더링
+    return res.render("auth/register", {
+      title: "회원가입",
+      error: [error.message || "회원가입 중 오류가 발생했습니다."],
+      user: { username: req.body.username, email: req.body.email, displayName: req.body.displayName }, // 사용자가 입력한 데이터 유지
+    });
   }
 };
 

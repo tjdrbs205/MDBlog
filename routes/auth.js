@@ -51,6 +51,7 @@ router.post(
     body("email").isEmail().withMessage("유효한 이메일 주소를 입력해주세요.").normalizeEmail(),
     body("password").isLength({ min: 6 }).withMessage("비밀번호는 최소 6자 이상이어야 합니다.").trim(),
     body("passwordConfirm").custom((value, { req }) => {
+      console.log("비밀번호 확인:", value, req.body.password);
       if (value !== req.body.password) {
         throw new Error("비밀번호가 일치하지 않습니다.");
       }

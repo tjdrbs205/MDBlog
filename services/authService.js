@@ -30,14 +30,11 @@ exports.registerUser = async (userData) => {
     throw error;
   }
 
-  // 비밀번호 해싱
-  const hashedPassword = await bcrypt.hash(password, 12);
-
   // 사용자 생성
   const user = await User.create({
     username,
     email,
-    password: hashedPassword,
+    password: password,
     displayName: displayName || username,
     role: "user",
     isActive: true,
