@@ -72,6 +72,13 @@ main {
   margin-right: 0.25rem;
 }
 
+/* 게시물 상세 내용 스타일 - 줄바꿈 유지 */
+.post-content {
+  white-space: pre-line;
+  line-height: 1.8;
+  word-break: break-word;
+}
+
 /* 폼 스타일 */
 .form-control:focus {
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
