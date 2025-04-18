@@ -5,6 +5,7 @@ const { isLoggedIn, isNotLoggedIn } = require("../middlewares/authMiddleware");
 const asyncHandler = require("../middlewares/asyncHandler");
 const { body } = require("express-validator");
 const validationMiddleware = require("../middlewares/validationMiddleware");
+const { imageUpload } = require("../utils/fileUpload");
 
 /**
  * 로그인 관련 라우트
@@ -115,5 +116,20 @@ router.post(
   ],
   asyncHandler(authController.changePassword)
 );
+
+/**
+ * 프로필 이미지 관련 라우트
+ */
+
+// POST /auth/profile/image - 프로필 이미지 업로드
+router.post(
+  "/profile/image",
+  isLoggedIn,
+  imageUpload.single("profileImage"),
+  asyncHandler(authController.uploadProfileImage)
+);
+
+// POST /auth/profile/image/delete - 프로필 이미지 삭제
+router.post("/profile/image/delete", isLoggedIn, asyncHandler(authController.deleteProfileImage));
 
 module.exports = router;

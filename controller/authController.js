@@ -4,6 +4,7 @@
  */
 const authService = require("../services/authService");
 const postService = require("../services/postService");
+const fileService = require("../services/fileService"); // 파일 서비스 추가
 const passport = require("passport");
 
 /**
@@ -283,5 +284,56 @@ exports.changePassword = async (req, res) => {
   } catch (error) {
     req.flash("error", error.message || "비밀번호 변경 중 오류가 발생했습니다.");
     res.redirect("/auth/change-password");
+  }
+};
+
+/**
+ * 프로필 이미지 업로드 처리
+ */
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    // 로그인 여부 확인
+    if (!req.isAuthenticated()) {
+      req.flash("error", "로그인이 필요합니다.");
+      return res.redirect("/auth/login");
+    }
+
+    if (!req.file) {
+      req.flash("error", "업로드할 이미지를 선택해주세요.");
+      return res.redirect("/auth/profile");
+    }
+
+    // 서비스 레이어를 통해 이미지 업로드 처리
+    await fileService.uploadUserProfileImage(req.user._id, req.file.buffer);
+
+    req.flash("success", "프로필 이미지가 업데이트되었습니다.");
+    res.redirect("/auth/profile");
+  } catch (error) {
+    console.error("프로필 이미지 업로드 오류:", error);
+    req.flash("error", error.message || "이미지 업로드 중 오류가 발생했습니다.");
+    res.redirect("/auth/profile");
+  }
+};
+
+/**
+ * 프로필 이미지 삭제 처리
+ */
+exports.deleteProfileImage = async (req, res) => {
+  try {
+    // 로그인 여부 확인
+    if (!req.isAuthenticated()) {
+      req.flash("error", "로그인이 필요합니다.");
+      return res.redirect("/auth/login");
+    }
+
+    // 서비스 레이어를 통해 이미지 삭제 처리
+    await fileService.deleteUserProfileImage(req.user._id);
+
+    req.flash("success", "프로필 이미지가 초기화되었습니다.");
+    res.redirect("/auth/profile");
+  } catch (error) {
+    console.error("프로필 이미지 삭제 오류:", error);
+    req.flash("error", error.message || "이미지 삭제 중 오류가 발생했습니다.");
+    res.redirect("/auth/profile");
   }
 };

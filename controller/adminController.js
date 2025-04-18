@@ -6,11 +6,10 @@ const adminService = require("../services/adminService");
 const postService = require("../services/postService");
 const categoryService = require("../services/categoryService");
 const tagService = require("../services/tagService");
+const fileService = require("../services/fileService"); // 파일 서비스 추가
 const Post = require("../models/Post");
 const Setting = require("../models/Setting");
 const Menu = require("../models/Menu"); // Menu 모델 추가
-const { bufferToStream } = require("../utils/fileUpload");
-const cloudinary = require("../config/cloudinary");
 
 /**
  * 대시보드 페이지 렌더링
@@ -417,29 +416,13 @@ exports.uploadProfileImage = async (req, res) => {
       return res.redirect("/admin/settings");
     }
 
-    // 이미지 파일 처리
-    const buffer = req.file.buffer;
-    const stream = bufferToStream(buffer);
-
-    // Cloudinary에 이미지 업로드
-    const result = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream({ folder: "blog/profile" }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      });
-      stream.pipe(uploadStream);
-    });
-
-    // 프로필 이미지 URL을 설정에 저장
-    await Setting.findOneAndUpdate(
-      { key: "profileImage" },
-      { key: "profileImage", value: result.secure_url },
-      { upsert: true, new: true }
-    );
+    // 서비스 레이어를 통해 이미지 업로드 처리
+    await fileService.uploadBlogProfileImage(req.file.buffer);
 
     req.flash("success", "프로필 이미지가 성공적으로 업로드되었습니다.");
     res.redirect("/admin/settings");
   } catch (error) {
+    console.error("프로필 이미지 업로드 오류:", error);
     req.flash("error", error.message || "이미지 업로드 중 오류가 발생했습니다.");
     res.redirect("/admin/settings");
   }
@@ -450,19 +433,13 @@ exports.uploadProfileImage = async (req, res) => {
  */
 exports.deleteProfileImage = async (req, res) => {
   try {
-    // 기본 프로필 이미지 URL으로 설정
-    const defaultImage = "/images/default-profile.png";
-
-    // 설정에서 프로필 이미지 업데이트
-    await Setting.findOneAndUpdate(
-      { key: "profileImage" },
-      { key: "profileImage", value: defaultImage },
-      { upsert: true, new: true }
-    );
+    // 서비스 레이어를 통해 이미지 삭제 처리
+    await fileService.deleteBlogProfileImage();
 
     req.flash("success", "프로필 이미지가 초기화되었습니다.");
     res.redirect("/admin/settings");
   } catch (error) {
+    console.error("프로필 이미지 삭제 오류:", error);
     req.flash("error", error.message || "이미지 삭제 중 오류가 발생했습니다.");
     res.redirect("/admin/settings");
   }
