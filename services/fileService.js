@@ -187,8 +187,17 @@ async function deleteUserProfileImage(userId) {
     throw new Error("사용자를 찾을 수 없습니다.");
   }
 
+  console.log("현재 사용자 프로필 이미지:", user.profileImage);
+
+  // 이미지가 기본 이미지이거나 없는 경우 처리
+  if (!user.profileImage || user.profileImage === "/images/default-profile.png") {
+    console.log("이미 기본 이미지를 사용 중이거나 이미지가 없습니다.");
+    return user.profileImage || "/images/default-profile.png";
+  }
+
   // 기존 이미지 public_id 추출
   const publicId = extractPublicIdFromUrl(user.profileImage, "user/profile");
+  console.log("추출된 이미지 public_id:", publicId);
 
   // Cloudinary에서 이미지 삭제 (있는 경우)
   if (publicId) {
@@ -199,11 +208,15 @@ async function deleteUserProfileImage(userId) {
       console.error("Cloudinary 이미지 삭제 중 오류:", error);
       // 이미지 삭제 실패는 전체 프로세스를 실패시키지 않음
     }
+  } else {
+    console.log("Cloudinary public_id를 추출할 수 없습니다. URL 형식을 확인하세요.");
   }
 
   // 기본 프로필 이미지 URL로 설정
   const defaultImage = "/images/default-profile.png";
-  await User.findByIdAndUpdate(userId, { profileImage: defaultImage });
+  const updatedUser = await User.findByIdAndUpdate(userId, { profileImage: defaultImage }, { new: true });
+
+  console.log("사용자 이미지가 기본 이미지로 업데이트됨:", updatedUser.profileImage);
 
   return defaultImage;
 }

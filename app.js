@@ -87,7 +87,7 @@ app.use((req, res, next) => {
 const csrfExcludedPaths = [
   { path: "/admin/settings/profile-image", method: "POST" },
   { path: "/auth/profile/image", method: "POST" },
-  { path: "/auth/profile/image/delete", method: "GET" },
+  { path: "/auth/profile/image/delete", method: "POST" }, // GET에서 POST로 메서드 수정
 ];
 
 // CSRF 미들웨어 설정
@@ -95,25 +95,70 @@ const csrfProtection = csrf({ cookie: true });
 
 // CSRF 미들웨어를 조건부로 적용
 app.use((req, res, next) => {
-  // 디버깅 로그 추가
-  console.log(`요청 경로: ${req.path}, 메서드: ${req.method}`);
-
   // 현재 요청이 CSRF 검증에서 제외되어야 하는지 확인
   const shouldExclude = csrfExcludedPaths.some((item) => item.path === req.path && item.method === req.method);
 
+  // 요청의 _csrf 토큰 디버깅 (body, query 또는 헤더에 있을 수 있음)
+  console.log(`[CSRF 디버그] 요청 경로: ${req.method} ${req.path}`);
+  console.log("[CSRF 디버그] 헤더:", req.headers["csrf-token"] || req.headers["x-csrf-token"] || "없음");
+
+  // 배열로 전달된 CSRF 토큰 문제 해결 (첫 번째 값만 사용)
+  if (req.body && req.body._csrf) {
+    if (Array.isArray(req.body._csrf)) {
+      console.log("[CSRF 디버그] 배열 형태의 토큰 감지됨, 첫 번째 값으로 변환");
+      req.body._csrf = req.body._csrf[0];
+    }
+    console.log("[CSRF 디버그] 요청 본문 토큰:", req.body._csrf);
+  }
+
+  if (req.query && req.query._csrf) {
+    if (Array.isArray(req.query._csrf)) {
+      req.query._csrf = req.query._csrf[0];
+    }
+    console.log("[CSRF 디버그] 쿼리 토큰:", req.query._csrf);
+  }
+
   if (shouldExclude) {
-    console.log("CSRF 검증에서 제외된 경로:", req.path);
+    // 제외된 경로는 CSRF 검증 없이 진행하지만, 토큰은 생성
+    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : "";
     return next();
   }
 
-  // 다른 모든 경로는 CSRF 검증 적용
-  try {
-    csrfProtection(req, res, next);
-  } catch (err) {
-    console.error("CSRF 처리 오류:", err);
-    console.error("오류 세부 정보:", err.stack);
-    next(err);
-  }
+  // CSRF 미들웨어 적용
+  csrfProtection(req, res, (err) => {
+    if (err && err.code === "EBADCSRFTOKEN") {
+      // 잘못된 CSRF 토큰 오류 처리
+      console.error("[CSRF 오류] 잘못된 CSRF 토큰:", err.message);
+      console.log("[CSRF 디버그] 쿠키 값:", req.cookies._csrf || "없음");
+      console.log("[CSRF 디버그] 요청 본문:", req.body && req.body._csrf ? req.body._csrf : "없음");
+
+      if (req.xhr || req.headers.accept?.includes("json")) {
+        return res.status(403).json({ error: "CSRF 토큰이 유효하지 않습니다" });
+      }
+
+      req.flash("error", "CSRF 토큰이 유효하지 않습니다. 다시 시도해주세요.");
+      return res.redirect("back");
+    } else if (err) {
+      console.error("CSRF 처리 오류:", err);
+      return next(err);
+    }
+
+    try {
+      // 성공적으로 CSRF 검증을 통과하면 토큰을 뷰에 전달
+      const token = req.csrfToken();
+      res.locals.csrfToken = token;
+      res.locals.csrfMeta = `<meta name="csrf-token" content="${token}" />`;
+
+      // 생성된 토큰 로깅
+      console.log(`[CSRF 디버그] 생성된 토큰: ${token.substring(0, 10)}...${token.substring(token.length - 5)}`);
+      console.log("[CSRF 디버그] 쿠키 값:", req.cookies._csrf || "없음");
+
+      next();
+    } catch (tokenErr) {
+      console.error("[CSRF 오류] 토큰 생성 오류:", tokenErr);
+      next(tokenErr);
+    }
+  });
 });
 
 // CSRF 토큰을 locals에 추가

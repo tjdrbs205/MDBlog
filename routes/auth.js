@@ -130,6 +130,15 @@ router.post(
 );
 
 // POST /auth/profile/image/delete - 프로필 이미지 삭제
-router.post("/profile/image/delete", isLoggedIn, asyncHandler(authController.deleteProfileImage));
+router.post(
+  "/profile/image/delete",
+  isLoggedIn,
+  (req, res, next) => {
+    console.log("프로필 이미지 삭제 라우트 도달:", req.path);
+    console.log("요청 본문:", req.body);
+    next();
+  },
+  asyncHandler(authController.deleteProfileImage)
+);
 
 module.exports = router;

@@ -326,10 +326,12 @@ exports.deleteProfileImage = async (req, res) => {
       return res.redirect("/auth/login");
     }
 
+    console.log("프로필 이미지 삭제 시도:", req.user._id);
+
     // 서비스 레이어를 통해 이미지 삭제 처리
     await fileService.deleteUserProfileImage(req.user._id);
 
-    req.flash("success", "프로필 이미지가 초기화되었습니다.");
+    req.flash("success", "프로필 이미지가 삭제되었습니다.");
     res.redirect("/auth/profile");
   } catch (error) {
     console.error("프로필 이미지 삭제 오류:", error);
