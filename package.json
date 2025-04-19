@@ -1,12 +1,16 @@
 {
-  "name": "mdblog",
-  "version": "1.0.0",
-  "description": "my develop blog",
-  "main": "app.js",
+  "name": "mdblog-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js",
-    "start": "node app.js"
+    "dev": "npm-run-all --parallel dev:frontend dev:backend",
+    "dev:frontend": "npm run dev --workspace=packages/frontend",
+    "dev:backend": "npm run dev --workspace=packages/backend",
+    "build": "npm-run-all --parallel build:frontend build:backend",
+    "build:frontend": "npm run build --workspace=packages/frontend",
+    "build:backend": "npm run build --workspace=packages/backend"
   },
   "repository": {
     "type": "git",
@@ -19,29 +23,7 @@
   },
   "homepage": "https://github.com/tjdrbs205/MDBlog#readme",
   "devDependencies": {
-    "nodemon": "^3.1.9"
-  },
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "body-parser": "^2.2.0",
-    "cloudinary": "^2.6.0",
-    "connect-flash": "^0.1.1",
-    "connect-mongo": "^5.1.0",
-    "cookie-parser": "^1.4.7",
-    "csurf": "^1.10.0",
-    "dotenv": "^16.4.7",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "express-session": "^1.18.1",
-    "express-validator": "^7.2.1",
-    "geoip-lite": "^1.4.10",
-    "helmet": "^8.1.0",
-    "isbot": "^5.1.26",
-    "marked": "^15.0.8",
-    "mongoose": "^8.13.2",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.2",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0"
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.3.0"
   }
 }
