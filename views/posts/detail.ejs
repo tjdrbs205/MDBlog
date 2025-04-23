@@ -128,6 +128,23 @@
   <a href="/posts" class="btn btn-secondary">목록으로</a>
 </div>
 
+<style>
+  /* 게시물 내용의 이미지 크기 제한 */
+  .post-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1rem auto;
+  }
+
+  /* 이미지 figure 요소 스타일 조정 */
+  .post-content figure.image {
+    margin: 1rem 0;
+    text-align: center;
+    max-width: 100%;
+  }
+</style>
+
 <script>
   // 삭제 폼에 이벤트 리스너 추가
   document.addEventListener("DOMContentLoaded", function () {

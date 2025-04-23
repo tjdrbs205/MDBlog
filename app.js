@@ -23,11 +23,21 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "code.jquery.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "cdn.jsdelivr.net", "code.jquery.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com"],
         fontSrc: ["'self'", "fonts.gstatic.com", "cdn.jsdelivr.net"],
-        imgSrc: ["'self'", "data:", "cdn.jsdelivr.net", "*.unsplash.com", "res.cloudinary.com", "*.cloudinary.com"],
-        connectSrc: ["'self'"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "cdn.jsdelivr.net",
+          "*.unsplash.com",
+          "res.cloudinary.com",
+          "*.cloudinary.com",
+          "blob:",
+        ],
+        connectSrc: ["'self'", "*.cloudinary.com"],
+        mediaSrc: ["'self'", "data:", "blob:", "*.cloudinary.com"],
+        upgradeInsecureRequests: [],
       },
     },
   })
@@ -60,9 +70,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(morgan(process.env.NODE_ENV || "dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.static(path.join(__dirname, "public")));
+// CKEditor를 위한 정적 파일 경로 추가
+app.use(
+  "/node_modules/ckeditor5-build-classic",
+  express.static(path.join(__dirname, "node_modules/ckeditor5-build-classic"))
+);
 app.use(cookieParser());
 
 // Flash 메시지 설정
@@ -88,6 +103,7 @@ const csrfExcludedPaths = [
   { path: "/admin/settings/profile-image", method: "POST" },
   { path: "/auth/profile/image", method: "POST" },
   { path: "/auth/profile/image/delete", method: "POST" }, // GET에서 POST로 메서드 수정
+  { path: "/api/upload/image", method: "POST" }, // CKEditor 이미지 업로드 API
 ];
 
 // CSRF 미들웨어 설정
@@ -203,6 +219,7 @@ const tagRouter = require("./routes/tags");
 const menuRouter = require("./routes/menus");
 const authRouter = require("./routes/auth");
 const adminRouter = require("./routes/admin");
+const apiRouter = require("./routes/api"); // API 라우터 추가
 
 app.use("/", indexRouter);
 app.use("/posts", postRouter);
@@ -211,6 +228,7 @@ app.use("/tags", tagRouter);
 // app.use("/menus", menuRouter); // 사용하지 않는 라우터
 app.use("/auth", authRouter);
 app.use("/admin", adminRouter);
+app.use("/api", apiRouter); // API 라우터 등록
 
 // 404 에러 처리
 app.use((req, res, next) => {

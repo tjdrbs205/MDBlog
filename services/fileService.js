@@ -221,6 +221,49 @@ async function deleteUserProfileImage(userId) {
   return defaultImage;
 }
 
+/**
+ * HTML 내용에서 Cloudinary 이미지 URL 추출
+ * @param {string} content - HTML 내용
+ * @returns {string[]} - 추출된 Cloudinary 이미지 URL 배열
+ */
+function extractCloudinaryImagesFromContent(content) {
+  if (!content) return [];
+
+  const cloudinaryRegex = /https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/[^"']+/g;
+  return content.match(cloudinaryRegex) || [];
+}
+
+/**
+ * HTML 내용에서 추출한 Cloudinary 이미지들을 삭제
+ * @param {string} content - HTML 내용
+ * @param {string} folder - Cloudinary 폴더 경로
+ * @returns {Promise<Array>} - 삭제된 이미지 결과 배열
+ */
+async function deleteImagesFromContent(content, folder) {
+  if (!content) return [];
+
+  // HTML에서 Cloudinary 이미지 URL 추출
+  const imageUrls = extractCloudinaryImagesFromContent(content);
+  const results = [];
+
+  // 각 이미지 URL에서 public_id 추출 후 삭제
+  for (const url of imageUrls) {
+    const publicId = extractPublicIdFromUrl(url, folder);
+    if (publicId) {
+      try {
+        const result = await deleteImageFromCloudinary(publicId);
+        results.push({ url, publicId, result });
+        console.log(`게시물 이미지 삭제 완료: ${publicId}`);
+      } catch (error) {
+        console.error(`이미지 삭제 중 오류 (${publicId}):`, error);
+        results.push({ url, publicId, error: error.message });
+      }
+    }
+  }
+
+  return results;
+}
+
 module.exports = {
   uploadBlogProfileImage,
   deleteBlogProfileImage,
@@ -229,4 +272,6 @@ module.exports = {
   uploadImageToCloudinary,
   deleteImageFromCloudinary,
   extractPublicIdFromUrl,
+  extractCloudinaryImagesFromContent,
+  deleteImagesFromContent,
 };

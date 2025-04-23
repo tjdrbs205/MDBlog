@@ -5,6 +5,7 @@
 const Post = require("../models/Post");
 const Category = require("../models/Category");
 const Tag = require("../models/Tag");
+const fileService = require("./fileService"); // 파일 서비스 추가
 
 /**
  * 게시물 목록 조회 서비스
@@ -166,6 +167,37 @@ exports.updatePost = async (postId, updateData) => {
     throw error;
   }
 
+  // 기존 내용에서 새 내용으로 변경될 때 삭제된 이미지 체크
+  if (post.content && content && post.content !== content) {
+    // 기존 콘텐츠에는 있지만 새 콘텐츠에는 없는 이미지 추출
+    try {
+      const oldImageUrls = fileService.extractCloudinaryImagesFromContent(post.content);
+      const newImageUrls = fileService.extractCloudinaryImagesFromContent(content);
+
+      // 삭제된 이미지 찾기 (기존에는 있었지만 새 콘텐츠에는 없는 이미지)
+      const deletedImageUrls = oldImageUrls.filter((url) => !newImageUrls.includes(url));
+
+      if (deletedImageUrls.length > 0) {
+        console.log(`게시물 ID ${postId} 수정 - 삭제된 이미지 ${deletedImageUrls.length}개 발견`);
+
+        // 사용하지 않는 이미지 Cloudinary에서 삭제
+        for (const url of deletedImageUrls) {
+          const publicId = fileService.extractPublicIdFromUrl(url, "blog/content");
+          if (publicId) {
+            try {
+              await fileService.deleteImageFromCloudinary(publicId);
+              console.log(`게시물 수정 중 사용하지 않는 이미지 삭제 성공: ${publicId}`);
+            } catch (error) {
+              console.error(`게시물 수정 중 이미지 삭제 실패: ${publicId}`, error);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("게시물 수정 중 이미지 처리 오류:", error);
+    }
+  }
+
   // 태그 처리
   const tagIds = await processTagsInput(tags);
 
@@ -188,14 +220,28 @@ exports.updatePost = async (postId, updateData) => {
  * @returns {Promise<void>}
  */
 exports.deletePost = async (postId) => {
-  const result = await Post.findByIdAndDelete(postId);
+  const post = await Post.findById(postId);
 
-  if (!result) {
+  if (!post) {
     const error = new Error("게시물을 찾을 수 없습니다");
     error.statusCode = 404;
     throw error;
   }
 
+  // 게시물 내용에서 Cloudinary 이미지 삭제
+  if (post.content) {
+    try {
+      console.log(`게시물 ID ${postId} 삭제 - 이미지 삭제 시작`);
+      const deleteResults = await fileService.deleteImagesFromContent(post.content, "blog/content");
+      console.log(`게시물 삭제 - 총 ${deleteResults.length}개 이미지 처리 완료`);
+    } catch (error) {
+      console.error("게시물 이미지 삭제 중 오류:", error);
+      // 이미지 삭제 실패는 게시물 삭제 프로세스를 중단하지 않음
+    }
+  }
+
+  // 게시물 삭제
+  const result = await Post.findByIdAndDelete(postId);
   return result;
 };
 
