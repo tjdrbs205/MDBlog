@@ -208,7 +208,7 @@ app.use("/", indexRouter);
 app.use("/posts", postRouter);
 app.use("/categories", categoryRouter);
 app.use("/tags", tagRouter);
-app.use("/menus", menuRouter);
+// app.use("/menus", menuRouter); // 사용하지 않는 라우터
 app.use("/auth", authRouter);
 app.use("/admin", adminRouter);
 
