@@ -5,7 +5,7 @@ interface IComment {
 }
 
 interface IPost {
-  _id?: string;
+  id?: string;
   title: string;
   slug: string;
   content: string;
@@ -43,6 +43,17 @@ interface IUpdatePostDto {
   isPublic: boolean;
   status: string;
 }
-interface IPostResponseDto extends IPost {}
 
-export { IComment, IPost, ICreatePostDto, IUpdatePostDto, IPostResponseDto };
+interface PagenationInfo {
+  page: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+interface IGetPostsResponse {
+  posts: IPost[];
+  totalPosts: number;
+  pagination: PagenationInfo;
+}
+export { IComment, IPost, ICreatePostDto, IUpdatePostDto, PagenationInfo, IGetPostsResponse };

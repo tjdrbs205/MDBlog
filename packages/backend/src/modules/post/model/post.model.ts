@@ -1,10 +1,9 @@
 import { IPost } from "@mdblog/shared/src/types/post.interface";
 import { Document, model, Schema } from "mongoose";
 
-interface IPostDocument extends Omit<IPost, "_id" | "author" | "category">, Document {
+interface IPostDocument extends Omit<IPost, "id" | "author" | "category">, Document {
   author: Schema.Types.ObjectId;
   category: Schema.Types.ObjectId;
-  toPost(): IPost;
 }
 
 const postSchema = new Schema<IPostDocument>(
@@ -88,6 +87,7 @@ const postSchema = new Schema<IPostDocument>(
   { timestamps: true }
 );
 
+// 데이터 저장 시 slug와 excerpt 자동 생성
 postSchema.pre("save", function (next) {
   if ((this.isModified("title") || this.isNew) && !this.slug) {
     const timestamps = new Date().getTime();
@@ -111,4 +111,6 @@ postSchema.methods.toPost = function (): IPost {
   return post;
 };
 
-export const PostModel = model<IPostDocument>("Post", postSchema);
+const PostModel = model<IPostDocument>("Post", postSchema);
+
+export { PostModel, IPostDocument };
