@@ -199,6 +199,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// CKEditor 라이센스 키를 클라이언트에 안전하게 전달
+app.use((req, res, next) => {
+  // 개발 환경과 프로덕션 환경에 따라 적절한 라이센스 키 사용
+  const isDev = process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "development";
+  res.locals.CKEDITOR_LICENSE_KEY = isDev
+    ? process.env.CKEDITOR_LICENCE_KEY_DEV
+    : process.env.CKEDITOR_LICENCE_KEY || "";
+  next();
+});
+
 // 사용자 정의 미들웨어
 const menuLoader = require("./middlewares/menuLoader");
 const userLoader = require("./middlewares/userLoader");

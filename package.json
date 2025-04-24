@@ -36,6 +36,7 @@
     "express-validator": "^7.2.1",
     "geoip-lite": "^1.4.10",
     "helmet": "^8.1.0",
+    "highlight.js": "^11.11.1",
     "isbot": "^5.1.26",
     "marked": "^15.0.8",
     "mongoose": "^8.13.2",

@@ -174,8 +174,8 @@ const {
   Underline,
 } = window.CKEDITOR;
 
-const LICENSE_KEY =
-  "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NzcwNzUxOTksImp0aSI6IjU3YmYzYTUzLWQ4MzQtNGRlNy1hOGE1LTUxYjYyODBmYTNlYSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCJdLCJ2YyI6IjNiNzUyNDVhIn0.nKdDhEhHQiMYyBYojmrlZqVPbOFPdFQScXQkPhlCLTdrO5nBJ1uSuGBKa_43kxOPIv0T1T6NiHbt4ARb8fQEmw";
+// 서버에서 전달받은 라이센스 키 사용
+const LICENSE_KEY = window.CKEDITOR_LICENSE_KEY || "";
 
 const editorConfig = {
   toolbar: {
@@ -361,5 +361,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((error) => {
         console.error("CKEditor 초기화 중 오류 발생:", error);
       });
+  }
+
+  // 페이지에 있는 코드 블록에 Prism.js 적용
+  if (typeof Prism !== "undefined") {
+    // Prism.js가 로드된 경우에만 실행
+    Prism.highlightAll();
+    console.log("Prism.js 코드 하이라이트 적용됨");
   }
 });
