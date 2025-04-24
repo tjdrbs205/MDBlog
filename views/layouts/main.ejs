@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="/css/style.css" />
     <!-- 사이드바 CSS -->
     <link rel="stylesheet" href="/css/sidebar.css" />
+    <!-- CKEditor CSS -->
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.css" crossorigin>
 
     <!-- 페이지별 CSS 로드 - 페이지 제목 기반 -->
     <% if (title && (title === '로그인' || title === '회원가입')) { %>
@@ -102,6 +104,10 @@
     <!-- Bootstrap JS Bundle (Popper 포함) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- CKEditor 5 스크립트 -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.umd.js" crossorigin></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/45.0.0/translations/ko.umd.js" crossorigin></script>
+    
     <!-- 공통 JS -->
     <script src="/js/main.js"></script>
 

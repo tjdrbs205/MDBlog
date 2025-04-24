@@ -24,7 +24,6 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
-    "ckeditor5-build-classic": "^1.0.0",
     "cloudinary": "^2.6.0",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^5.1.0",

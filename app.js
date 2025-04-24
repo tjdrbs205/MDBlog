@@ -23,8 +23,15 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "cdn.jsdelivr.net", "code.jquery.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "cdn.jsdelivr.net",
+          "code.jquery.com",
+          "cdn.ckeditor.com",
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com", "cdn.ckeditor.com"],
         fontSrc: ["'self'", "fonts.gstatic.com", "cdn.jsdelivr.net"],
         imgSrc: [
           "'self'",
@@ -34,12 +41,15 @@ app.use(
           "res.cloudinary.com",
           "*.cloudinary.com",
           "blob:",
+          "cdn.ckeditor.com",
         ],
-        connectSrc: ["'self'", "*.cloudinary.com"],
+        connectSrc: ["'self'", "*.cloudinary.com", "cdn.ckeditor.com", "proxy-event.ckeditor.com"],
         mediaSrc: ["'self'", "data:", "blob:", "*.cloudinary.com"],
         upgradeInsecureRequests: [],
       },
     },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
   })
 );
 
@@ -73,11 +83,6 @@ app.use(morgan(process.env.NODE_ENV || "dev"));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.static(path.join(__dirname, "public")));
-// CKEditor를 위한 정적 파일 경로 추가
-app.use(
-  "/node_modules/ckeditor5-build-classic",
-  express.static(path.join(__dirname, "node_modules/ckeditor5-build-classic"))
-);
 app.use(cookieParser());
 
 // Flash 메시지 설정

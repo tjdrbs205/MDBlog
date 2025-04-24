@@ -1,0 +1,2 @@
+# EJS 템플릿 파일은 Prettier 포맷팅에서 제외
+*.ejs
