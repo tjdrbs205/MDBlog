@@ -84,7 +84,7 @@ const postSchema = new Schema<IPostDocument>(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 // 데이터 저장 시 slug와 excerpt 자동 생성
@@ -101,15 +101,14 @@ postSchema.pre("save", function (next) {
   next();
 });
 
-postSchema.methods.toPost = function (): IPost {
-  const post = this.toObject();
-  post._id = this._id.toString();
-  post.author = this.author.toString();
-  post.category = this.category.toString();
-  delete post.__v;
-
-  return post;
-};
+postSchema.virtual("plainPost").get(function (this: IPostDocument): IPost {
+  return {
+    ...this,
+    id: this._id?.toString() || "",
+    author: this.author ? this.author.toString() : "",
+    category: this.category ? this.category.toString() : "",
+  };
+});
 
 const PostModel = model<IPostDocument>("Post", postSchema);
 

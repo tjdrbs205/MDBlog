@@ -1,6 +1,7 @@
 import { SortOrder } from "mongoose";
 import { IPostDocument, PostModel } from "../model/post.model";
 import { IGetPostsResponse, IPost } from "@mdblog/shared/src/types/post.interface";
+import "../../user/model/user.model";
 
 export class PostService {
   /**
@@ -26,9 +27,9 @@ export class PostService {
         .skip(skip)
         .limit(limit)
         .populate("author", "username")
-        .populate("category", "name")
-        .populate("tags", "name")
-        .lean(),
+        // .populate("category", "name")
+        // .populate("tags", "name")
+        .lean(false),
       PostModel.countDocuments(filter),
     ]);
 
@@ -36,14 +37,17 @@ export class PostService {
       throw new Error("게시물을 찾을 수 없습니다.");
     }
 
+    // const plainPosts: IPost[] = posts.map((post: any) => {
+    //   return {
+    //     ...post,
+    //     id: post._id?.toString() || "",
+    //     author: post.author ? post.author.toString() : "",
+    //     category: post.category ? post.category.toString() : "",
+    //   };
+    // });
+
     const plainPosts: IPost[] = posts.map((post: any) => {
-      return {
-        ...post,
-        id: post._id?.toString() || "",
-        author: post.author ? post.author.toString() : "",
-        category: post.category ? post.category.toString() : "",
-        tags: Array.isArray(post.tags) ? post.tags.map((tag: any) => (tag ? tag.toString() : "")) : [],
-      };
+      return post.plainPost;
     });
 
     const totalPages = Math.ceil(totalPosts / limit);
