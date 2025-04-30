@@ -1,8 +1,11 @@
-import { IUser } from "@mdblog/shared/src/types/user.interface";
-import { model, Schema } from "mongoose";
+import { IReadOnlyUser, IUser } from "@mdblog/shared/src/types/user.interface";
+import { Document, model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
 
-interface IUserDocument extends Omit<IUser, "id">, Document {}
+interface IUserDocument extends Omit<IUser, "id">, Document {
+  readonly readOnlyUser: IReadOnlyUser;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
 
 const userSchema = new Schema<IUserDocument>(
   {
@@ -31,6 +34,10 @@ const userSchema = new Schema<IUserDocument>(
       type: String,
       default: "/images/default-profile.png", // 기본 프로필 이미지
     },
+    bio: {
+      type: String,
+      default: "",
+    },
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -42,15 +49,42 @@ const userSchema = new Schema<IUserDocument>(
     },
   },
   {
-    timestamps: true, // 생성 및 수정 시간 자동 관리
+    timestamps: true,
+    toObject: { virtuals: false },
+    toJSON: { virtuals: false },
   }
 );
+
+userSchema.virtual("readOnlyUser").get(function (this: IUserDocument): IReadOnlyUser {
+  return {
+    id: this._id ? this._id.toString() : "",
+    username: this.username,
+    email: this.email,
+    profileImage: this.profileImage,
+    bio: this.bio,
+    role: this.role,
+    lastLogin: this.lastLogin,
+    isActive: this.isActive,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  };
+});
+
+userSchema.set("toJSON", {
+  transform: (_, ret) => {
+    return ret.readOnlyUser;
+  },
+});
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
+
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 const UserModel = model<IUserDocument>("User", userSchema);
 

@@ -6,8 +6,22 @@ export class PostController {
   private postService: PostService;
 
   constructor() {
-    this.postService = new PostService();
+    this.postService = PostService.getInstance();
   }
+
+  getTest = async (req: Request, res: Response) => {
+    try {
+      const posts = await this.postService.getTest();
+      res.status(200).json({
+        data: posts,
+      });
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      res.status(500).json({
+        message: "Internal server error",
+      });
+    }
+  };
 
   getPosts = async (req: Request, res: Response) => {
     const filter = { isPublic: true };

@@ -1,9 +1,10 @@
 interface IUser {
-  id?: string;
+  id: string;
   username: string;
   email: string;
   password: string;
   profileImage: string;
+  bio: string;
   role: string;
   lastLogin: Date;
   createdAt?: Date | string;
@@ -11,4 +12,12 @@ interface IUser {
   isActive: boolean;
 }
 
-export { IUser };
+interface IRegisterUser {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface IReadOnlyUser extends Omit<IUser, "password"> {}
+
+export { IUser, IReadOnlyUser, IRegisterUser };

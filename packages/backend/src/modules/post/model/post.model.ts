@@ -4,6 +4,7 @@ import { Document, model, Schema } from "mongoose";
 interface IPostDocument extends Omit<IPost, "id" | "author" | "category">, Document {
   author: Schema.Types.ObjectId;
   category: Schema.Types.ObjectId;
+  readonly plainPost: IPost;
 }
 
 const postSchema = new Schema<IPostDocument>(
@@ -84,7 +85,7 @@ const postSchema = new Schema<IPostDocument>(
       default: 0,
     },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } }
 );
 
 // 데이터 저장 시 slug와 excerpt 자동 생성
@@ -103,11 +104,31 @@ postSchema.pre("save", function (next) {
 
 postSchema.virtual("plainPost").get(function (this: IPostDocument): IPost {
   return {
-    ...this,
-    id: this._id?.toString() || "",
+    id: this._id ? this._id.toString() : "",
+    title: this.title,
+    slug: this.slug,
+    content: this.content,
+    excerpt: this.excerpt,
     author: this.author ? this.author.toString() : "",
     category: this.category ? this.category.toString() : "",
+    tags: this.tags ? this.tags.map((tag) => tag.toString()) : [],
+    featuredImage: this.featuredImage,
+    view: this.view,
+    status: this.status,
+    isPublic: this.isPublic,
+    publishedAt: this.publishedAt,
+    comments: this.comments,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+    likes: this.likes,
   };
+});
+
+postSchema.set("toJSON", {
+  virtuals: true,
+  transform: (_, ret) => {
+    return ret.plainPost;
+  },
 });
 
 const PostModel = model<IPostDocument>("Post", postSchema);

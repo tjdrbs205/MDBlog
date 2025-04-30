@@ -1,12 +1,16 @@
 interface ICategory {
-  id?: string;
+  id: string;
   name: string;
   slug: string;
-  description: string;
+  description?: string | "";
   order: number;
-  parent: string;
+  parent?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
 
-export { ICategory };
+interface ICategoryWithChildren extends ICategory {
+  children: ICategory[];
+}
+
+export { ICategory, ICategoryWithChildren };

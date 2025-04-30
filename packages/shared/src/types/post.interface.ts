@@ -5,14 +5,14 @@ interface IComment {
 }
 
 interface IPost {
-  id?: string;
+  id: string;
   title: string;
   slug: string;
   content: string;
   excerpt: string;
   author: string;
-  category: string;
-  tags: string[];
+  category?: string;
+  tags?: string[];
   featuredImage: string;
   view: number;
   status: string;

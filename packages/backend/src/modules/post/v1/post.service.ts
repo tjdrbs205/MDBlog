@@ -1,15 +1,35 @@
-import { SortOrder } from "mongoose";
+import { SortOrder, VirtualType } from "mongoose";
 import { IPostDocument, PostModel } from "../model/post.model";
 import { IGetPostsResponse, IPost } from "@mdblog/shared/src/types/post.interface";
+import { TagModel } from "../../tag/model/tag.model";
+
+import "../../category/model/categories.model";
 import "../../user/model/user.model";
 
 export class PostService {
-  /**
-   * 게시물 목록 조회
-   * @param {Object} filter - 필터 조건
-   * @param {Object} options - 페이지네이션, 정렬 등 옵션
-   * @returns {Promise<{IGetPostsResponse}>} 게시물 목록 및 페이지네이션 정보
-   */
+  private static instance: PostService;
+  private constructor() {}
+
+  // 싱글톤 패턴
+  public static getInstance(): PostService {
+    if (!PostService.instance) {
+      PostService.instance = new PostService();
+    }
+    return PostService.instance;
+  }
+
+  async getTest(): Promise<IPostDocument[]> {
+    const posts = await PostModel.find().lean();
+    return posts;
+  }
+
+  // 게시물 생성
+  async createPost(postData: Partial<IPostDocument>): Promise<IPostDocument> {
+    const post = new PostModel(postData);
+    return await post.save();
+  }
+
+  // 게시물 전체 조회
   async getPosts(
     filter: { isPublic: boolean },
     options: {
@@ -27,8 +47,8 @@ export class PostService {
         .skip(skip)
         .limit(limit)
         .populate("author", "username")
-        // .populate("category", "name")
-        // .populate("tags", "name")
+        .populate("category", "name")
+        .populate("tags", "name")
         .lean(false),
       PostModel.countDocuments(filter),
     ]);
@@ -37,17 +57,8 @@ export class PostService {
       throw new Error("게시물을 찾을 수 없습니다.");
     }
 
-    // const plainPosts: IPost[] = posts.map((post: any) => {
-    //   return {
-    //     ...post,
-    //     id: post._id?.toString() || "",
-    //     author: post.author ? post.author.toString() : "",
-    //     category: post.category ? post.category.toString() : "",
-    //   };
-    // });
-
-    const plainPosts: IPost[] = posts.map((post: any) => {
-      return post.plainPost;
+    const plainPosts: IPost[] = posts.map((post: IPostDocument) => {
+      return post.toJSON() as IPost;
     });
 
     const totalPages = Math.ceil(totalPosts / limit);
@@ -64,8 +75,26 @@ export class PostService {
     };
   }
 
-  async createPost(postData: Partial<IPostDocument>): Promise<IPostDocument> {
-    const post = new PostModel(postData);
-    return await post.save();
+  async getTagPosts(
+    tagId: string,
+    options: {
+      sort: Record<string, SortOrder>;
+      page: number;
+      limit: number;
+    }
+  ): Promise<IGetPostsResponse> {
+    // 태그 존재 확인
+    const tag = await TagModel.findById(tagId);
+    if (!tag) {
+      const error = new Error("태그를 찾을 수 없습니다.");
+      throw error;
+    }
+
+    // 필터 설정
+    const filter = { tags: tagId, isPublic: true };
+
+    return await this.getPosts(filter, options);
   }
+
+  async getCategoryPosts(categoryId: string) {}
 }

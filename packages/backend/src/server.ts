@@ -11,7 +11,7 @@ class Server {
   // 환경변수 초기화
   constructor() {
     dotenv.config();
-    this.port = process.env.PORT || 5000; // 포트 설정
+    this.port = process.env.PORT || 5000;
 
     this.app = express();
     this.initializeDatabase();
