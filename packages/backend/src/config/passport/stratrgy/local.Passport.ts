@@ -15,7 +15,7 @@ export function setupLocalStrategy(passport: PassportStatic) {
           if (exUser) {
             const result = await exUser.comparePassword(password);
             if (result) {
-              done(null, exUser);
+              done(null, exUser.readOnlyUser);
             } else {
               done(null, false, { message: "비밀번호가 일치하지 않습니다." });
             }

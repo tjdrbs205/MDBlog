@@ -1,8 +1,15 @@
 import express, { Application } from "express";
 import dotenv from "dotenv";
-import connectDB from "./config/database";
-import { ErrorMiddleware } from "./common/middlewares/ErrorMiddleware";
+import passport from "passport";
+import connectDB from "./config/data/database";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
+
+import ErrorMiddleware from "./common/middlewares/ErrorMiddleware";
 import mainRouter from "./routes/index"; // 메인 라우터 import
+import RedisClient from "./config/data/redis";
+import { setupLocalStrategy } from "./config/passport/stratrgy/local.Passport";
+import { setupJwtStrategy } from "./config/passport/stratrgy/jwt.passport";
 
 class Server {
   private app: Application;
@@ -15,6 +22,7 @@ class Server {
 
     this.app = express();
     this.initializeDatabase();
+    this.initializePassportStrategy();
     this.initializeMiddleware();
     this.initializeController();
     this.initializeErrorHandler();
@@ -22,22 +30,33 @@ class Server {
 
   private initializeDatabase() {
     connectDB();
+    RedisClient.getInstance().connect();
   }
 
-  private initializeErrorHandler() {
-    this.app.use(ErrorMiddleware.notFound);
-    this.app.use(ErrorMiddleware.handle);
+  // passport 전략 초기화
+  private initializePassportStrategy() {
+    setupLocalStrategy(passport);
+    setupJwtStrategy(passport);
   }
 
   // 미들웨어 초기화
   private initializeMiddleware() {
-    this.app.use(express.json());
+    this.app.use(morgan(process.env.NODE_ENV || "tiny"));
+    this.app.use(express.json({ limit: "50mb" }));
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(cookieParser(process.env.COOKIE_SECRET));
+    this.app.use(passport.initialize());
   }
 
   // 라우터 초기화
   private initializeController() {
     this.app.use(mainRouter); // 메인 라우터 연결
+  }
+
+  // 에러 핸들러
+  private initializeErrorHandler() {
+    this.app.use(ErrorMiddleware.notFound);
+    this.app.use(ErrorMiddleware.handle);
   }
 
   // 서버 시작 메서드

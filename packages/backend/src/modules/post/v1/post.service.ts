@@ -1,14 +1,25 @@
-import { SortOrder, VirtualType } from "mongoose";
+import { SortOrder } from "mongoose";
+
 import { IPostDocument, PostModel } from "../model/post.model";
-import { IGetPostsResponse, IPost } from "@mdblog/shared/src/types/post.interface";
+import {
+  IGetPostsResponse,
+  IGetPostsResponseWithCategory,
+  IPost,
+} from "@mdblog/shared/src/types/post.interface";
 import { TagModel } from "../../tag/model/tag.model";
 
-import "../../category/model/categories.model";
 import "../../user/model/user.model";
+import { CategoryModel } from "../../category/model/categories.model";
+import CategoryService from "../../category/v1/categories.service";
 
 export class PostService {
   private static instance: PostService;
-  private constructor() {}
+
+  private readonly categoryService: CategoryService;
+
+  private constructor() {
+    this.categoryService = CategoryService.getInstance();
+  }
 
   // 싱글톤 패턴
   public static getInstance(): PostService {
@@ -96,5 +107,57 @@ export class PostService {
     return await this.getPosts(filter, options);
   }
 
-  async getCategoryPosts(categoryId: string) {}
+  async getCategoryPosts(
+    categoryId: string,
+    options: Record<string, any>
+  ): Promise<IGetPostsResponseWithCategory> {
+    const { sort = { createdAt: -1 }, page = 1, limit = 10 } = options;
+    const skip = (page - 1) * limit;
+
+    const category = await CategoryModel.findById(categoryId);
+    if (!category) {
+      const error = new Error("카테고리를 찾을 수 없습니다.");
+      throw error;
+    }
+
+    let filter: Record<string, any> = {
+      category: categoryId,
+      isPublic: true,
+    };
+
+    if (options.includeSubcategories) {
+      const descendantIds = await this.categoryService.getDescendantCategoryIds(
+        categoryId
+      );
+
+      filter = {
+        category: { $in: [categoryId, ...descendantIds] },
+        isPublic: true,
+      };
+    }
+    const [posts, totalPosts] = await Promise.all([
+      PostModel.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .populate("author", "username")
+        .populate("category", "name")
+        .populate("tags", "name"),
+      PostModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalPosts / limit);
+
+    return {
+      posts: posts.map((post) => post.plainPost),
+      totalPages,
+      category: category.plainCategory,
+      pagination: {
+        page,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
 }

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { PostService } from "./post.service";
 import { SortOrder } from "mongoose";
 
-export class PostController {
+class PostController {
   private postService: PostService;
 
   constructor() {
@@ -43,3 +43,5 @@ export class PostController {
     });
   };
 }
+
+export default PostController;

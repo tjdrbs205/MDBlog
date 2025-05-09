@@ -1,10 +1,13 @@
-import { ICategory, ICategoryWithChildren } from "@mdblog/shared/src/types/categories.interface";
+import {
+  ICategory,
+  ICategoryWithChildren,
+} from "@mdblog/shared/src/types/categories.interface";
 import { CategoryModel, ICategoryDocument } from "../model/categories.model";
 import { PostModel } from "../../post/model/post.model";
 
 class CategoryService {
   private static instance: CategoryService;
-  constructor() {}
+  private constructor() {}
 
   // 싱글톤 패턴
   public static getInstance(): CategoryService {
@@ -15,7 +18,9 @@ class CategoryService {
   }
 
   // 모든 카테고리
-  async getAllCategories(options: Record<string, any> = {}): Promise<ICategory[]> {
+  async getAllCategories(
+    options: Record<string, any> = {}
+  ): Promise<ICategory[]> {
     const { sort = { order: 1, name: 1 } } = options;
     return (await CategoryModel.find().sort(sort)).map((cat) => {
       return cat.plainCategory;
@@ -88,7 +93,7 @@ class CategoryService {
     name: string;
     description?: string | "";
     order: number;
-    parent: string | null;
+    parent?: string | null;
   }): Promise<ICategory> {
     const { name, description, order, parent } = categoryData;
 
@@ -131,7 +136,9 @@ class CategoryService {
 
       const descendants = await this.getDescendantCategoryIds(catagoryId);
       if (descendants.some((id) => id.toString() === parent.toString())) {
-        const error = new Error("부모 카테고리는 자식 카테고리가 될 수 없습니다.");
+        const error = new Error(
+          "부모 카테고리는 자식 카테고리가 될 수 없습니다."
+        );
         throw error;
       }
     }
@@ -149,7 +156,11 @@ class CategoryService {
     category.order = order;
     category.parent = parent ? category.parent : null;
 
-    const updateCategory = await CategoryModel.findByIdAndUpdate(catagoryId, category, { new: true });
+    const updateCategory = await CategoryModel.findByIdAndUpdate(
+      catagoryId,
+      category,
+      { new: true }
+    );
 
     if (!updateCategory) {
       const error = new Error("카테고리 업데이트에 실패했습니다.");
@@ -179,7 +190,8 @@ class CategoryService {
   }
 
   async deleteCategory(categoryId: string) {
-    const { isDeletable, hasChildren, hasRelatePosts, category } = await this.checkCategoryDeletable(categoryId);
+    const { isDeletable, hasChildren, hasRelatePosts, category } =
+      await this.checkCategoryDeletable(categoryId);
     if (!isDeletable) {
       const error = new Error(
         hasChildren
@@ -198,4 +210,4 @@ class CategoryService {
   }
 }
 
-export { CategoryService };
+export default CategoryService;

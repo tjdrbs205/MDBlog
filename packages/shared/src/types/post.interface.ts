@@ -1,3 +1,5 @@
+import { ICategory } from "./categories.interface";
+
 interface IComment {
   author: string;
   content: string;
@@ -56,4 +58,19 @@ interface IGetPostsResponse {
   totalPosts: number;
   pagination: PagenationInfo;
 }
-export { IComment, IPost, ICreatePostDto, IUpdatePostDto, PagenationInfo, IGetPostsResponse };
+
+interface IGetPostsResponseWithCategory
+  extends Omit<IGetPostsResponse, "totalPosts"> {
+  totalPages: number;
+  category: ICategory;
+}
+
+export {
+  IComment,
+  IPost,
+  ICreatePostDto,
+  IUpdatePostDto,
+  PagenationInfo,
+  IGetPostsResponse,
+  IGetPostsResponseWithCategory,
+};

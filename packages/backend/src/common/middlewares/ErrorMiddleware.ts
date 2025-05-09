@@ -22,4 +22,4 @@ class ErrorMiddleware {
   }
 }
 
-export { ErrorMiddleware };
+export default ErrorMiddleware;

@@ -8,4 +8,4 @@ class AsyncHandler {
   }
 }
 
-export { AsyncHandler };
+export default AsyncHandler;

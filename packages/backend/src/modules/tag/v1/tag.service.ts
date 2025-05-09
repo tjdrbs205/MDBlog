@@ -7,10 +7,7 @@ import { SortOrder } from "mongoose";
 class TagService {
   private static instance: TagService;
 
-  private postService: PostService;
-  private constructor() {
-    this.postService = PostService.getInstance();
-  }
+  private constructor() {}
 
   // 싱글톤 패턴
   public static getInstance(): TagService {
