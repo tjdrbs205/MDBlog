@@ -1,10 +1,15 @@
-import { IPost } from "@mdblog/shared/src/types/post.interface";
-import { Document, model, Schema } from "mongoose";
+import { IComment, IPost } from "@mdblog/shared/src/types/post.interface";
+import { Document, model, Schema, Types } from "mongoose";
 
-interface IPostDocument extends Omit<IPost, "id" | "author" | "category">, Document {
+interface IPostDocument extends Omit<IPost, "id" | "author" | "category" | "comments">, Document {
   author: Schema.Types.ObjectId;
   category: Schema.Types.ObjectId;
+  comments: Types.DocumentArray<ICommentDocument>;
   readonly plainPost: IPost;
+}
+
+interface ICommentDocument extends IComment, Types.Subdocument {
+  _id: Types.ObjectId;
 }
 
 const postSchema = new Schema<IPostDocument>(
@@ -117,7 +122,12 @@ postSchema.virtual("plainPost").get(function (this: IPostDocument): IPost {
     status: this.status,
     isPublic: this.isPublic,
     publishedAt: this.publishedAt,
-    comments: this.comments,
+    comments: this.comments.map((comment) => ({
+      id: comment._id.toString(),
+      author: comment.author.toString(),
+      content: comment.content,
+      createdAt: comment.createdAt,
+    })),
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
     likes: this.likes,

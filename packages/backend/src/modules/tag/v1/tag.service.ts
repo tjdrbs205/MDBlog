@@ -1,7 +1,6 @@
 import { ITag } from "@mdblog/shared/src/types/tag.interface";
 import { TagModel } from "../model/tag.model";
 import { PostModel } from "../../post/model/post.model";
-import { PostService } from "../../post/v1/post.service";
 import { SortOrder } from "mongoose";
 
 class TagService {

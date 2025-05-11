@@ -3,7 +3,7 @@ import { ICategory } from "./categories.interface";
 interface IComment {
   author: string;
   content: string;
-  createdAt: Date;
+  createdAt: Date | string;
 }
 
 interface IPost {
@@ -59,8 +59,7 @@ interface IGetPostsResponse {
   pagination: PagenationInfo;
 }
 
-interface IGetPostsResponseWithCategory
-  extends Omit<IGetPostsResponse, "totalPosts"> {
+interface IGetPostsResponseWithCategory extends Omit<IGetPostsResponse, "totalPosts"> {
   totalPages: number;
   category: ICategory;
 }
