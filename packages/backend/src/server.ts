@@ -10,7 +10,7 @@ import mainRouter from "./routes/index"; // 메인 라우터 import
 import RedisClient from "./config/data/redis";
 import { setupLocalStrategy } from "./config/passport/stratrgy/local.Passport";
 import { setupJwtStrategy } from "./config/passport/stratrgy/jwt.passport";
-import AutoSuccessWrapperMiddleware from "./common/middlewares/autoSuccessWrapper.Middleware";
+import AutoSuccessWrapperMiddleware from "./common/middlewares/AutoSuccessWrapper.Middleware";
 
 class Server {
   private app: Application;

@@ -73,7 +73,9 @@ categorySchema.set("toJSON", {
 });
 
 // 하위 카테고리 가져오기 메서드
-categorySchema.statics.getChildCategories = async function (parentId: string): Promise<ICategory[]> {
+categorySchema.statics.getChildCategories = async function (
+  parentId: string
+): Promise<ICategory[]> {
   return this.find({ parent: parentId });
 };
 
@@ -83,15 +85,19 @@ categorySchema.statics.getCategoryHierarchy = async function (): Promise<ICatego
 
   const categoryMap: Record<string, ICategoryWithChildren> = {};
   allCategories.forEach((cat: ICategoryDocument) => {
-    const catObj = cat.toObject();
+    const catObj: any = {
+      ...cat.plainCategory,
+    };
     catObj.children = [];
-    categoryMap[catObj._id.toString()] = catObj;
+    categoryMap[catObj.id.toString()] = catObj;
   });
 
   const rootCategories: ICategoryWithChildren[] = [];
   allCategories.forEach((cat: ICategoryDocument) => {
-    const catObj = cat.toObject();
-    const id = catObj._id.toString();
+    const catObj: any = {
+      ...cat.plainCategory,
+    };
+    const id = catObj.id;
     if (!cat.parent) {
       rootCategories.push(categoryMap[id]);
     } else {

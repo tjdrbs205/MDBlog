@@ -49,8 +49,8 @@ class PostService {
         .limit(limit)
         .populate("author", "username")
         .populate("category", "name")
-        .populate("tags", "name")
-        .lean(false),
+        .populate("tags", "name"),
+
       PostModel.countDocuments(filter),
     ]);
 
@@ -59,14 +59,14 @@ class PostService {
     }
 
     const plainPosts: IPost[] = posts.map((post) => {
-      return post.toJSON() as IPost;
+      return post.plainPost;
     });
 
     const totalPages = Math.ceil(totalPosts / limit);
 
     return {
       posts: plainPosts,
-      totalPosts,
+      totalPages,
       pagination: {
         page,
         totalPages,
@@ -430,6 +430,7 @@ class PostService {
 
     return {
       posts: posts.map((post) => post.plainPost),
+      totalPages,
       totalPosts,
       category: category.plainCategory,
       pagination: {

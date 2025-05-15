@@ -9,7 +9,7 @@ class AutoSuccessWrapperMiddleware {
       const isSiccess = status >= 200 && status < 300;
       const wrapped = {
         success: isSiccess,
-        ...(isSiccess ? { body } : ""),
+        body,
       };
       return originalJson.call(this, wrapped);
     };

@@ -1,8 +1,5 @@
-import {
-  ICategory,
-  ICategoryWithChildren,
-} from "@mdblog/shared/src/types/categories.interface";
-import { CategoryModel, ICategoryDocument } from "../model/categories.model";
+import { ICategory, ICategoryWithChildren } from "@mdblog/shared/src/types/categories.interface";
+import { CategoryModel } from "../model/categories.model";
 import { PostModel } from "../../post/model/post.model";
 
 class CategoryService {
@@ -18,9 +15,7 @@ class CategoryService {
   }
 
   // 모든 카테고리
-  async getAllCategories(
-    options: Record<string, any> = {}
-  ): Promise<ICategory[]> {
+  async getAllCategories(options: Record<string, any> = {}): Promise<ICategory[]> {
     const { sort = { order: 1, name: 1 } } = options;
     return (await CategoryModel.find().sort(sort)).map((cat) => {
       return cat.plainCategory;
@@ -136,9 +131,7 @@ class CategoryService {
 
       const descendants = await this.getDescendantCategoryIds(catagoryId);
       if (descendants.some((id) => id.toString() === parent.toString())) {
-        const error = new Error(
-          "부모 카테고리는 자식 카테고리가 될 수 없습니다."
-        );
+        const error = new Error("부모 카테고리는 자식 카테고리가 될 수 없습니다.");
         throw error;
       }
     }
@@ -156,11 +149,9 @@ class CategoryService {
     category.order = order;
     category.parent = parent ? category.parent : null;
 
-    const updateCategory = await CategoryModel.findByIdAndUpdate(
-      catagoryId,
-      category,
-      { new: true }
-    );
+    const updateCategory = await CategoryModel.findByIdAndUpdate(catagoryId, category, {
+      new: true,
+    });
 
     if (!updateCategory) {
       const error = new Error("카테고리 업데이트에 실패했습니다.");

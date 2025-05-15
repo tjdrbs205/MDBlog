@@ -12,10 +12,11 @@ class PostController {
 
   listPosts = async (req: Request, res: Response) => {
     try {
+      console.log(req.query);
       const { category, q, sort = "newest" } = req.query;
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
-
+      console.log(sort);
       const filter: Record<string, any> = { isPublic: true };
 
       if (category) {
@@ -33,13 +34,13 @@ class PostController {
 
       if (sort === "oldest") {
         sortOptions = { createdAt: 1 };
-      } else if (sort === "popular") {
+      } else if (sort === "title") {
         sortOptions = { title: -1 };
-      } else if (sort === "likes") {
+      } else if (sort === "views") {
         sortOptions = { view: -1 };
       }
 
-      const { posts, totalPosts, pagination } = await this.postService.getPosts(filter, {
+      const { posts, totalPages, pagination } = await this.postService.getPosts(filter, {
         sort: sortOptions,
         page,
         limit,
@@ -48,7 +49,7 @@ class PostController {
       res.status(200).json({
         data: {
           posts,
-          totalPosts,
+          totalPages,
           pagination,
         },
       });
@@ -85,7 +86,7 @@ class PostController {
         ];
       }
 
-      const { posts, totalPosts, pagination } = await this.postService.getPopularPosts(filter, {
+      const { posts, totalPages, pagination } = await this.postService.getPopularPosts(filter, {
         page,
         limit,
       });
@@ -93,7 +94,7 @@ class PostController {
       res.status(200).json({
         data: {
           posts,
-          totalPosts,
+          totalPages,
           pagination,
         },
       });
@@ -111,7 +112,7 @@ class PostController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
 
-      const { posts, totalPosts, pagination } = await this.postService.getPostsByTag(tagId, {
+      const { posts, totalPages, pagination } = await this.postService.getPostsByTag(tagId, {
         page,
         limit,
       });
@@ -119,7 +120,7 @@ class PostController {
       res.status(200).json({
         data: {
           posts,
-          totalPosts,
+          totalPages,
           pagination,
         },
       });
@@ -164,14 +165,14 @@ class PostController {
     try {
       const fileter = { author: req.user?.id };
 
-      const { posts, totalPosts, pagination } = await this.postService.getPosts(fileter, {
+      const { posts, totalPages, pagination } = await this.postService.getPosts(fileter, {
         sort: { createdAt: -1 },
       });
 
       res.status(200).json({
         data: {
           posts,
-          totalPosts,
+          totalPages,
           pagination,
         },
       });

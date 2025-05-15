@@ -11,7 +11,7 @@ const router = Router();
 router.use("/posts", postRoutes);
 router.use("/users", userRoutes);
 router.use("/admin", adminRoutes);
-router.use("/categories", categoriesRoutes);
+router.use("/category", categoriesRoutes);
 router.use("/tags", tagRoutes);
 
 export default router;

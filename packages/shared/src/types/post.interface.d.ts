@@ -55,7 +55,7 @@ interface PagenationInfo {
 
 interface IGetPostsResponse {
   posts: IPost[];
-  totalPosts: number;
+  totalPages: number;
   pagination: PagenationInfo;
 }
 
