@@ -10,6 +10,10 @@ import {
 } from "../../../config/passport/jwt/jwt.service";
 import { TPayload } from "../../../config/passport/jwt/jwt.payload";
 import RedisClient from "../../../config/data/redis";
+import {
+  deleteUserProfileImage,
+  uploadUserProfileImage,
+} from "../../../common/utils/cloudinary.util";
 
 class UserController {
   private readonly userService: UserService;
@@ -42,6 +46,7 @@ class UserController {
 
       const refreshToken = await generateRefreshToken(userPayload);
       const accessTOken = await generateAccessToken(userPayload);
+
       this.redisClient.set(user.id, refreshToken);
 
       res.cookie("refreshToken", refreshToken, {
@@ -155,7 +160,7 @@ class UserController {
   updateProfile = async (req: Request, res: Response) => {
     try {
       const { username, bio } = req.body;
-      const user = req.user as TPayload;
+      const user = req.user!;
 
       const updatedUser = await this.userService.updateUserProfile(user.id, username, bio);
 
@@ -195,10 +200,39 @@ class UserController {
           message: "업로드할 이미지를 선택해주세요",
         });
       }
-    } catch (error) {}
+
+      await uploadUserProfileImage(req.user!.id, req.file.buffer);
+
+      res.status(200).json({
+        message: "프로필 이미지 업로드 성공",
+      });
+    } catch (error) {
+      console.error("프로필 이미지 업로드 중 오류", error);
+      res.status(400).json({
+        message: "프로필 이미지 업로드 중 오류가 발생했습니다.",
+      });
+    }
   };
 
-  deleteProfileImage = async (req: Request, res: Response) => {};
+  deleteProfileImage = async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(400).json({
+          message: "사용자 정보가 없습니다.",
+        });
+      }
+
+      await deleteUserProfileImage(req.user.id);
+
+      res.status(200).json({
+        message: "프로필 이미지 삭제 성공",
+      });
+    } catch (error) {
+      res.status(400).json({
+        message: "프로필 이미지 삭제 중 오류가 발생했습니다.",
+      });
+    }
+  };
 }
 
 export default UserController;

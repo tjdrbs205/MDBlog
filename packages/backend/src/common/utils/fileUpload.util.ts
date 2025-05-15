@@ -3,7 +3,7 @@ import { Readable } from "stream";
 
 const storage = multer.memoryStorage();
 
-const upload = multer({
+const imageUpload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
@@ -25,4 +25,4 @@ function bufferToStream(buffer: Buffer): Readable {
   return readable;
 }
 
-export { upload, bufferToStream };
+export { imageUpload, bufferToStream };

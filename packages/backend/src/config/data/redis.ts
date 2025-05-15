@@ -51,6 +51,15 @@ class RedisClient {
     });
   }
 
+  async setUser(key: string, value: string): Promise<void> {
+    if (!this.RedisClient) {
+      throw new Error("Redis 클라이언트가 초기화되지 않았습니다");
+    }
+    await this.RedisClient.set(key, value, {
+      EX: 60 * 60,
+    });
+  }
+
   async get(key: string): Promise<string | null> {
     if (!this.RedisClient) {
       throw new Error("Redis 클라이언트가 초기화되지 않았습니다");

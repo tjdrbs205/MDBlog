@@ -41,7 +41,11 @@ class UserService {
   }
 
   // 비밀번호 변경
-  async changeUserPassword(userId: string, currentPassword: string, newPassword: string): Promise<IReadOnlyUser> {
+  async changeUserPassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<IReadOnlyUser> {
     // 사용자 조회
     const user = await UserModel.findById(userId);
     if (!user) {
@@ -99,6 +103,10 @@ class UserService {
     }
 
     return user.readOnlyUser;
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await UserModel.findByIdAndDelete(userId);
   }
 }
 

@@ -6,16 +6,15 @@ import {
   IVisitorsActive,
 } from "@mdblog/shared/src/types/visitor.interface";
 
-declare global {
-  var activeVisitors: Map<string, any>;
-}
-
 interface IStatsDocument extends Omit<IStats, "id">, Document {}
 
 interface IStatsModel extends Model<IStatsDocument> {
   getToday(): Promise<IStatsDocument | null>;
   getTodayVisits(): Promise<number>;
-  incrementVisit(visitor: IVisitor, isNewVisitor: boolean): Promise<void>;
+  incrementVisit(
+    visitor: IVisitorIncrement,
+    isNewVisitor: boolean
+  ): Promise<void>;
   getTotalStats(): Promise<Record<string, number>>;
   getStatsByDateRange(startDate: Date, endDate: Date): Promise<IStats[]>;
   getActiveVisitorsCount(): Promise<number>;

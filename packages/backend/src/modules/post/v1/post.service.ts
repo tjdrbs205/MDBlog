@@ -1,14 +1,12 @@
-import { SortOrder } from "mongoose";
-
 import {
+  ICreatePostDto,
   IGetPostsResponse,
   IGetPostsResponseWithCategory,
   IPost,
 } from "@mdblog/shared/src/types/post.interface";
 
-import "../../user/model/user.model";
 import { TagModel } from "../../tag/model/tag.model";
-import { IPostDocument, PostModel } from "../model/post.model";
+import { PostModel } from "../model/post.model";
 import { CategoryModel } from "../../category/model/categories.model";
 
 import CategoryService from "../../category/v1/categories.service";
@@ -101,7 +99,7 @@ class PostService {
       return [];
     }
 
-    return await PostModel.find({
+    const posts = await PostModel.find({
       tags: { $in: tagIds },
       _id: { $ne: postId },
       isPublic: true,
@@ -110,6 +108,16 @@ class PostService {
       .limit(limit)
       .populate("author", "username")
       .populate("category", "name");
+
+    const list = posts.map((post) => {
+      return {
+        id: post._id?.toString(),
+        title: post.title,
+        publishedAt: post.createdAt?.toString(),
+      };
+    });
+
+    return list;
   }
 
   async getSidebarData() {
@@ -142,9 +150,21 @@ class PostService {
     };
   }
 
-  async createPost(postData: Partial<IPostDocument>): Promise<IPostDocument> {
-    const post = new PostModel(postData);
-    return await post.save();
+  async createPost(postData: ICreatePostDto): Promise<IPost> {
+    const { title, content, author, category, tags, isPublic, status } = postData;
+    const tagIds = await this.processTagsInput(tags);
+
+    const newPost = await PostModel.create({
+      title,
+      content,
+      author,
+      category: category || null,
+      tags: tagIds,
+      isPublic: isPublic === true,
+      status: status || "published",
+    });
+
+    return newPost.plainPost;
   }
 
   async updatepost(postId: string, updateData: Record<string, any>) {
@@ -282,16 +302,16 @@ class PostService {
       { $sort: { "_id.year": -1, "_id.month": -1 } },
     ]);
 
-    const archivebyYear: any = {};
+    const archiveByYear: any = {};
     archiveData.forEach((item) => {
       const year = item._id.year;
       const month = item._id.month;
 
-      if (!archivebyYear[year]) {
-        archivebyYear[year] = {};
+      if (!archiveByYear[year]) {
+        archiveByYear[year] = {};
       }
 
-      archivebyYear[year].push({
+      archiveByYear[year].push({
         month,
         count: item.count,
         posts: item.posts.sort(
@@ -299,14 +319,14 @@ class PostService {
         ),
       });
     });
-    return { archivebyYear };
+    return { archiveByYear };
   }
 
-  async getPostsByYearMonth(year: string, month = null) {
+  async getPostsByYearMonth(year: string, month: string | null = null) {
     const startDate = new Date(parseInt(year), month ? parseInt(month) - 1 : 0, 1);
     const endDate = new Date(parseInt(year), month ? parseInt(month) : 12, 0);
 
-    return PostModel.find({
+    const posts = await PostModel.find({
       isPublic: true,
       createdAt: { $gte: startDate, $lte: endDate },
     })
@@ -314,6 +334,12 @@ class PostService {
       .populate("author", "username")
       .populate("category", "name")
       .populate("tags", "name");
+
+    const plainPosts = posts.map((post) => {
+      return post.plainPost;
+    });
+
+    return plainPosts;
   }
 
   async getUserPostCount(userId: string) {
@@ -323,7 +349,7 @@ class PostService {
     return await PostModel.countDocuments({ author: userId });
   }
 
-  private async processTagsInput(tags: string | string[]) {
+  private async processTagsInput(tags: string | string[] | undefined) {
     let tagIds: string[] = [];
     if (!tags) {
       return tagIds;
@@ -404,7 +430,7 @@ class PostService {
 
     return {
       posts: posts.map((post) => post.plainPost),
-      totalPages,
+      totalPosts,
       category: category.plainCategory,
       pagination: {
         page,

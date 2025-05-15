@@ -5,11 +5,12 @@ import connectDB from "./config/data/database";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 
-import ErrorMiddleware from "./common/middlewares/ErrorMiddleware";
+import ErrorMiddleware from "./common/middlewares/Error.Middleware";
 import mainRouter from "./routes/index"; // 메인 라우터 import
 import RedisClient from "./config/data/redis";
 import { setupLocalStrategy } from "./config/passport/stratrgy/local.Passport";
 import { setupJwtStrategy } from "./config/passport/stratrgy/jwt.passport";
+import AutoSuccessWrapperMiddleware from "./common/middlewares/autoSuccessWrapper.Middleware";
 
 class Server {
   private app: Application;
@@ -46,6 +47,7 @@ class Server {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser(process.env.COOKIE_SECRET));
     this.app.use(passport.initialize());
+    this.app.use(AutoSuccessWrapperMiddleware.wrap);
   }
 
   // 라우터 초기화

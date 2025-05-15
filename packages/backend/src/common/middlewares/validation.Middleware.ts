@@ -1,0 +1,19 @@
+import { NextFunction, Request, Response } from "express";
+import { validationResult } from "express-validator";
+
+class ValidationMiddleware {
+  static async validateRequest(req: Request, res: Response, next: NextFunction) {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      if (req.xhr || req.headers.accept?.includes("json")) {
+        return res.status(400).json({
+          errors: errors.array(),
+        });
+      }
+    }
+    next();
+  }
+}
+
+export default ValidationMiddleware;

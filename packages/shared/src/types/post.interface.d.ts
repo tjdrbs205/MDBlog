@@ -60,7 +60,7 @@ interface IGetPostsResponse {
 }
 
 interface IGetPostsResponseWithCategory extends Omit<IGetPostsResponse, "totalPosts"> {
-  totalPages: number;
+  totalPosts: number;
   category: ICategory;
 }
 

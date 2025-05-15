@@ -16,7 +16,7 @@ class TagService {
     return TagService.instance;
   }
 
-  async getAllTags(options: { sort: Record<string, SortOrder> }): Promise<ITag[]> {
+  async getAllTags(options: Record<string, any> = {}): Promise<ITag[]> {
     const { sort = { name: 1 } } = options;
     return (await TagModel.find().sort(sort)).map((tag) => {
       return tag.plainTag;
