@@ -36,7 +36,7 @@ class AdminController {
 
       const user = await this.adminService.updateUserStatus(userId, isActive === "true");
 
-      res.json({ user });
+      res.json({ message: "업데이트 되었습니다." });
     } catch (error) {
       console.error("[AdminController] 사용자 상태 변경 중 오류:", error);
       res.status(500).json({
@@ -63,7 +63,7 @@ class AdminController {
 
       const user = await this.adminService.updateUserRole(userId, role);
 
-      res.json({ user });
+      res.json({ message: "업데이트 되었습니다." });
     } catch (error) {
       console.error("[AdminController] 사용자 역학 변경 중 오류", error);
       res.status(500).json({

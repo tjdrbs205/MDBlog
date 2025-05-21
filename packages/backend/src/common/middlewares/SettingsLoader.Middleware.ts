@@ -3,7 +3,7 @@ import { SettingModel } from "../../config/models/Setting";
 import { marked } from "marked";
 
 class SettingsLoaderMiddleware {
-  async handle(req: Request, res: Response, next: NextFunction) {
+  static async handle(req: Request, res: Response, next: NextFunction) {
     const desctription =
       "MongoDB와 Express.js를 사용한 현대적인 블로그 시스템입니다. 마크다운을 지원하고 태그와 카테고리로 콘텐츠를 관리할 수 있습니다.";
 
@@ -35,5 +35,4 @@ class SettingsLoaderMiddleware {
   }
 }
 
-const settingsLoaderMiddleware = new SettingsLoaderMiddleware();
-export default settingsLoaderMiddleware;
+export default SettingsLoaderMiddleware;

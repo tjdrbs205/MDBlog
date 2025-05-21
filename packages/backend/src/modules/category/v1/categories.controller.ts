@@ -11,7 +11,7 @@ class CategoryController {
     try {
       const categories = await this.categoryService.getHierarchyCategories();
       const allCategories = await this.categoryService.getAllCategories();
-      return res.json({ categories, allCategories });
+      res.json({ categories, allCategories });
     } catch (error) {
       console.error("Error fetching categories:", error);
       return res.status(500).json({ message: "Internal server error" });
@@ -20,7 +20,7 @@ class CategoryController {
 
   create = async (req: Request, res: Response) => {
     try {
-      const { name, description, order, parentId } = req.body;
+      const { name, parentId } = req.body;
 
       if (!name || !name.trim()) {
         return res.status(400).json({ message: "카테고리 이름은 필수입니다." });
@@ -29,7 +29,8 @@ class CategoryController {
         return res.status(400).json({ message: "부모 카테고리 ID는 필수입니다." });
       }
 
-      //   await this.categoryService.create
+      await this.categoryService.createCategory(req.body);
+      res.status(201).json({ message: "카테고리 생성 성공" });
     } catch (error) {
       console.error("Error creating category:", error);
       return res.status(500).json({ message: "Internal server error" });

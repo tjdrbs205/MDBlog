@@ -4,6 +4,7 @@ import passport from "passport";
 import connectDB from "./config/data/database";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import cors from "cors";
 
 import ErrorMiddleware from "./common/middlewares/Error.Middleware";
 import mainRouter from "./routes/index"; // 메인 라우터 import
@@ -42,6 +43,12 @@ class Server {
 
   // 미들웨어 초기화
   private initializeMiddleware() {
+    this.app.use(
+      cors({
+        origin: process.env.CLIENT_URL,
+        credentials: true,
+      })
+    );
     this.app.use(morgan(process.env.NODE_ENV || "tiny"));
     this.app.use(express.json({ limit: "50mb" }));
     this.app.use(express.urlencoded({ extended: true }));

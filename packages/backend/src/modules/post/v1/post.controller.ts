@@ -12,11 +12,9 @@ class PostController {
 
   listPosts = async (req: Request, res: Response) => {
     try {
-      console.log(req.query);
       const { category, q, sort = "newest" } = req.query;
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
-      console.log(sort);
       const filter: Record<string, any> = { isPublic: true };
 
       if (category) {
@@ -40,18 +38,16 @@ class PostController {
         sortOptions = { view: -1 };
       }
 
-      const { posts, totalPages, pagination } = await this.postService.getPosts(filter, {
+      const { posts, totalPosts, pagination } = await this.postService.getPosts(filter, {
         sort: sortOptions,
         page,
         limit,
       });
 
       res.status(200).json({
-        data: {
-          posts,
-          totalPages,
-          pagination,
-        },
+        posts,
+        totalPosts,
+        pagination,
       });
     } catch (error) {
       console.error("[PostController] 게시물 조회 중 오류:", error);
@@ -86,17 +82,15 @@ class PostController {
         ];
       }
 
-      const { posts, totalPages, pagination } = await this.postService.getPopularPosts(filter, {
+      const { posts, totalPosts, pagination } = await this.postService.getPopularPosts(filter, {
         page,
         limit,
       });
 
       res.status(200).json({
-        data: {
-          posts,
-          totalPages,
-          pagination,
-        },
+        posts,
+        totalPosts,
+        pagination,
       });
     } catch (error) {
       console.error("[PostController] 인기 게시물 조회 중 오류:", error);
@@ -112,17 +106,15 @@ class PostController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
 
-      const { posts, totalPages, pagination } = await this.postService.getPostsByTag(tagId, {
+      const { posts, totalPosts, pagination } = await this.postService.getPostsByTag(tagId, {
         page,
         limit,
       });
 
       res.status(200).json({
-        data: {
-          posts,
-          totalPages,
-          pagination,
-        },
+        posts,
+        totalPosts,
+        pagination,
       });
     } catch (error) {
       console.error("[PostController] 태그별 게시물 조회 중 오류:", error);
@@ -138,7 +130,7 @@ class PostController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
 
-      const { posts, totalPosts, pagination } = await this.postService.getPostsWithCategory(
+      const { posts, totalPosts, pagination } = await this.postService.getPostsByCategory(
         categoryId,
         {
           page,
@@ -147,11 +139,9 @@ class PostController {
       );
 
       res.status(200).json({
-        data: {
-          posts,
-          totalPosts,
-          pagination,
-        },
+        posts,
+        totalPosts,
+        pagination,
       });
     } catch (error) {
       console.error("[PostController] 카테고리별 게시물 조회 중 오류:", error);
@@ -165,16 +155,14 @@ class PostController {
     try {
       const fileter = { author: req.user?.id };
 
-      const { posts, totalPages, pagination } = await this.postService.getPosts(fileter, {
+      const { posts, totalPosts, pagination } = await this.postService.getPosts(fileter, {
         sort: { createdAt: -1 },
       });
 
       res.status(200).json({
-        data: {
-          posts,
-          totalPages,
-          pagination,
-        },
+        posts,
+        totalPosts,
+        pagination,
       });
     } catch (error) {
       console.error("[PostController] 작성자별 게시물 조회 중 오류:", error);
@@ -205,7 +193,7 @@ class PostController {
       });
 
       res.status(201).json({
-        data: newPost,
+        newPost,
       });
     } catch (error) {
       console.error("[PostController] 게시물 생성 중 오류:", error);
@@ -240,10 +228,8 @@ class PostController {
       }
 
       res.status(200).json({
-        data: {
-          post,
-          relatedposts,
-        },
+        post,
+        relatedposts,
       });
     } catch (error) {
       console.error("[PostController] 게시물 상세 조회 중 오류:", error);
@@ -314,7 +300,15 @@ class PostController {
       }
 
       await this.postService.addComment(postId, userId, content);
-    } catch (error) {}
+      res.status(201).json({
+        message: "댓글이 등록되었습니다.",
+      });
+    } catch (error) {
+      console.error("[PostController] 댓글 등록 중 오류:", error);
+      res.status(500).json({
+        message: "댓글 등록 중 오류가 발생했습니다.",
+      });
+    }
   };
 
   deleteComment = async (req: Request, res: Response) => {
@@ -365,10 +359,8 @@ class PostController {
       }
 
       return res.status(200).json({
-        data: {
-          archiveByYear,
-          filteredPosts,
-        },
+        archiveByYear,
+        filteredPosts,
       });
     } catch (error) {
       console.error("[PostController] 아카이브 조회 중 오류:", error);

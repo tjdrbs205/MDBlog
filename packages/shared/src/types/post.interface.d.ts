@@ -22,8 +22,17 @@ interface IPost {
   publishedAt: Date;
   comments: IComment[];
   likes: number;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+interface IPostDetail {
+  post: IPost;
+  relatedPosts: {
+    id: string;
+    title: string;
+    publishedAt: Date | string;
+  };
 }
 
 interface ICreatePostDto {
@@ -55,7 +64,7 @@ interface PagenationInfo {
 
 interface IGetPostsResponse {
   posts: IPost[];
-  totalPages: number;
+  totalPosts: number;
   pagination: PagenationInfo;
 }
 
@@ -67,6 +76,7 @@ interface IGetPostsResponseWithCategory extends Omit<IGetPostsResponse, "totalPo
 export {
   IComment,
   IPost,
+  IPostDetail,
   ICreatePostDto,
   IUpdatePostDto,
   PagenationInfo,

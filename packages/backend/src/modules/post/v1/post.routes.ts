@@ -18,7 +18,6 @@ router.get(
   ],
   AsyncHandler.wrap(postController.detailPost)
 );
-
 router.get(
   "/",
   [
@@ -102,7 +101,6 @@ router.delete(
   ],
   AsyncHandler.wrap(postController.deletePost)
 );
-
 router.delete(
   "/:postId/comment/:commentId",
   AuthenticationMiddleware.isAdmin,

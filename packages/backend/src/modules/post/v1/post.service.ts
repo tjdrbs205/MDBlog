@@ -66,7 +66,7 @@ class PostService {
 
     return {
       posts: plainPosts,
-      totalPages,
+      totalPosts,
       pagination: {
         page,
         totalPages,
@@ -389,7 +389,7 @@ class PostService {
     return await this.getPosts(filter, options);
   }
 
-  async getPostsWithCategory(
+  async getPostsByCategory(
     categoryId: string,
     options: Record<string, any>
   ): Promise<IGetPostsResponseWithCategory> {
@@ -430,7 +430,6 @@ class PostService {
 
     return {
       posts: posts.map((post) => post.plainPost),
-      totalPages,
       totalPosts,
       category: category.plainCategory,
       pagination: {

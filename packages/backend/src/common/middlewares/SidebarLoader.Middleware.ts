@@ -17,10 +17,7 @@ class SidebarLoaderMiddleware {
     ] = await Promise.all([
       CategoryModel.getCategoryHierarchy(),
       TagModel.find().sort({ name: 1 }),
-      PostModel.find({ isPublic: true })
-        .sort({ createAt: -1 })
-        .limit(5)
-        .select("title createdAt featuredImage"),
+      PostModel.find({ isPublic: true }).sort({ createAt: -1 }).limit(5),
       PostModel.countDocuments({ isPublic: true }),
       PostModel.aggregate([
         { $match: { isPublic: true } },
@@ -54,10 +51,10 @@ class SidebarLoaderMiddleware {
 
     const categories = await CategoryModel.find().sort({ name: 1 });
 
-    res.locals.categories = categories;
+    res.locals.categories = categories.map((cat) => cat.plainCategory);
     res.locals.categoriesHierarchical = categoriesHierarchical;
-    res.locals.tags = tags;
-    res.locals.recentPosts = recentPosts;
+    res.locals.tags = tags.map((tag) => tag.plainTag);
+    res.locals.recentPosts = recentPosts.map((post) => post.plainPost);
     res.locals.categoryMap = categoryMap;
     res.locals.postStats = stats.posts;
     res.locals.stats = stats;

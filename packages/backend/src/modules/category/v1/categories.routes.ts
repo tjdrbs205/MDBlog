@@ -8,7 +8,7 @@ import AuthenticationMiddleware from "../../../common/middlewares/Authentication
 const router = Router();
 const categoryController = new CategoryController();
 
-// /categories
+// /category
 router.get("/", AsyncHandler.wrap(categoryController.list));
 
 router.post(
