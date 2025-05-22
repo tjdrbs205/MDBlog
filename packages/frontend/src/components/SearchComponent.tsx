@@ -1,31 +1,52 @@
 import { FormEvent, useEffect, useState } from "react";
-import { useSearchContext } from "../context/SearchContext";
 import { useMainContext } from "../context/MainContext";
+import { useSearchParams } from "react-router-dom";
 
 const SearchComponent: React.FC<SearchComponentProps> = ({
   placeholder = "검색어를 입력하세요",
   className = "",
 }) => {
-  const { searchTerm, setSearchTerm } = useSearchContext();
   const { categories } = useMainContext();
-  const [localSearchTerm, setLocalSearchTerm] = useState<SearchParams>(searchTerm);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const query = searchParams.get("q") || "";
+  const category = searchParams.get("category") || "";
+  const sort = searchParams.get("sort") || "newest";
+  const page = Number(searchParams.get("page") || 1);
+
+  const [localSearchTerm, setLocalSearchTerm] = useState<SearchParams>({
+    q: query,
+    category: category,
+    sort: sort,
+    page: page,
+  });
 
   useEffect(() => {
-    setLocalSearchTerm(searchTerm);
-  }, [searchTerm]);
+    setLocalSearchTerm({
+      q: query,
+      category: category,
+      sort: sort,
+      page: page,
+    });
+  }, [query, category, sort, page]);
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newParams: SearchParams = {
-      category: formData.get("category")?.toString() || undefined,
-      sort: formData.get("sort")?.toString() || undefined,
-      q: formData.get("q")?.toString() || undefined,
-    };
+    const newParams = new URLSearchParams();
 
-    setSearchTerm(newParams);
+    const currentPage = Number(formData.get("page")?.toString() || 1);
+    const currentCategory = formData.get("category")?.toString() || "";
+    const currentSort = formData.get("sort")?.toString() || "newest";
+    const currentQ = formData.get("q")?.toString() || "";
+
+    if (currentPage > 1) newParams.set("page", String(currentPage));
+    if (currentCategory !== "") newParams.set("category", currentCategory);
+    if (currentSort !== "newest") newParams.set("sort", currentSort);
+    if (currentQ !== "") newParams.set("q", currentQ);
+
+    setSearchParams(newParams);
   };
-
   return (
     <form onSubmit={handleFormSubmit} className={`Search_${className}`}>
       <div className="col-md-4">
@@ -40,7 +61,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         >
           <option value="">전체</option>
           {categories.map((cat) => (
-            <option value={cat.id}>{cat.name}</option>
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
           ))}
         </select>
       </div>

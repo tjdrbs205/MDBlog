@@ -23,12 +23,12 @@ function useRequest<T>(url: string, options: UseRequestOptions = {}) {
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<T | null>(null);
 
-  let _url = import.meta.env.VITE_API_URL + url;
-
   const execute = useCallback(
     async (overrideBody?: any) => {
       setLoading(true);
       setError(null);
+
+      let _url = import.meta.env.VITE_API_URL + url;
 
       try {
         if (params) {

@@ -70,8 +70,6 @@ export const MainProvider: React.FC<MainProviderProps> = ({ children }) => {
 
   const { data, error, loading } = useRequest<MainContextRequest>("/init");
 
-  console.log("MainContext data", data);
-
   if (error) {
     console.error("Error loading initial data:", error);
     refreshData();

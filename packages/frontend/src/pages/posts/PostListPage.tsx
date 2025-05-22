@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { IPost, PagenationInfo } from "@mdblog/shared/src/types/post.interface";
+import { IGetPostsResponse, IPost, PagenationInfo } from "@mdblog/shared/src/types/post.interface";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchComponent from "../../components/SearchComponent";
-import { useSearchContext } from "../../context/SearchContext";
+import { useMainContext } from "../../context/MainContext";
+import useRequest from "../../hooks/useRequest.hook";
 
 const PostListPage: React.FC = () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 상태
-  const { searchTerm } = useSearchContext();
-  const [loading, setLoading] = useState(true);
+  const { tags } = useMainContext();
   const [posts, setPosts] = useState<IPost[]>([]);
-  const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
   const [pagination, setPagination] = useState<PagenationInfo>({
     page: 1,
     totalPages: 0,
@@ -29,28 +25,25 @@ const PostListPage: React.FC = () => {
   const q = searchParams.get("q") || "";
   const tag = searchParams.get("tag") || "";
 
+  const params = {
+    page: page,
+    category: category,
+    sort: sort,
+    q: q,
+    tag: tag,
+  };
+
+  const { loading, data, execute } = useRequest<IGetPostsResponse>("/posts", {
+    manual: true,
+    params,
+  });
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          `${apiUrl}/posts?page=${page}&category=${category}&sort=${sort}&q=${q}&tag=${tag}`
-        );
-        const data = await res.json();
-        if (data.success) {
-          setPosts(data.body.posts);
-          setPagination(data.body.pagination);
-          setCategories(data.body.categories || []);
-          setTags(data.body.tags || []);
-        }
-      } catch (error) {
-        console.error("게시물 불러오기 실패:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [page, category, sort, q, tag]);
+    execute().then((data) => {
+      setPosts(data?.posts || []);
+      setPagination(data?.pagination || pagination);
+    });
+  }, [searchParams]);
 
   return (
     <div>
