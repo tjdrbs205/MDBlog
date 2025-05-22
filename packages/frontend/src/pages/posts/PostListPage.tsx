@@ -33,7 +33,7 @@ const PostListPage: React.FC = () => {
     tag: tag,
   };
 
-  const { loading, data, execute } = useRequest<IGetPostsResponse>("/posts", {
+  const { loading, execute } = useRequest<IGetPostsResponse>("/posts", {
     manual: true,
     params,
   });

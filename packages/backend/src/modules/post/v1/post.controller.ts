@@ -12,13 +12,19 @@ class PostController {
 
   listPosts = async (req: Request, res: Response) => {
     try {
-      const { category, q, sort = "newest" } = req.query;
+      const { tag, category, q, sort = "newest" } = req.query;
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
       const filter: Record<string, any> = { isPublic: true };
 
       if (category) {
         filter.category = category;
+      }
+
+      if (tag) {
+        filter.tags = {
+          $in: [tag],
+        };
       }
 
       if (q) {
