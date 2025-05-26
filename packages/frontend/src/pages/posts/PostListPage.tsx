@@ -48,7 +48,7 @@ const PostListPage: React.FC = () => {
   return (
     <div>
       <h2>게시글 목록</h2>
-
+      <hr />
       {/* 태그 필터 */}
       {tags.length > 0 && (
         <div className="mb-4">

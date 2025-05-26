@@ -14,7 +14,7 @@ class PostController {
     try {
       const { tag, category, q, sort = "newest" } = req.query;
       const page = parseInt(req.query.page as string) || 1;
-      const limit = 10;
+      const limit = 2;
       const filter: Record<string, any> = { isPublic: true };
 
       if (category) {
@@ -44,11 +44,18 @@ class PostController {
         sortOptions = { view: -1 };
       }
 
-      const { posts, totalPosts, pagination } = await this.postService.getPosts(filter, {
-        sort: sortOptions,
-        page,
-        limit,
-      });
+      const { posts, totalPosts, pagination } = category
+        ? await this.postService.getPostsByCategory(filter, {
+            sort: sortOptions,
+            page,
+            limit,
+            includeSubcategories: true,
+          })
+        : await this.postService.getPosts(filter, {
+            sort: sortOptions,
+            page,
+            limit,
+          });
 
       res.status(200).json({
         posts,
@@ -136,13 +143,15 @@ class PostController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
 
-      const { posts, totalPosts, pagination } = await this.postService.getPostsByCategory(
-        categoryId,
-        {
-          page,
-          limit,
-        }
-      );
+      const filter: Record<string, any> = { isPublic: true };
+      if (categoryId) {
+        filter.category = categoryId;
+      }
+
+      const { posts, totalPosts, pagination } = await this.postService.getPostsByCategory(filter, {
+        page,
+        limit,
+      });
 
       res.status(200).json({
         posts,

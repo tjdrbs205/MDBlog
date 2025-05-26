@@ -65,15 +65,15 @@ class CategoryService {
     const findDescendants = (parentId: string): string[] => {
       // any 타입을 사용하여 타입 오류를 해결
       const directChildren: ICategory[] = allCategories.filter(
-        (cat) => cat.parent && cat.parent.toString() === parentId
+        (cat) => cat.parent && cat.parent === parentId
       );
 
       // 직접 any 타입으로 처리하여 _id에 접근
-      let descendants = directChildren.map((child) => child.id.toString());
+      let descendants = directChildren.map((child) => child.id);
 
       // 각 직계 자식의 자손들도 추가
-      directChildren.forEach((child: any) => {
-        const childDescendants = findDescendants(child._id.toString());
+      directChildren.forEach((child: ICategory) => {
+        const childDescendants = findDescendants(child.id);
         descendants = [...descendants, ...childDescendants];
       });
 

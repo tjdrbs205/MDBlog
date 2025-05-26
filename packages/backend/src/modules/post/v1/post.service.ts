@@ -390,22 +390,19 @@ class PostService {
   }
 
   async getPostsByCategory(
-    categoryId: string,
+    filter: Record<string, any>,
     options: Record<string, any>
   ): Promise<IGetPostsResponseWithCategory> {
     const { sort = { createdAt: -1 }, page = 1, limit = 10 } = options;
     const skip = (page - 1) * limit;
+
+    const categoryId: string = filter.category;
 
     const category = await CategoryModel.findById(categoryId);
     if (!category) {
       const error = new Error("카테고리를 찾을 수 없습니다.");
       throw error;
     }
-
-    let filter: Record<string, any> = {
-      category: categoryId,
-      isPublic: true,
-    };
 
     if (options.includeSubcategories) {
       const descendantIds = await this.categoryService.getDescendantCategoryIds(categoryId);
@@ -415,6 +412,7 @@ class PostService {
         isPublic: true,
       };
     }
+
     const [posts, totalPosts] = await Promise.all([
       PostModel.find(filter)
         .sort(sort)

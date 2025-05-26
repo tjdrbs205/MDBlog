@@ -23,7 +23,7 @@ class SidebarLoaderMiddleware {
         { $match: { isPublic: true } },
         { $group: { _id: "$category", count: { $sum: 1 } } },
       ]),
-      StatsModel.getToday(),
+      StatsModel.getTodayVisits(),
       StatsModel.getTotalStats(),
     ]);
 
@@ -34,15 +34,15 @@ class SidebarLoaderMiddleware {
       }
     });
 
-    const activateVisitorsCount = StatsModel.getActiveVisitorsCount();
+    const activateVisitorsCount = await StatsModel.getActiveVisitorsCount();
 
     const stats = {
       posts: {
         total: totalPosts,
       },
       visits: {
-        today: todayStats?.visits || 0,
-        total: totalStats?.totalStats || 0,
+        today: todayStats || 0,
+        total: totalStats?.totalVisits || 0,
         totalPageViews: totalStats?.totalPageViews || 0,
         totalUniqueVisitors: totalStats?.totalUniqueVisitors || 0,
         active: activateVisitorsCount,

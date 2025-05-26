@@ -10,8 +10,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div>
       <Header />
-      <Sidebar />
-      <main>{children}</main>
+      <div className="container mt-4">
+        <div className="row">
+          <Sidebar />
+          <div className="col-md-9">{children}</div>
+        </div>
+      </div>
       <Footer />
     </div>
   );

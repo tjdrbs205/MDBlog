@@ -10,7 +10,7 @@ interface ICategory {
 }
 
 interface ICategoryWithChildren extends ICategory {
-  children: ICategory[];
+  children: ICategoryWithChildren[];
 }
 
 export { ICategory, ICategoryWithChildren };

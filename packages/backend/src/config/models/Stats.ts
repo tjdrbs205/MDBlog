@@ -11,10 +11,7 @@ interface IStatsDocument extends Omit<IStats, "id">, Document {}
 interface IStatsModel extends Model<IStatsDocument> {
   getToday(): Promise<IStatsDocument | null>;
   getTodayVisits(): Promise<number>;
-  incrementVisit(
-    visitor: IVisitorIncrement,
-    isNewVisitor: boolean
-  ): Promise<void>;
+  incrementVisit(visitor: IVisitorIncrement, isNewVisitor: boolean): Promise<void>;
   getTotalStats(): Promise<Record<string, number>>;
   getStatsByDateRange(startDate: Date, endDate: Date): Promise<IStats[]>;
   getActiveVisitorsCount(): Promise<number>;
@@ -65,14 +62,15 @@ const statsSchema = new Schema<IStatsDocument>(
 );
 
 statsSchema.statics.getToday = async function (): Promise<IStatsDocument> {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const newUtc = new Date();
+  newUtc.setUTCHours(0, 0, 0, 0);
+  const today = newUtc.toISOString();
 
   let todayStats = await this.findOne({ date: today });
+
   if (!todayStats) {
     todayStats = await this.create({ date: today });
   }
-
   return todayStats;
 };
 
@@ -103,9 +101,7 @@ statsSchema.statics.incrementVisit = async function (
   }
 
   if (visitorObj.path) {
-    const pathKey = `pages.${visitorObj.path
-      .replace(/\./g, "_")
-      .replace(/\//g, "_")}`;
+    const pathKey = `pages.${visitorObj.path.replace(/\./g, "_").replace(/\//g, "_")}`;
     updatedFields.$inc[pathKey] = 1;
   }
 
@@ -163,10 +159,9 @@ statsSchema.statics.getStatsByDateRange = async function (
   }).sort({ date: 1 });
 };
 
-statsSchema.statics.getActiveVisitorsCount =
-  async function (): Promise<number> {
-    return global.activeVisitors ? global.activeVisitors.size : 0;
-  };
+statsSchema.statics.getActiveVisitorsCount = async function (): Promise<number> {
+  return global.activeVisitors ? global.activeVisitors.size : 0;
+};
 
 statsSchema.statics.getActiveVisitors = async function () {
   if (!global.activeVisitors) {

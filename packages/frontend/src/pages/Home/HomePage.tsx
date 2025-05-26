@@ -19,7 +19,7 @@ const HomePage: React.FC = () => {
   if (error) return <div>{error.message}</div>;
 
   return (
-    <div className="container mt-4">
+    <>
       {/* 화면 배너 */}
       <div className="jumbotron bg-light p-4 mb-4 rounded">
         <h1 className="display-4">환영합니다!</h1>
@@ -68,7 +68,7 @@ const HomePage: React.FC = () => {
           ))}
         </div>
       </section>
-    </div>
+    </>
   );
 };
 
