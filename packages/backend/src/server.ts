@@ -60,6 +60,11 @@ class Server {
   // 라우터 초기화
   private initializeController() {
     this.app.use(mainRouter); // 메인 라우터 연결
+    this.app.use((req, res) => {
+      res.status(404).json({
+        message: "요청하신 페이지를 찾을 수 없습니다.",
+      });
+    });
   }
 
   // 에러 핸들러

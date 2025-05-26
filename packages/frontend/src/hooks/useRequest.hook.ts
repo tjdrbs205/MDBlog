@@ -1,16 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
-
-interface UseRequestOptions {
-  method?: HttpMethod;
-  headers?: HeadersInit;
-  body?: any;
-  manual?: boolean;
-  params?: Record<string, string | number>;
-}
-
-function useRequest<T>(url: string, options: UseRequestOptions = {}) {
+export default function useRequest<T>(url: string, options: UseRequestOptions = {}) {
   const {
     method = "GET",
     headers = { "Content-Type": "application/json" },
@@ -76,5 +66,3 @@ function useRequest<T>(url: string, options: UseRequestOptions = {}) {
 
   return { data, error, loading, execute };
 }
-
-export default useRequest;

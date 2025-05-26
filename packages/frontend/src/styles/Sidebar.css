@@ -1,0 +1,112 @@
+/* 카테고리 트리 스타일 - Tistory 스타일 */
+.category-tree {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.category-item {
+  position: relative;
+  margin-bottom: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 5px;
+  transition: transform 0.2s ease;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  position: relative;
+}
+
+.toggle-placeholder {
+  width: 24px;
+  display: inline-block;
+}
+
+.toggle-btn i {
+  transition: transform 0.3s ease;
+  font-size: 10px;
+}
+
+.toggle-btn i.rotated {
+  transform: rotate(90deg);
+}
+
+.category-link {
+  text-decoration: none;
+  color: #333;
+  flex-grow: 1;
+  padding: 10px 0;
+  display: block;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-link.active {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.category-link:hover {
+  color: #007bff;
+}
+
+.sub-categories {
+  list-style: none;
+  padding-left: 15px;
+  margin: 0;
+  overflow: hidden;
+  max-height: 1000px;
+  transition: max-height 0.3s ease-in-out;
+  background-color: #f9f9f9;
+}
+
+.sub-categories.collapsed {
+  display: none;
+  max-height: 0;
+}
+
+.level-0 .category-link {
+  font-weight: 500;
+}
+
+.level-1 .category-link {
+  font-size: 13px;
+}
+
+.level-2 .category-link {
+  font-size: 12px;
+}
+
+.count {
+  color: #888;
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+/* 카테고리 아이콘 스타일 */
+.category-icon {
+  margin-right: 6px;
+  color: #888;
+  font-size: 14px;
+}

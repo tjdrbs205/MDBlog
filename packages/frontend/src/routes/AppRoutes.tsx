@@ -8,6 +8,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/posts" element={<PostListPage />} />
+      <Route path="/posts/popular" element={<PostListPage />} />
       <Route path="/posts/:id" element={<PostDetailPage />} />
     </Routes>
   );

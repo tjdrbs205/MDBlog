@@ -9,15 +9,6 @@ const router = Router();
 const postController = new PostController();
 
 // GET /api/posts - 게시물 목록 조회
-
-router.get(
-  "/:id",
-  [
-    param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
-    ValidationMiddleware.validateRequest,
-  ],
-  AsyncHandler.wrap(postController.detailPost)
-);
 router.get(
   "/",
   [
@@ -46,6 +37,15 @@ router.get(
     ValidationMiddleware.validateRequest,
   ],
   AsyncHandler.wrap(postController.getArchive)
+);
+
+router.get(
+  "/:id",
+  [
+    param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
+    ValidationMiddleware.validateRequest,
+  ],
+  AsyncHandler.wrap(postController.detailPost)
 );
 
 router.post(
@@ -101,6 +101,7 @@ router.delete(
   ],
   AsyncHandler.wrap(postController.deletePost)
 );
+
 router.delete(
   "/:postId/comment/:commentId",
   AuthenticationMiddleware.isAdmin,

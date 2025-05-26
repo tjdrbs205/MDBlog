@@ -66,9 +66,13 @@ const MainContext = createContext<MainContextType>({
 });
 
 export const MainProvider: React.FC<MainProviderProps> = ({ children }) => {
-  const refreshData = async () => {};
+  const { data, error, loading, execute } = useRequest<MainContextRequest>("/init", {
+    manual: true,
+  });
 
-  const { data, error, loading } = useRequest<MainContextRequest>("/init");
+  const refreshData = async () => {
+    await execute();
+  };
 
   if (error) {
     console.error("Error loading initial data:", error);
@@ -101,6 +105,11 @@ export const MainProvider: React.FC<MainProviderProps> = ({ children }) => {
     },
     refreshData,
   };
+
+  useEffect(() => {
+    execute();
+  }, []);
+
   return (
     <MainContext.Provider value={value}>
       {loading ? <div>loading...</div> : children}

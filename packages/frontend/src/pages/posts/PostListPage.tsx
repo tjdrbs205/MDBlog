@@ -54,6 +54,12 @@ const PostListPage: React.FC = () => {
         <div className="mb-4">
           <h5>태그</h5>
           <div className="d-flex flex-wrap gap-2">
+            <button
+              className={`badge btn ${!tag ? "bg-primary" : "bg-secondary"}`}
+              onClick={() => setSearchParams({ ...Object.fromEntries(searchParams), tag: "" })}
+            >
+              #전체
+            </button>
             {tags.map((t: any) => (
               <button
                 key={t.id}
