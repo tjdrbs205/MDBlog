@@ -17,7 +17,12 @@ class SidebarLoaderMiddleware {
     ] = await Promise.all([
       CategoryModel.getCategoryHierarchy(),
       TagModel.find().sort({ name: 1 }),
-      PostModel.find({ isPublic: true }).sort({ createAt: -1 }).limit(5),
+      PostModel.find({ isPublic: true })
+        .sort({ createAt: -1 })
+        .limit(4)
+        .populate("author", "username")
+        .populate("category", "name")
+        .populate("tags", "name"),
       PostModel.countDocuments({ isPublic: true }),
       PostModel.aggregate([
         { $match: { isPublic: true } },

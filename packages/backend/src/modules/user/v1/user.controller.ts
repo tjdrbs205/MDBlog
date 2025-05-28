@@ -40,12 +40,13 @@ class UserController {
       const userPayload: TPayload = {
         id: user.id,
         email: user.email,
+        username: user.username,
         aud: process.env.JWT_AUDIENCE || "default_audience",
         iss: process.env.JWT_ISSUER || "default_issuer",
       };
 
       const refreshToken = await generateRefreshToken(userPayload);
-      const accessTOken = await generateAccessToken(userPayload);
+      const accessToken = await generateAccessToken(userPayload);
 
       this.redisClient.set(user.id, refreshToken);
 
@@ -56,7 +57,7 @@ class UserController {
       });
 
       return res.status(201).json({
-        accessTOken,
+        accessToken,
       });
     })(req, res, next);
   };
@@ -94,13 +95,14 @@ class UserController {
     }
     const isToken = await verifyRefreshToken(refreshToken);
     if (!isToken) {
-      return res.status(203).json({
+      return res.status(403).json({
         message: "리프레시 토큰이 유효하지 않습니다.",
       });
     }
 
     const user = await decodeToken(refreshToken);
     const redisToken = await this.redisClient.get(user.id);
+
     if (redisToken !== refreshToken) {
       res.clearCookie("refreshToken", {
         httpOnly: true,
@@ -108,7 +110,7 @@ class UserController {
         sameSite: "strict",
       });
 
-      return res.status(203).json({
+      return res.status(403).json({
         message: "리프레시 토큰이 유효하지 않습니다.",
       });
     }
@@ -116,6 +118,7 @@ class UserController {
     const userPayload: TPayload = {
       id: user.id,
       email: user.email,
+      username: user.username,
       aud: process.env.JWT_AUDIENCE || "default_audience",
       iss: process.env.JWT_ISSUER || "default_issuer",
     };
@@ -150,9 +153,9 @@ class UserController {
       });
     } catch (error) {
       console.error("회원가입 처리 오류: ", error);
+
       return res.status(400).json({
-        message: "회원가입 중 오류가 발생했습니다.",
-        user: { username: req.body.username, email: req.body.email },
+        message: (error as Error)?.message.toString(),
       });
     }
   };

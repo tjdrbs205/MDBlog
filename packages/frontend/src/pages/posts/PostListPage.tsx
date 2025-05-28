@@ -40,8 +40,8 @@ const PostListPage: React.FC = () => {
 
   useEffect(() => {
     execute().then((data) => {
-      setPosts(data?.posts || []);
-      setPagination(data?.pagination || pagination);
+      setPosts(data.data?.posts || []);
+      setPagination(data.data?.pagination || pagination);
     });
   }, [searchParams]);
 

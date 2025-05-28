@@ -26,7 +26,7 @@ const Header: React.FC = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
+          <ul className="navbar-nav me-auto">
             <li>
               <Link className="nav-link" to="/">
                 <i className="bi bi-house-door me-1"></i>홈
@@ -44,17 +44,6 @@ const Header: React.FC = () => {
                 최신 글
               </Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/about">
-                소개
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/contact">
-                연락처
-              </Link>
-            </li>
-
             <li className="nav-item dropdown">
               <a
                 className="nav-link dropdown-toggle"
@@ -88,9 +77,8 @@ const Header: React.FC = () => {
                 <i className="bi bi-info-circle me-1"></i>소개
               </Link>
             </li>
-
-            <SearchComponent className="top" />
           </ul>
+          <SearchComponent placeholder="검색" className="top" />
         </div>
       </div>
     </nav>

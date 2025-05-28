@@ -9,6 +9,8 @@ import { imageUpload } from "../../../common/utils/fileUpload.util";
 const router = Router();
 const userController = new UserController();
 
+// api/users/
+
 // GET
 router.get("/logout", AuthenticationMiddleware.isNotLoggedIn, userController.logout); // /api/users/logout - 사용자 로그아웃
 router.get("/refresh", userController.refreshToken); // /api/users/refresh - 리프레시 토큰 갱신

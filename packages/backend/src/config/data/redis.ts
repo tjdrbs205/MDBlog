@@ -44,7 +44,6 @@ class RedisClient {
     if (!this.RedisClient) {
       throw new Error("Redis 클라이언트가 초기화되지 않았습니다");
     }
-
     const REDIS_TOKEN_EXPIRES = process.env.REDIS_TOKEN_EXPIRES;
     await this.RedisClient.set(key, value, {
       EX: Number(REDIS_TOKEN_EXPIRES),
@@ -66,7 +65,7 @@ class RedisClient {
     }
 
     const value = await this.RedisClient.get(key);
-    return value ? JSON.parse(value) : null;
+    return value;
   }
 
   async del(key: string): Promise<void> {

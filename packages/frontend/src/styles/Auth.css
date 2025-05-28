@@ -1,0 +1,143 @@
+/* 로그인 및 회원가입 페이지 스타일 */
+
+/* 배경 스타일 */
+.auth-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+/* 카드 스타일 */
+.auth-card {
+  max-width: 450px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* 카드 헤더 스타일 */
+.auth-card .card-header {
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  padding: 20px;
+  border-bottom: none;
+}
+
+.auth-card .card-header h3 {
+  color: white;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* 카드 바디 스타일 */
+.auth-card .card-body {
+  padding: 30px;
+  background-color: white;
+}
+
+/* 폼 스타일 */
+.auth-card .form-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.auth-card .form-control {
+  border-radius: 8px;
+  padding: 12px 15px;
+  border: 1px solid #e1e1e1;
+  transition: all 0.3s;
+}
+
+.auth-card .form-control:focus {
+  box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);
+  border-color: #4e73df;
+}
+
+/* 버튼 스타일 */
+.auth-card .btn-primary {
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+
+.auth-card .btn-primary:hover {
+  background: linear-gradient(to right, #3c00b3, #7d26ca);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+}
+
+.auth-card .btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* 카드 푸터 스타일 */
+.auth-card .card-footer {
+  background-color: #f8f9fc;
+  padding: 15px;
+  border-top: none;
+}
+
+.auth-card .card-footer a {
+  color: #4e73df;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.auth-card .card-footer a:hover {
+  color: #2e59d9;
+  text-decoration: underline !important;
+}
+
+/* 체크박스 스타일 */
+.auth-card .form-check-input:checked {
+  background-color: #4e73df;
+  border-color: #4e73df;
+}
+
+/* 알림 스타일 */
+.auth-card .alert {
+  border-radius: 8px;
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .auth-card {
+    margin: 0 10px;
+  }
+
+  .auth-card .card-body {
+    padding: 20px;
+  }
+}

@@ -2,11 +2,12 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useMainContext } from "../context/MainContext";
 import "../styles/Sidebar.css";
 import CategoryTree from "./CategoryTree";
+import { useAuthContext } from "../context/AuthContext";
 
 const Sidebar: React.FC = () => {
+  const { user } = useAuthContext();
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("category");
-  const currentUser = null;
   const {
     categories,
     profileImage,
@@ -29,12 +30,12 @@ const Sidebar: React.FC = () => {
           />
           <h5 className="card-title">블로그 소개</h5>
           <p className="card-text text-muted">개발 관련 정보와 팁을 공유하는 블로그입니다.</p>
-          {currentUser ? (
+          {user ? (
             <p className="card-text">
-              <strong>{currentUser}</strong>남 환영합니다!
+              <strong>{user.username}</strong>남 환영합니다!
             </p>
           ) : (
-            <Link to="" className="btn btn-primary btn-me">
+            <Link to="/auth/login" className="btn btn-primary btn-me">
               로그인
             </Link>
           )}

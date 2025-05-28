@@ -408,6 +408,7 @@ class PostService {
       const descendantIds = await this.categoryService.getDescendantCategoryIds(categoryId);
 
       filter = {
+        ...filter,
         category: { $in: [categoryId, ...descendantIds] },
         isPublic: true,
       };

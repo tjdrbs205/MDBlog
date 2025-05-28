@@ -11,6 +11,7 @@ type UseRequestPrams<T> = {
 interface UseRequestOptions {
   method?: HttpMethod;
   headers?: HeadersInit;
+  credentials?: RequestCredentials;
   body?: any;
   manual?: boolean;
   params?: Record<string, string | number>;

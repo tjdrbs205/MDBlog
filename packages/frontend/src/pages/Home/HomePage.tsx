@@ -1,8 +1,5 @@
 import { IGetPostsResponse, IPost } from "@mdblog/shared/src/types/post.interface";
-import { useEffect, useState } from "react";
-import { set } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import useRequestMultiple from "../../hooks/useRequestMultiple.hook";
 import { useMainContext } from "../../context/MainContext";
 import useRequest from "../../hooks/useRequest.hook";
 
@@ -46,23 +43,98 @@ const HomePage: React.FC = () => {
             <i className="bi bi-star-fill text-warning me-2"></i>
             인기 게시물
           </h2>
+          <Link to="/posts/popular" className="btn btn-outline-primary">
+            전체 보기
+          </Link>
         </div>
         <div className="row">
-          {data?.posts.map((popularPost) => (
-            <div key={popularPost.id} className="col-md3 mb-4">
+          {data?.posts.slice(0, 4).map((popularPost) => (
+            <div key={popularPost.id} className="col-md-3 mb-4">
               <div className="card h-100 shadow-sm">
                 {popularPost.featuredImage ? (
                   <img
                     src={popularPost.featuredImage}
                     className="card-img-top"
                     alt={popularPost.title}
-                    style={{ height: "200px", objectFit: "cover" }}
+                    style={{ height: "160px", objectFit: "cover" }}
                   />
                 ) : (
                   <div className="bg-light text-center py-5">
                     <i className="bi bi-file-text display-4"></i>
                   </div>
                 )}
+                <div className="card-body">
+                  <h5 className="card-title" style={{ height: "50px", overflow: "hidden" }}>
+                    {popularPost.title}
+                  </h5>
+                  <p className="card-text text-muted small">
+                    <i className="bi bi-person"></i>
+                    {(popularPost.author as any).username || "익명"} | <i className="bi bi-eye"></i>
+                    {popularPost.view} | <i className="bi bi-folder"></i>{" "}
+                    {(popularPost.category as any).name || "미분류"}
+                  </p>
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <small className="text-muted">
+                      {new Date(popularPost.createdAt).toLocaleDateString()}
+                    </small>
+                    <Link
+                      to={`/posts/${popularPost.id}`}
+                      className="btn btn-sm btn-outline-secondary"
+                    >
+                      읽기
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="mb-5">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h2>
+            <i className="bi bi-clock-history text-secondary me-2"></i>
+            최신 게시물
+          </h2>
+          <Link to="/posts" className="btn btn-outline-primary">
+            전체 보기
+          </Link>
+        </div>
+        <div className="row">
+          {recentPosts.map((post: IPost) => (
+            <div key={post.id} className="col-md-3 mb-4">
+              <div className="card h-100 shadow-sm">
+                {post.featuredImage ? (
+                  <img
+                    src={post.featuredImage}
+                    className="card-img-top"
+                    alt={post.title}
+                    style={{ height: "160px", objectFit: "cover" }}
+                  />
+                ) : (
+                  <div className="bg-light text-center py-5">
+                    <i className="bi bi-file-text display-4"></i>
+                  </div>
+                )}
+                <div className="card-body">
+                  <h5 className="card-title" style={{ height: "50px", overflow: "hidden" }}>
+                    {post.title}
+                  </h5>
+                  <p className="card-text text-muted small">
+                    <i className="bi bi-person"></i>
+                    {(post.author as any).username || "익명"} | <i className="bi bi-eye"></i>
+                    {post.view} | <i className="bi bi-folder"></i>{" "}
+                    {(post.category as any).name || "미분류"}
+                  </p>
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <small className="text-muted">
+                      {new Date(post.createdAt).toLocaleDateString()}
+                    </small>
+                    <Link to={`/posts/${post.id}`} className="btn btn-sm btn-outline-secondary">
+                      읽기
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

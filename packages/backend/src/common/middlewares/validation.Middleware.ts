@@ -7,7 +7,7 @@ class ValidationMiddleware {
     if (!errors.isEmpty()) {
       console.error("Validation errors:", errors.array());
       return res.status(400).json({
-        errors: errors.array(),
+        message: errors.array(),
       });
     }
     next();

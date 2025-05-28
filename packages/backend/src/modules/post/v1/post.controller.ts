@@ -14,7 +14,7 @@ class PostController {
     try {
       const { tag, category, q, sort = "newest" } = req.query;
       const page = parseInt(req.query.page as string) || 1;
-      const limit = 2;
+      const limit = 10;
       const filter: Record<string, any> = { isPublic: true };
 
       if (category) {

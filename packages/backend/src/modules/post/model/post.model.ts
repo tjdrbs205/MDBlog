@@ -114,7 +114,7 @@ postSchema.virtual("plainPost").get(function (this: IPostDocument): IPost {
     slug: this.slug,
     content: this.content,
     excerpt: this.excerpt,
-    author: this.author ? this.author.toString() : "",
+    author: this.author ? (this.author as any).readOnlyUser : "",
     category: this.category ? (this.category as any).plainCategory : "",
     tags: this.tags ? this.tags.map((tag: any) => tag.plainTag) : [],
     featuredImage: this.featuredImage,

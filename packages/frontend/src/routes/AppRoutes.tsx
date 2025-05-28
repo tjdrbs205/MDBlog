@@ -2,14 +2,29 @@ import { Route, Routes } from "react-router-dom";
 import HomePage from "../pages/Home/HomePage";
 import PostListPage from "../pages/posts/PostListPage";
 import PostDetailPage from "../pages/posts/postDetailPage";
+import LoginPage from "../pages/auth/LoginPage";
+import RegisterPage from "../pages/auth/RegisterPage";
+import MainLayout from "../components/Layout.Main";
+import AuthLayout from "../components/Layout.Auth";
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/posts" element={<PostListPage />} />
-      <Route path="/posts/popular" element={<PostListPage />} />
-      <Route path="/posts/:id" element={<PostDetailPage />} />
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="posts">
+          <Route index element={<PostListPage />} />
+          <Route path="popular" element={<PostListPage />} />
+          <Route path=":id" element={<PostDetailPage />} />
+        </Route>
+      </Route>
+
+      <Route path="/auth" element={<AuthLayout />}>
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+      </Route>
+
+      <Route path="/admin" element={"안녕하세요 제작중인 admin"}></Route>
     </Routes>
   );
 };

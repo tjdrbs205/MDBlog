@@ -33,6 +33,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const formData = new FormData(e.currentTarget);
     const newParams = new URLSearchParams();
 
@@ -46,13 +47,14 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     if (currentSort !== "newest") newParams.set("sort", currentSort);
     if (currentQ !== "") newParams.set("q", currentQ);
 
-    if (className === "top") {
-      navigate("/posts");
+    if (location.pathname !== "/posts") {
+      navigate(`/posts?${newParams.toString()}`);
+    } else {
+      setSearchParams(newParams);
     }
-    setSearchParams(newParams);
   };
   return (
-    <form onSubmit={handleFormSubmit} className={`d-flex me-2`}>
+    <form onSubmit={handleFormSubmit} className="d-flex me-2">
       {className !== "top" && (
         <>
           <div className="col-md-4">
@@ -60,7 +62,13 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
               id="category"
               name="category"
               className="form-select"
-              defaultValue={localSearchTerm.category}
+              value={localSearchTerm.category}
+              onChange={(e) => {
+                setLocalSearchTerm((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }));
+              }}
             >
               <option value="">카테고리</option>
               {categories.map((cat) => (
@@ -76,7 +84,13 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
               name="sort"
               id="sort"
               className="form-select"
-              defaultValue={localSearchTerm.sort}
+              value={localSearchTerm.sort}
+              onChange={(e) => {
+                setLocalSearchTerm((prev) => ({
+                  ...prev,
+                  sort: e.target.value,
+                }));
+              }}
             >
               <option value="newest">최신순</option>
               <option value="oldest">오래된순</option>
@@ -87,23 +101,20 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         </>
       )}
 
-      <div className="col-md-4">
-        <div className="input-group">
-          <input
-            name="q"
-            id="q"
-            className="form-control"
-            placeholder={placeholder}
-            defaultValue={localSearchTerm.q}
-          />
-          <button
-            type="submit"
-            className={className !== "top" ? "btn btn-primary" : "btn btn-light"}
-          >
-            <i className="bi bi-search"></i>
-          </button>
-        </div>
+      {/* <div className="col-md-4"> */}
+      <div className="input-group">
+        <input
+          name="q"
+          id="q"
+          className="form-control col-md-3"
+          placeholder={placeholder}
+          defaultValue={localSearchTerm.q}
+        />
+        <button type="submit" className={className !== "top" ? "btn btn-primary" : "btn btn-light"}>
+          <i className="bi bi-search"></i>
+        </button>
       </div>
+      {/* </div> */}
     </form>
   );
 };

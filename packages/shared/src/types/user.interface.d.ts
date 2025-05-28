@@ -18,6 +18,11 @@ interface IRegisterUser {
   password: string;
 }
 
+interface ILoginUser {
+  email: string;
+  password: string;
+}
+
 interface IReadOnlyUser extends Omit<IUser, "password"> {}
 
-export { IUser, IReadOnlyUser, IRegisterUser };
+export { IUser, IReadOnlyUser, IRegisterUser, ILoginUser, IUserContextData };

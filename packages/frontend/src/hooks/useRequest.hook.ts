@@ -4,6 +4,7 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
   const {
     method = "GET",
     headers = { "Content-Type": "application/json" },
+    credentials = "include",
     body,
     manual = false,
     params,
@@ -14,7 +15,7 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
   const [data, setData] = useState<T | null>(null);
 
   const execute = useCallback(
-    async (overrideBody?: any) => {
+    async (overrideBody?: any): Promise<{ data: T | null; error: string | null }> => {
       setLoading(true);
       setError(null);
 
@@ -32,25 +33,32 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
         const res = await fetch(_url, {
           method,
           headers,
+          credentials,
           body: body ? JSON.stringify(body) : overrideBody ? JSON.stringify(overrideBody) : null,
         });
 
-        if (!res.ok) {
-          throw new Error(`Http Error! Status: ${res.status}`);
-        }
-        const result = await res.json();
+        const result: IResponse<T> = await res.json();
 
         if (!result.success) {
-          throw new Error(`Error! Message: ${result.message}`);
+          const errbody = result.body as IResponseError;
+
+          if (Array.isArray(errbody.message)) {
+            const messages: Record<string, string> = {};
+            errbody.message.map((item) => (messages[item.path] = item.msg));
+
+            throw new Error(JSON.stringify(messages));
+          }
+          throw new Error(errbody.message);
         }
 
-        const jsonData: T = result.body;
+        const jsonData: T = result.body as T;
 
         setData(jsonData);
-        return jsonData;
+        return { data: jsonData, error: null };
       } catch (error) {
         setError(error as Error);
-        return null;
+        const errorMessages = (error as Error).message;
+        return { data: null, error: errorMessages };
       } finally {
         setLoading(false);
       }

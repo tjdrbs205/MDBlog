@@ -3,7 +3,6 @@ import useRequest from "../hooks/useRequest.hook";
 import { ICategory, ICategoryWithChildren } from "@mdblog/shared/src/types/categories.interface";
 import { ITag } from "@mdblog/shared/src/types/tag.interface";
 import { IPost } from "@mdblog/shared/src/types/post.interface";
-import { use } from "marked";
 
 interface MainContextType {
   siteDescription: string;
@@ -110,10 +109,6 @@ export const MainProvider: React.FC<MainProviderProps> = ({ children }) => {
   useEffect(() => {
     execute();
   }, []);
-
-  useEffect(() => {
-    console.log("MainContext data updated:", data);
-  }, [data]);
 
   return (
     <MainContext.Provider value={value}>
