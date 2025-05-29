@@ -64,7 +64,6 @@ class UserController {
 
   logout = async (req: Request, res: Response) => {
     const refreshToken = req.cookies["refreshToken"];
-    console.log("로그아웃 시도", refreshToken);
     if (!refreshToken) return res.status(204);
 
     const isToken = await verifyRefreshToken(refreshToken);
@@ -89,7 +88,7 @@ class UserController {
   refreshToken = async (req: Request, res: Response) => {
     const refreshToken = req.cookies["refreshToken"];
     if (!refreshToken) {
-      return res.status(401).json({
+      return res.status(204).json({
         message: "리프레시 토큰이 없습니다.",
       });
     }

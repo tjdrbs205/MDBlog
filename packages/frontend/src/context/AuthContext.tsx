@@ -59,7 +59,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   const { execute: requestLogout } = useRequest<IMessage>("/users/logout", {
-    method: "POST",
     manual: true,
   });
 
@@ -90,15 +89,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setAccessToken(data.accessToken);
       setUser(parserUserToken(data.accessToken));
       setIsAuthenticated(true);
-
       return null;
     }
     if (error) {
-      const parserError = JSON.parse(error);
-      if (typeof parserError === "string") {
+      try {
+        return JSON.parse(error);
+      } catch (e) {
         return error;
-      } else {
-        return parserError;
       }
     }
   };
@@ -122,11 +119,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return null;
     }
     if (error) {
-      const parserError = JSON.parse(error);
-      if (typeof parserError === "string") {
+      try {
+        return JSON.parse(error);
+      } catch (e) {
         return error;
-      } else {
-        return parserError;
       }
     }
   };

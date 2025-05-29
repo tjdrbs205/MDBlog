@@ -45,7 +45,18 @@ class Server {
   private initializeMiddleware() {
     this.app.use(
       cors({
-        origin: process.env.CLIENT_URL,
+        origin: (origin, cb) => {
+          const allowedOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URL_PREVIEW];
+
+          if (!origin) {
+            cb(null, true);
+          }
+          if (allowedOrigins.includes(origin)) {
+            cb(null, true);
+          } else {
+            cb(new Error("CORS policy does not allow access from this origin"));
+          }
+        },
         credentials: true,
       })
     );

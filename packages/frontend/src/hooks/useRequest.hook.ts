@@ -21,15 +21,14 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
 
       let _url = import.meta.env.VITE_API_URL + url;
 
+      if (params) {
+        const urlParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          urlParams.append(key, String(value));
+        });
+        _url += `?${urlParams.toString()}`;
+      }
       try {
-        if (params) {
-          const urlParams = new URLSearchParams();
-          Object.entries(params).forEach(([key, value]) => {
-            urlParams.append(key, String(value));
-          });
-          _url += `?${urlParams.toString()}`;
-        }
-
         const res = await fetch(_url, {
           method,
           headers,

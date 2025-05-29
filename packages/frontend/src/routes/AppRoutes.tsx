@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import HomePage from "../pages/Home/HomePage";
 import PostListPage from "../pages/posts/PostListPage";
-import PostDetailPage from "../pages/posts/postDetailPage";
+import PostDetailPage from "../pages/posts/PostDetailPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import MainLayout from "../components/Layout.Main";

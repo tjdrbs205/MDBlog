@@ -71,6 +71,9 @@ const RegisterPage: React.FC = () => {
                 placeholder="사용자 이름을 입력하세요"
                 required
               />
+              <p style={{ color: "red" }}>
+                {typeof fieldError === "string" ? fieldError : fieldError?.username}
+              </p>
             </div>
 
             <div className="mb-3">
@@ -102,6 +105,9 @@ const RegisterPage: React.FC = () => {
                 placeholder="비밀번호를 입력하세요"
                 required
               />
+              <p style={{ color: "red" }}>
+                {typeof fieldError === "string" ? fieldError : fieldError?.password}
+              </p>
             </div>
 
             <div className="mb-4">
@@ -117,7 +123,7 @@ const RegisterPage: React.FC = () => {
                 required
               />
               <p style={{ color: "red" }}>
-                {typeof fieldError === "string" ? fieldError : fieldError?.password}
+                {typeof fieldError === "string" ? fieldError : fieldError?.confirmPassword}
               </p>
             </div>
 
