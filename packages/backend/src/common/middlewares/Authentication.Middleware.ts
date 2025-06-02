@@ -29,6 +29,16 @@ class AuthenticationMiddleware {
     next();
   }
 
+  public static isLoggedIn(req: Request, res: Response, next: NextFunction) {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        message: "인증되지 않은 사용자입니다.",
+      });
+    }
+    next();
+  }
+
   public static isAdmin(req: Request, res: Response, next: NextFunction) {
     const user = req.user;
     if (!user) {

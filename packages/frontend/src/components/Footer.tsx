@@ -4,7 +4,7 @@ import { useAuthContext } from "../context/AuthContext";
 
 const Footer: React.FC = () => {
   const { contactGithub, siteDescription } = useMainContext();
-  const { user, logout } = useAuthContext();
+  const { isAuthenticated, logout } = useAuthContext();
 
   return (
     <footer className="mt-5 pt-4 pb-4 bg-light border-top">
@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
           <div className="col-md-2 mb-4 mb-md-0">
             <h5>계정</h5>
             <ul className="list-unstyled">
-              {user ? (
+              {isAuthenticated ? (
                 <div>
                   <li className="mb-2">
                     <Link className="text-decoration-none" to="">

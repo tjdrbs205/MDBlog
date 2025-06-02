@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import UserController from "./user.controller";
 import AsyncHandler from "../../../common/middlewares/AsyncHandler.Middleware";
 import AuthenticationMiddleware from "../../../common/middlewares/Authentication.Middleware";
@@ -14,6 +14,12 @@ const userController = new UserController();
 // GET
 router.get("/logout", AuthenticationMiddleware.isNotLoggedIn, userController.logout); // /api/users/logout - 사용자 로그아웃
 router.get("/refresh", userController.refreshToken); // /api/users/refresh - 리프레시 토큰 갱신
+router.get(
+  "/profile",
+  AuthenticationMiddleware.jwtAuthorization,
+  AuthenticationMiddleware.isLoggedIn,
+  AsyncHandler.wrap(userController.getUser)
+);
 
 // POST
 router.post(
@@ -53,8 +59,10 @@ router.post(
 
 // PUT
 router.put(
-  "/profile",
-  AuthenticationMiddleware.isAdmin,
+  "/profile/update",
+  AuthenticationMiddleware.jwtAuthorization,
+  AuthenticationMiddleware.isLoggedIn,
+  imageUpload.single("profileImage"),
   [
     body("username")
       .notEmpty()
@@ -72,18 +80,24 @@ router.put(
       .isURL()
       .withMessage("유효하지 않은 URL 형식입니다.")
       .trim(),
+    body("deleteCheck")
+      .optional({ nullable: true })
+      .isLength({ max: 5 })
+      .withMessage("삭제 여부는 'ture' 또는 'false'로 입력해주세요."),
     ValidationMiddleware.validateRequest,
   ],
   AsyncHandler.wrap(userController.updateProfile)
 ); // /api/users/profile - 사용자 프로필 업데이트
 router.put(
   "/profile/image",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   imageUpload.single("profileImage"),
   AsyncHandler.wrap(userController.uploadProfileImage)
 ); // /api/users/profile/image - 사용자 프로필 이미지 업로드
 router.put(
   "/profile/password",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     body("currentPassword").notEmpty().withMessage("현재 비밀번호를 입력해주세요.").trim(),
@@ -103,6 +117,11 @@ router.put(
 ); // /api/users/profile/password - 사용자 비밀번호 변경
 
 // DELETE
-router.delete("/profile/image/delete", AsyncHandler.wrap(userController.deleteProfileImage)); // /api/users/profile/image - 사용자 프로필 이미지 삭제
+router.delete(
+  "/profile/image/delete",
+  AuthenticationMiddleware.jwtAuthorization,
+  AuthenticationMiddleware.isLoggedIn,
+  AsyncHandler.wrap(userController.deleteProfileImage)
+); // /api/users/profile/image - 사용자 프로필 이미지 삭제
 
 export default router;

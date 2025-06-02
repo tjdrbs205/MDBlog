@@ -81,7 +81,7 @@ const LoginPage: React.FC = () => {
         </div>
         <div className="card-footer text-center">
           <p className="mb-0">
-            계정이 없으신가요?{" "}
+            계정이 없으신가요?
             <Link to="/auth/register" className="text-primary">
               회원가입
             </Link>

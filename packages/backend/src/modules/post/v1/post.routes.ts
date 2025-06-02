@@ -50,6 +50,7 @@ router.get(
 
 router.post(
   "/",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     body("title").isEmpty().withMessage("제목을 입력해주세요.").trim(),
@@ -66,6 +67,7 @@ router.post(
 
 router.post(
   "/:id/comment",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
@@ -77,6 +79,7 @@ router.post(
 
 router.put(
   "/:id",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
@@ -94,6 +97,7 @@ router.put(
 
 router.delete(
   ":id",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
@@ -104,6 +108,7 @@ router.delete(
 
 router.delete(
   "/:postId/comment/:commentId",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("postId").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),

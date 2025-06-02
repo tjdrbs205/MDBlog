@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useMainContext } from "../context/MainContext";
 import SearchComponent from "./SearchComponent";
+import UserProfile from "./UserProfile";
 
 const Header: React.FC = () => {
   const appTitle = import.meta.env.VITE_APP_TITLE || "MDBlog";
@@ -79,6 +80,7 @@ const Header: React.FC = () => {
             </li>
           </ul>
           <SearchComponent placeholder="검색" className="top" />
+          <UserProfile />
         </div>
       </div>
     </nav>

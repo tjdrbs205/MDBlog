@@ -12,6 +12,7 @@ router.get("/", AsyncHandler.wrap(tagController.list));
 
 router.post(
   "/",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     body("name").notEmpty().withMessage("태그 이름은 필수입니다.").trim(),
@@ -22,6 +23,7 @@ router.post(
 
 router.delete(
   "/:id",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("id").isMongoId().withMessage("유효한 MongoDB ID가 아닙니다."),

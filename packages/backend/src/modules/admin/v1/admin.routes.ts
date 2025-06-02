@@ -9,7 +9,7 @@ import { imageUpload } from "../../../common/utils/fileUpload.util";
 const router = Router();
 const adminController = new AdminController();
 
-router.use(AuthenticationMiddleware.isAdmin);
+router.use(AuthenticationMiddleware.jwtAuthorization, AuthenticationMiddleware.isAdmin);
 
 router.post("/settings", AsyncHandler.wrap(adminController.saveSettings));
 router.post(

@@ -1,4 +1,4 @@
-import { cloudinary } from "../../config/data/cloudinary";
+import cloudinary from "../../config/data/cloudinary";
 import { SettingModel } from "../../config/models/Setting";
 import { UserModel } from "../../modules/user/model/user.model";
 import { bufferToStream } from "./fileUpload.util";

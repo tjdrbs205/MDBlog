@@ -1,5 +1,7 @@
-import express, { Application } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
+import express, { Application } from "express";
 import passport from "passport";
 import connectDB from "./config/data/database";
 import cookieParser from "cookie-parser";
@@ -19,7 +21,6 @@ class Server {
 
   // 환경변수 초기화
   constructor() {
-    dotenv.config();
     this.port = process.env.PORT || 5000;
 
     this.app = express();

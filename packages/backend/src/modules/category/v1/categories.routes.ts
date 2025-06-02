@@ -13,6 +13,7 @@ router.get("/", AsyncHandler.wrap(categoryController.list));
 
 router.post(
   "/",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     body("name").notEmpty().withMessage("카테고리 이름은 필수입니다.").trim(),
@@ -24,6 +25,7 @@ router.post(
 
 router.put(
   "/:id",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("id").notEmpty().withMessage("카테고리 ID는 필수입니다."),
@@ -36,6 +38,7 @@ router.put(
 
 router.delete(
   "/:id",
+  AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("id").isMongoId().withMessage("유효하지 않은 카테고리 ID입니다."),

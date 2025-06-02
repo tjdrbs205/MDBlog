@@ -15,4 +15,5 @@ interface UseRequestOptions {
   body?: any;
   manual?: boolean;
   params?: Record<string, string | number>;
+  accessToken?: string | null;
 }

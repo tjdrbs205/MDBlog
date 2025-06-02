@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isFormData } from "../utils/isFormData";
 
 export default function useRequest<T>(url: string, options: UseRequestOptions = {}) {
   const {
@@ -8,6 +9,7 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
     body,
     manual = false,
     params,
+    accessToken,
   } = options;
 
   const [error, setError] = useState<Error | null>(null);
@@ -21,6 +23,11 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
 
       let _url = import.meta.env.VITE_API_URL + url;
 
+      const newHeaders: HeadersInit = {
+        ...headers,
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      };
+
       if (params) {
         const urlParams = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
@@ -31,9 +38,17 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
       try {
         const res = await fetch(_url, {
           method,
-          headers,
+          headers: newHeaders,
           credentials,
-          body: body ? JSON.stringify(body) : overrideBody ? JSON.stringify(overrideBody) : null,
+          body: body
+            ? !isFormData(body)
+              ? JSON.stringify(body)
+              : body
+            : overrideBody
+            ? !isFormData(overrideBody)
+              ? JSON.stringify(overrideBody)
+              : overrideBody
+            : null,
         });
 
         const result: IResponse<T> = await res.json();

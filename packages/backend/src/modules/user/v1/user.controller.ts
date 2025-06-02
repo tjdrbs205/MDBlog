@@ -45,44 +45,57 @@ class UserController {
         iss: process.env.JWT_ISSUER || "default_issuer",
       };
 
-      const refreshToken = await generateRefreshToken(userPayload);
-      const accessToken = await generateAccessToken(userPayload);
+      try {
+        const refreshToken = await generateRefreshToken(userPayload);
+        const accessToken = await generateAccessToken(userPayload);
 
-      this.redisClient.set(user.id, refreshToken);
+        this.redisClient.set(user.id, refreshToken);
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "prod",
-        sameSite: "strict",
-      });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "prod",
+          sameSite: "strict",
+        });
 
-      return res.status(201).json({
-        accessToken,
-      });
+        return res.status(201).json({
+          accessToken,
+        });
+      } catch (error) {
+        console.error("토큰 생성 오류: ", error);
+        return res.status(500).json({
+          message: "로그인 처리 중 오류가 발생했습니다.",
+        });
+      }
     })(req, res, next);
   };
 
   logout = async (req: Request, res: Response) => {
     const refreshToken = req.cookies["refreshToken"];
     if (!refreshToken) return res.status(204);
+    try {
+      const isToken = await verifyRefreshToken(refreshToken);
+      if (!isToken) {
+        return res.status(203);
+      }
 
-    const isToken = await verifyRefreshToken(refreshToken);
-    if (!isToken) {
-      return res.status(203);
+      const user = await decodeToken(refreshToken);
+      this.redisClient.del(user.id);
+
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "prod",
+        sameSite: "strict",
+      });
+
+      res.status(200).json({
+        message: "로그아웃",
+      });
+    } catch (error) {
+      console.error("로그아웃 처리 오류: ", error);
+      return res.status(500).json({
+        message: "로그아웃 처리 중 오류가 발생했습니다.",
+      });
     }
-
-    const user = await decodeToken(refreshToken);
-    this.redisClient.del(user.id);
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "prod",
-      sameSite: "strict",
-    });
-
-    return res.status(200).json({
-      message: "로그아웃",
-    });
   };
 
   refreshToken = async (req: Request, res: Response) => {
@@ -92,59 +105,65 @@ class UserController {
         message: "리프레시 토큰이 없습니다.",
       });
     }
-    const isToken = await verifyRefreshToken(refreshToken);
-    if (!isToken) {
-      return res.status(403).json({
-        message: "리프레시 토큰이 유효하지 않습니다.",
-      });
-    }
+    try {
+      const isToken = await verifyRefreshToken(refreshToken);
+      if (!isToken) {
+        return res.status(403).json({
+          message: "리프레시 토큰이 유효하지 않습니다.",
+        });
+      }
 
-    const user = await decodeToken(refreshToken);
-    const redisToken = await this.redisClient.get(user.id);
+      const user = await decodeToken(refreshToken);
+      const redisToken = await this.redisClient.get(user.id);
 
-    if (redisToken !== refreshToken) {
-      res.clearCookie("refreshToken", {
+      if (redisToken !== refreshToken) {
+        res.clearCookie("refreshToken", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "prod",
+          sameSite: "strict",
+        });
+
+        return res.status(403).json({
+          message: "리프레시 토큰이 유효하지 않습니다.",
+        });
+      }
+
+      const userPayload: TPayload = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        aud: process.env.JWT_AUDIENCE || "default_audience",
+        iss: process.env.JWT_ISSUER || "default_issuer",
+      };
+
+      const newRefreshToken = await generateRefreshToken(userPayload);
+      const newAccessToken = await generateAccessToken(userPayload);
+      this.redisClient.set(user.id, newRefreshToken);
+      res.cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "prod",
         sameSite: "strict",
       });
-
-      return res.status(403).json({
-        message: "리프레시 토큰이 유효하지 않습니다.",
+      res.status(200).json({
+        accessToken: newAccessToken,
+      });
+    } catch (error) {
+      console.error("리프레시 토큰 처리 오류: ", error);
+      return res.status(500).json({
+        message: "리프레시 토큰 처리 중 오류가 발생했습니다.",
       });
     }
-
-    const userPayload: TPayload = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      aud: process.env.JWT_AUDIENCE || "default_audience",
-      iss: process.env.JWT_ISSUER || "default_issuer",
-    };
-
-    const newRefreshToken = await generateRefreshToken(userPayload);
-    const newAccessToken = await generateAccessToken(userPayload);
-    this.redisClient.set(user.id, newRefreshToken);
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "prod",
-      sameSite: "strict",
-    });
-    return res.status(200).json({
-      accessToken: newAccessToken,
-    });
   };
 
   register = async (req: Request, res: Response) => {
+    const { username, email, password, passwordConfirm } = req.body;
+    if (password !== passwordConfirm) {
+      return res.status(400).json({
+        message: "두 비밀번호가 일치하지 않습니다.",
+        user: { username, email },
+      });
+    }
     try {
-      const { username, email, password, passwordConfirm } = req.body;
-      if (password !== passwordConfirm) {
-        return res.status(400).json({
-          message: "두 비밀번호가 일치하지 않습니다.",
-          user: { username, email },
-        });
-      }
-
       await this.userService.registerUser(username, email, password);
 
       return res.status(201).json({
@@ -159,12 +178,59 @@ class UserController {
     }
   };
 
+  getUser = async (req: Request, res: Response) => {
+    const user = req.user;
+    try {
+      if (!user) {
+        return res.status(400).json({
+          message: "사용자를 찾을 수 없습니다.",
+        });
+      }
+      res.status(200).json({
+        ...user,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "사용자 정보를 가져오는 중 오류가 발생했습니다.",
+      });
+    }
+  };
+
+  getProfileImage = async (req: Request, res: Response) => {
+    const user = req.user;
+    if (!user) {
+      return res.status(400).json({
+        message: "사용자 정보가 없습니다.",
+      });
+    }
+
+    res.status(200).json({
+      user: {
+        profileImage: user.profileImage,
+        bio: user.bio,
+      },
+    });
+  };
+
   updateProfile = async (req: Request, res: Response) => {
     try {
-      const { username, bio } = req.body;
-      const user = req.user!;
+      const { username, bio, deleteCheck } = req.body;
+      const profileImage = req.file?.buffer;
+      const user = req.user;
+      if (!user) {
+        return res.status(400).json({
+          message: "사용자 정보가 없습니다.",
+        });
+      }
+
+      console.log(profileImage, user.profileImage);
+
+      if (profileImage) await uploadUserProfileImage(user.id, profileImage);
+      if (deleteCheck === "true") await deleteUserProfileImage(user.id);
 
       const updatedUser = await this.userService.updateUserProfile(user.id, username, bio);
+      const redisKey = `user:${user.id}`;
+      this.redisClient.set(redisKey, JSON.stringify(updatedUser));
 
       return res.status(200).json({
         message: "프로필 업데이트 성공",
@@ -179,9 +245,8 @@ class UserController {
   };
 
   changePassword = async (req: Request, res: Response) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
     try {
-      const { currentPassword, newPassword, confirmPassword } = req.body;
-
       await this.userService.changeUserPassword(currentPassword, newPassword, confirmPassword);
 
       return res.status(200).json({
@@ -196,13 +261,12 @@ class UserController {
   };
 
   uploadProfileImage = async (req: Request, res: Response) => {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "업로드할 이미지를 선택해주세요",
+      });
+    }
     try {
-      if (!req.file) {
-        return res.status(400).json({
-          message: "업로드할 이미지를 선택해주세요",
-        });
-      }
-
       await uploadUserProfileImage(req.user!.id, req.file.buffer);
 
       res.status(200).json({
@@ -217,13 +281,12 @@ class UserController {
   };
 
   deleteProfileImage = async (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(400).json({
+        message: "사용자 정보가 없습니다.",
+      });
+    }
     try {
-      if (!req.user) {
-        return res.status(400).json({
-          message: "사용자 정보가 없습니다.",
-        });
-      }
-
       await deleteUserProfileImage(req.user.id);
 
       res.status(200).json({
