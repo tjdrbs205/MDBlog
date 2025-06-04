@@ -8,9 +8,10 @@
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
     "dev:frontend": "npm run dev --workspace=packages/frontend",
     "dev:backend": "npm run dev --workspace=packages/backend",
-    "build": "npm-run-all --parallel build:frontend build:backend",
+    "build": "npm-run-all build:shared build:frontend build:backend",
     "build:frontend": "npm run build --workspace=packages/frontend",
-    "build:backend": "npm run build --workspace=packages/backend"
+    "build:backend": "npm run build --workspace=packages/backend",
+    "build:shared": "npm run build --workspace=packages/shared"
   },
   "repository": {
     "type": "git",
