@@ -16,7 +16,7 @@ class SettingsLoaderMiddleware {
       const contactGithub = await SettingModel.getSetting("contactGithub", "github.com/mdblog");
       const profileImage = await SettingModel.getSetting(
         "profileImage",
-        "/images/default-profile.png"
+        process.env.DEFAULT_IMAGE_URL
       );
       const aboutBlogHtml = marked(aboutBlog);
 

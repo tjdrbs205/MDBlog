@@ -203,7 +203,19 @@ export const useAuthContext = (): AuthContextType => {
 
 function parserUserToken(token: string): IUserContextData {
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const base64Payload = token.split(".")[1];
+
+    const binaryString = atob(base64Payload);
+    const bytes = new Uint8Array(binaryString.length);
+
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    const decoder = new TextDecoder("utf-8");
+    const jsonPayload = decoder.decode(bytes);
+    const payload = JSON.parse(jsonPayload);
+
     return {
       id: payload.id,
       username: payload.username,

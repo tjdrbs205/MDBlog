@@ -6,6 +6,14 @@ interface IComment {
   createdAt: Date | string;
 }
 
+interface ICommentPlain extends Omit<IComment, "author"> {
+  id: string;
+  author: {
+    id: string;
+    username: string;
+  };
+}
+
 interface IPost {
   id: string;
   title: string;
@@ -20,19 +28,34 @@ interface IPost {
   status: string;
   isPublic: boolean;
   publishedAt: Date;
-  comments: IComment[];
+  comments: ICommentPlain[];
   likes: number;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
 
+interface IPostPlain extends Omit<IPost, "author" | "category" | "tags"> {
+  author: {
+    id: string;
+    username: string;
+  };
+  category?: {
+    id: string;
+    name: string;
+  };
+  tags?: {
+    id: string;
+    name: string;
+  }[];
+}
+
 interface IPostDetail {
-  post: IPost;
+  post: IPostPlain;
   relatedPosts: {
     id: string;
     title: string;
     publishedAt: Date | string;
-  };
+  }[];
 }
 
 interface ICreatePostDto {
@@ -76,6 +99,7 @@ interface IGetPostsResponseWithCategory extends Omit<IGetPostsResponse, "totalPo
 export {
   IComment,
   IPost,
+  IPostPlain,
   IPostDetail,
   ICreatePostDto,
   IUpdatePostDto,

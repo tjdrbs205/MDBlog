@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import PostService from "./post.service";
 import { SortOrder } from "mongoose";
-import { uploadImageToCloudinary } from "../../../common/utils/cloudinary.util";
+import {
+  moveImagesToPostFolder,
+  uploadImageToCloudinary,
+} from "../../../common/utils/cloudinary.util";
 import { IPost } from "@mdblog/shared/src/types/post.interface";
 
 class PostController {
@@ -197,7 +200,7 @@ class PostController {
 
       const { title, content, category, tags, isPublic, status } = req.body;
 
-      const newPost = await this.postService.createPost({
+      const post = await this.postService.createPost({
         title,
         content,
         author: req.user.id,
@@ -207,8 +210,18 @@ class PostController {
         status,
       });
 
+      const updatedContent = await moveImagesToPostFolder(post.content, post.id);
+
+      if (updatedContent === content) {
+        return res.status(201).json({
+          message: "게시물이 생성되었습니다.",
+        });
+      }
+      post.content = updatedContent;
+      await this.postService.updatepost(post.id, post);
+
       res.status(201).json({
-        newPost,
+        message: "게시물이 생성되었습니다.",
       });
     } catch (error) {
       console.error("[PostController] 게시물 생성 중 오류:", error);
@@ -233,18 +246,18 @@ class PostController {
         await this.postService.incrementView(postId);
       }
 
-      let relatedposts: {
+      let relatedPosts: {
         id: string | undefined;
         title: string;
         publishedAt: string | undefined;
       }[] = [];
       if (post.tags && post.tags.length > 0) {
-        relatedposts = await this.postService.getRelatedPosts(post.tags, postId);
+        relatedPosts = await this.postService.getRelatedPosts(post.tags, postId);
       }
 
       res.status(200).json({
         post,
-        relatedposts,
+        relatedPosts,
       });
     } catch (error) {
       console.error("[PostController] 게시물 상세 조회 중 오류:", error);
@@ -257,8 +270,19 @@ class PostController {
   updatePost = async (req: Request, res: Response) => {
     try {
       const postId = req.params.id;
+      const body = req.body;
 
       const post = await this.postService.getPostById(postId);
+
+      if (!post) {
+        return res.status(404).json({ message: "게시물이 존재하지 않습니다." });
+      }
+
+      const updatedContent = await moveImagesToPostFolder(body.content, post.id);
+
+      if (updatedContent !== body.content) {
+        body.content = updatedContent;
+      }
 
       await this.postService.updatepost(postId, req.body);
 
@@ -308,7 +332,7 @@ class PostController {
         });
       }
 
-      if (!content || content.trim()) {
+      if (!content || !content.trim()) {
         return res.status(400).json({
           message: "댓글 내용을 입력해주세요.",
         });
@@ -328,7 +352,8 @@ class PostController {
 
   deleteComment = async (req: Request, res: Response) => {
     try {
-      const { postId, commentId } = req.params;
+      const { postId } = req.params;
+      const { commentId } = req.body;
       const userId = req.user?.id;
 
       if (!userId) {
@@ -393,7 +418,7 @@ class PostController {
         });
       }
 
-      const result = await uploadImageToCloudinary(req.file.buffer, "blog/content");
+      const result = await uploadImageToCloudinary(req.file.buffer, "blog/content/temp");
 
       res.json({
         url: result.secure_url,

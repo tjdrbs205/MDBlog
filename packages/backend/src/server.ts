@@ -47,8 +47,11 @@ class Server {
     this.app.use(
       cors({
         origin: (origin, cb) => {
-          const allowedOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URL_PREVIEW];
-
+          const allowedOrigins = [
+            process.env.CLIENT_URL,
+            process.env.CLIENT_URL_PREVIEW,
+            undefined,
+          ];
           if (!origin) {
             cb(null, true);
           }

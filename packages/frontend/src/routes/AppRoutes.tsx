@@ -7,6 +7,7 @@ import RegisterPage from "../pages/auth/RegisterPage";
 import MainLayout from "../components/Layout.Main";
 import AuthLayout from "../components/Layout.Auth";
 import ProfilePage from "../pages/user/ProfilePage";
+import PostEditPage from "../pages/posts/PostEditPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -17,6 +18,8 @@ const AppRoutes: React.FC = () => {
           <Route index element={<PostListPage />} />
           <Route path="popular" element={<PostListPage />} />
           <Route path=":id" element={<PostDetailPage />} />
+          <Route path="new" element={<PostEditPage />} />
+          <Route path=":id/edit" element={<PostEditPage />} />
         </Route>
         <Route path="my">
           <Route path="profile" element={<ProfilePage />} />

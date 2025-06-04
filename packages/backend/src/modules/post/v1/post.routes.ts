@@ -4,6 +4,8 @@ import { body, param, query } from "express-validator";
 import ValidationMiddleware from "../../../common/middlewares/validation.Middleware";
 import AsyncHandler from "../../../common/middlewares/AsyncHandler.Middleware";
 import AuthenticationMiddleware from "../../../common/middlewares/Authentication.Middleware";
+import { imageUpload } from "../../../common/utils/fileUpload.util";
+import imageUploadLimiter from "../../../common/middlewares/ImageUploadLimiter.Middleware";
 
 const router = Router();
 const postController = new PostController();
@@ -53,8 +55,8 @@ router.post(
   AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
-    body("title").isEmpty().withMessage("제목을 입력해주세요.").trim(),
-    body("content").isEmpty().withMessage("내용을 입력해주세요.").trim(),
+    body("title").notEmpty().withMessage("제목을 입력해주세요.").trim(),
+    body("content").notEmpty().withMessage("내용을 입력해주세요.").trim(),
     body("isPublic").optional().isBoolean().withMessage("공개 여부는 true 또는 false여야 합니다."),
     body("status")
       .optional()
@@ -68,13 +70,22 @@ router.post(
 router.post(
   "/:id/comment",
   AuthenticationMiddleware.jwtAuthorization,
-  AuthenticationMiddleware.isAdmin,
+  AuthenticationMiddleware.isLoggedIn,
   [
     param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
-    body("content").isEmpty().withMessage("댓글 내용을 입력해주세요.").trim(),
+    body("content").notEmpty().withMessage("댓글 내용을 입력해주세요.").trim(),
     ValidationMiddleware.validateRequest,
   ],
   AsyncHandler.wrap(postController.addComment)
+);
+
+router.post(
+  "/image",
+  AuthenticationMiddleware.jwtAuthorization,
+  AuthenticationMiddleware.isLoggedIn,
+  imageUpload.single("postImage"),
+  imageUploadLimiter.rateLimit(1, 5), // 1분에 최대 5번 업로드 가능
+  AsyncHandler.wrap(postController.uploadPostImage)
 );
 
 router.put(
@@ -83,8 +94,8 @@ router.put(
   AuthenticationMiddleware.isAdmin,
   [
     param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
-    body("title").optional().isEmpty().withMessage("제목을 입력해주세요.").trim(),
-    body("content").optional().isEmpty().withMessage("내용을 입력해주세요.").trim(),
+    body("title").optional().notEmpty().withMessage("제목을 입력해주세요.").trim(),
+    body("content").optional().notEmpty().withMessage("내용을 입력해주세요.").trim(),
     body("isPublic").optional().isBoolean().withMessage("공개 여부는 true 또는 false여야 합니다."),
     body("status")
       .optional()
@@ -96,9 +107,9 @@ router.put(
 );
 
 router.delete(
-  ":id",
+  "/:id",
   AuthenticationMiddleware.jwtAuthorization,
-  AuthenticationMiddleware.isAdmin,
+  AuthenticationMiddleware.isLoggedIn,
   [
     param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
     ValidationMiddleware.validateRequest,
@@ -107,15 +118,17 @@ router.delete(
 );
 
 router.delete(
-  "/:postId/comment/:commentId",
+  "/:postId/comment",
   AuthenticationMiddleware.jwtAuthorization,
   AuthenticationMiddleware.isAdmin,
   [
     param("postId").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
-    param("commentId").isMongoId().withMessage("유효하지 않은 댓글 ID입니다."),
+    body("commentId").isMongoId().withMessage("유효하지 않은 댓글 ID입니다."),
     ValidationMiddleware.validateRequest,
   ],
   AsyncHandler.wrap(postController.deleteComment)
 );
+
+router.delete("/", AuthenticationMiddleware.jwtAuthorization, AuthenticationMiddleware.isAdmin);
 
 export default router;

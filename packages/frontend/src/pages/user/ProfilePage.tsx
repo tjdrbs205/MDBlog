@@ -15,7 +15,7 @@ const ProfilePage: React.FC = () => {
     accessToken,
   });
   const [user, setUser] = useState<IReadOnlyUser | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(defaultProfileImage);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,9 +69,7 @@ const ProfilePage: React.FC = () => {
 
     newFormData.append("username", currentUsername);
     newFormData.append("bio", currentBio);
-    if (!profileImage) {
-      newFormData.append("deleteCheck", "true");
-    }
+    newFormData.append("currentProfileImage", user?.profileImage || defaultProfileImage);
     if (profileImageFile) {
       newFormData.append("profileImage", profileImageFile);
     }

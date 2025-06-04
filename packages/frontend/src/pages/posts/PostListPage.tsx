@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { IGetPostsResponse, IPost, PagenationInfo } from "@mdblog/shared/src/types/post.interface";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import SearchComponent from "../../components/SearchComponent";
 import { useMainContext } from "../../context/MainContext";
 import useRequest from "../../hooks/useRequest.hook";
+import { useAuthContext } from "../../context/AuthContext";
 
 const PostListPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const { isAuthenticated } = useAuthContext();
   const { tags } = useMainContext();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [pagination, setPagination] = useState<PagenationInfo>({
@@ -129,10 +131,10 @@ const PostListPage: React.FC = () => {
 
       <SearchComponent className="inner" />
       {/* 페이지네이션 */}
-      {pagination.totalPages > 1 && (
-        <nav className="mt-4">
-          <ul className="pagination">
-            <li className={`page-item ${!pagination.hasPrev && "disabled"}`}>
+      <div className="d-flex justify-content-between align-items-center">
+        <nav aria-label="Page navigation" className="me-2">
+          <ul className="pagination mb-0">
+            <li className="page-item">
               <button
                 className="page-link"
                 onClick={() =>
@@ -146,6 +148,7 @@ const PostListPage: React.FC = () => {
                 이전
               </button>
             </li>
+
             {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((i) => (
               <li key={i} className={`page-item ${pagination.page === i ? "active" : ""}`}>
                 <button
@@ -158,7 +161,8 @@ const PostListPage: React.FC = () => {
                 </button>
               </li>
             ))}
-            <li className={`page-item ${!pagination.hasNext && "disabled"}`}>
+
+            <li className="page-item">
               <button
                 className="page-link"
                 onClick={() =>
@@ -167,14 +171,22 @@ const PostListPage: React.FC = () => {
                     page: `${pagination.page + 1}`,
                   })
                 }
-                disabled={!pagination.hasNext}
+                disabled={!pagination.hasPrev}
               >
                 다음
               </button>
             </li>
           </ul>
         </nav>
-      )}
+
+        <div className="d-flex justify-content-end mt-3">
+          {isAuthenticated && (
+            <Link to="/posts/new" className="btn btn-primary">
+              새 글 작성
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

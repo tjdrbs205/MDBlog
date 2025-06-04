@@ -80,10 +80,7 @@ router.put(
       .isURL()
       .withMessage("유효하지 않은 URL 형식입니다.")
       .trim(),
-    body("deleteCheck")
-      .optional({ nullable: true })
-      .isLength({ max: 5 })
-      .withMessage("삭제 여부는 'ture' 또는 'false'로 입력해주세요."),
+    body("currentProfileImage").notEmpty().withMessage("currentProfileImage는 필수 항목입니다."),
     ValidationMiddleware.validateRequest,
   ],
   AsyncHandler.wrap(userController.updateProfile)

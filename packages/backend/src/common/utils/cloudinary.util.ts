@@ -84,7 +84,7 @@ async function deleteBlogProfileImage() {
     }
   }
 
-  const defaultImage = "/images/default-profile.png";
+  const defaultImage = process.env.DEFAULT_IMAGE_URL;
   await SettingModel.findOneAndUpdate(
     { key: "profileImage" },
     { key: "profileImage", value: defaultImage },
@@ -126,9 +126,9 @@ async function deleteUserProfileImage(userId: string) {
 
   console.log("현재 사용자 프로필 이미지:", user.profileImage);
 
-  if (!user.profileImage || user.profileImage === "/images/default-profile.png") {
+  if (!user.profileImage || user.profileImage === process.env.DEFAULT_IMAGE_URL) {
     console.log("이미 기본 이미지를 사용 중이거나 이미지가 없습니다.");
-    return user.profileImage || "/images/default-profile.png";
+    return user.profileImage || process.env.DEFAULT_IMAGE_URL;
   }
 
   const publicId = await extractPublicIdFromUrl(user.profileImage, "user/profile");
@@ -145,7 +145,7 @@ async function deleteUserProfileImage(userId: string) {
     console.log("Cloudinary public_id를 추출할 수 없습니다. URL 형식을 확인하세요.");
   }
 
-  const defaultImage = "/images/default-profile.png";
+  const defaultImage = process.env.DEFAULT_IMAGE_URL;
   const updatedUser = await UserModel.findByIdAndUpdate(
     userId,
     { profileImage: defaultImage },
@@ -172,6 +172,7 @@ async function deleteImagesFromContent(content: string, folder: string) {
 
   for (const url of imageUrls) {
     const publicId = await extractPublicIdFromUrl(url, folder);
+    console.log("추출된 publicId:", publicId);
     if (publicId) {
       try {
         const result = await deleteImageFromCloudinary(publicId);
@@ -187,6 +188,47 @@ async function deleteImagesFromContent(content: string, folder: string) {
   return results;
 }
 
+async function moveImageToPostFolder(tempPublicId: string, postId: string) {
+  try {
+    const fileName = tempPublicId.replace("blog/content/temp/", "");
+    const newPublicId = `blog/content/posts/${postId}/${fileName}`;
+
+    const result = await cloudinary.uploader.rename(tempPublicId, newPublicId);
+    console.log("이미지 이동 결과:", result);
+    return result.secure_url;
+  } catch (error) {
+    console.error("이미지 이동 중 오류:", error);
+    return null;
+  }
+}
+
+async function moveImagesToPostFolder(content: string, postId: string): Promise<string> {
+  try {
+    const imageUrls = extractCloudinaryImagesFromContent(content);
+    const tempImageUrls = imageUrls.filter((url) => url.includes("/temp/"));
+    if (tempImageUrls.length === 0) {
+      return content;
+    }
+    let updatedContent = content;
+
+    for (const imageUrl of tempImageUrls) {
+      const publicId = await extractPublicIdFromUrl(imageUrl, "blog/content/temp");
+
+      if (publicId && publicId.includes("temp/")) {
+        const newImageUrl = await moveImageToPostFolder(publicId, postId);
+        if (newImageUrl) {
+          console.log("새 이미지 URL:", newImageUrl);
+          updatedContent = updatedContent.replace(imageUrl, newImageUrl);
+        }
+      }
+    }
+    return updatedContent;
+  } catch (error) {
+    console.error("이미지 이동 중 오류:", error);
+    return content;
+  }
+}
+
 export {
   uploadImageToCloudinary,
   deleteImageFromCloudinary,
@@ -197,4 +239,5 @@ export {
   extractCloudinaryImagesFromContent,
   deleteImagesFromContent,
   extractPublicIdFromUrl,
+  moveImagesToPostFolder,
 };

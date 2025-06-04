@@ -150,7 +150,7 @@ class PostService {
     };
   }
 
-  async createPost(postData: ICreatePostDto): Promise<IPost> {
+  async createPost(postData: ICreatePostDto) {
     const { title, content, author, category, tags, isPublic, status } = postData;
     const tagIds = await this.processTagsInput(tags);
 
@@ -163,7 +163,6 @@ class PostService {
       isPublic: isPublic === true,
       status: status || "published",
     });
-
     return newPost.plainPost;
   }
 
@@ -175,33 +174,6 @@ class PostService {
     if (!post) {
       const error = new Error("게시물을 찾을 수 없습니다.");
       throw error;
-    }
-
-    if (post.content && content && post.content !== content) {
-      try {
-        const oldImageUrls = extractCloudinaryImagesFromContent(post.content);
-        const newImageUrls = extractCloudinaryImagesFromContent(content);
-
-        const deletedImageUrls = oldImageUrls.filter((url) => !newImageUrls.includes(url));
-
-        if (deletedImageUrls.length > 0) {
-          console.log(`게시물 ID ${postId} 수정 - 삭제된 이미지 ${deletedImageUrls.length}개 발견`);
-
-          for (const url of deletedImageUrls) {
-            const publicId = await extractPublicIdFromUrl(url, "blog/content");
-            if (publicId) {
-              try {
-                await deleteImageFromCloudinary(publicId);
-                console.log("게시물 수정 중 사용하지 않는 이미지 삭제 성공:", publicId);
-              } catch (error) {
-                console.error("게시물 수정 중 이미지 삭제 실패:", publicId, error);
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error("게시물 수정 중 이미지 처리 오류:", error);
-      }
     }
 
     const tagIds = await this.processTagsInput(tags);
@@ -228,7 +200,10 @@ class PostService {
     if (post.content) {
       try {
         console.log(`게시물 ID $${postId} 삭제 - 이미지 삭제 시작`);
-        const deleteResult = await deleteImagesFromContent(post.content, "blog/content");
+        const deleteResult = await deleteImagesFromContent(
+          post.content,
+          `blog/content/posts/${postId}`
+        );
         console.log(`게시물 삭제 - 총 ${deleteResult.length}개 이미지 처리 완료`);
       } catch (error) {
         console.error("게시물 삭제 중 오류:", error);
@@ -356,24 +331,30 @@ class PostService {
     }
 
     if (Array.isArray(tags)) {
-      tagIds = tags;
+      tagIds = await this.tagsToIds(tags);
     } else if (typeof tags === "string" && tags.includes(",")) {
       const tagArray = tags
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag);
 
-      for (const tagName of tagArray) {
-        let tag = await TagModel.findOne({ name: tagName.toLowerCase() });
-        if (!tag) {
-          tag = await TagModel.create({ name: tagName.toLowerCase() });
-        }
-        tagIds.push(tag.plainTag.id);
-      }
+      tagIds = await this.tagsToIds(tagArray);
     } else {
-      tagIds = [tags];
+      tagIds = await this.tagsToIds([tags]);
     }
 
+    return tagIds;
+  }
+
+  private async tagsToIds(tags: string[]): Promise<string[]> {
+    let tagIds: string[] = [];
+    for (const tagName of tags) {
+      let tag = await TagModel.findOne({ name: tagName.toLowerCase() });
+      if (!tag) {
+        tag = await TagModel.create({ name: tagName.toLowerCase() });
+      }
+      tagIds.push(tag.plainTag.id);
+    }
     return tagIds;
   }
 

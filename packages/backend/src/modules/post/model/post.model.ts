@@ -124,7 +124,7 @@ postSchema.virtual("plainPost").get(function (this: IPostDocument): IPost {
     publishedAt: this.publishedAt,
     comments: this.comments.map((comment) => ({
       id: comment._id.toString(),
-      author: comment.author.toString(),
+      author: (comment.author as any).readOnlyUser,
       content: comment.content,
       createdAt: comment.createdAt,
     })),

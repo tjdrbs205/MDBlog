@@ -214,7 +214,7 @@ class UserController {
 
   updateProfile = async (req: Request, res: Response) => {
     try {
-      const { username, bio, deleteCheck } = req.body;
+      const { username, bio, currentProfileImage } = req.body;
       const profileImage = req.file?.buffer;
       const user = req.user;
       if (!user) {
@@ -223,11 +223,10 @@ class UserController {
         });
       }
 
-      console.log(profileImage, user.profileImage);
-
       if (profileImage) await uploadUserProfileImage(user.id, profileImage);
-      if (deleteCheck === "true") await deleteUserProfileImage(user.id);
-
+      if (currentProfileImage !== user.profileImage) {
+        await deleteUserProfileImage(user.id);
+      }
       const updatedUser = await this.userService.updateUserProfile(user.id, username, bio);
       const redisKey = `user:${user.id}`;
       this.redisClient.set(redisKey, JSON.stringify(updatedUser));

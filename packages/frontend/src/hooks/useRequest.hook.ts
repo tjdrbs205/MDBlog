@@ -84,7 +84,7 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
     if (!manual && method === "GET") {
       execute();
     }
-  }, []);
+  }, [url]);
 
   return { data, error, loading, execute };
 }

@@ -23,7 +23,10 @@ const userSchema = new Schema<IUserDocument>(
       unique: true, // 이메일은 고유해야 함
       lowercase: true, // 소문자로 저장
       trim: true,
-      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "유효한 이메일 주소를 입력해주세요."],
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "유효한 이메일 주소를 입력해주세요.",
+      ],
     },
     password: {
       type: String,
@@ -32,7 +35,7 @@ const userSchema = new Schema<IUserDocument>(
     },
     profileImage: {
       type: String,
-      default: "/images/default-profile.png", // 기본 프로필 이미지
+      default: process.env.DEFAULT_IMAGE_URL, // 기본 프로필 이미지
     },
     bio: {
       type: String,
