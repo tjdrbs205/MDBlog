@@ -214,7 +214,7 @@ class PostController {
 
       if (updatedContent === content) {
         return res.status(201).json({
-          message: "게시물이 생성되었습니다.",
+          post,
         });
       }
       post.content = updatedContent;
