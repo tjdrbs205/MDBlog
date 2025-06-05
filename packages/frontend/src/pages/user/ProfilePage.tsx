@@ -6,7 +6,7 @@ import useRequest from "../../hooks/useRequest.hook";
 
 const ProfilePage: React.FC = () => {
   const defaultProfileImage =
-    "https://github.com/tjdrbs205/MDBlog/blob/main/public/images/default-profile.png?raw=true";
+    "https://github.com/tjdrbs205/MDBlog/blob/main-backup/public/images/default-profile.png?raw=true";
   const { userData, isAuthenticated, accessToken, profile } = useAuthContext();
   const { execute } = useRequest("/users/profile/update", {
     method: "PUT",

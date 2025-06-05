@@ -57,7 +57,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const defaultProfileImage =
-    "https://github.com/tjdrbs205/MDBlog/blob/main/public/images/default-profile.png?raw=true";
+    "https://github.com/tjdrbs205/MDBlog/blob/main-backup/public/images/default-profile.png?raw=true";
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [userData, setUserData] = useState<IReadOnlyUser | null>(null);
   const [user, setUser] = useState<IUserContextData | null>(null);

@@ -218,10 +218,10 @@ class PostController {
         });
       }
       post.content = updatedContent;
-      await this.postService.updatepost(post.id, post);
+      const newPost = await this.postService.updatepost(post.id, post);
 
       res.status(201).json({
-        message: "게시물이 생성되었습니다.",
+        post: newPost,
       });
     } catch (error) {
       console.error("[PostController] 게시물 생성 중 오류:", error);
@@ -284,10 +284,10 @@ class PostController {
         body.content = updatedContent;
       }
 
-      await this.postService.updatepost(postId, req.body);
+      const newPost = await this.postService.updatepost(postId, req.body);
 
       res.status(200).json({
-        message: "게시물이 수정되었습니다.",
+        newPost,
       });
     } catch (error) {
       console.error("[PostController] 게시물 수정 중 오류:", error);
