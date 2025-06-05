@@ -1,5 +1,5 @@
 import { ICategoryWithChildren } from "@mdblog/shared/src/types/categories.interface";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 
 const CategoryTree: React.FC<{
   categories: ICategoryWithChildren[];
@@ -8,10 +8,19 @@ const CategoryTree: React.FC<{
   level?: number;
 }> = ({ categories, categoryMap, selectedCategory, level = 0 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const clickCategory = (catId: string) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set("category", catId);
-    setSearchParams(newParams);
+
+    // 현재 경로가 /posts가 아니면 /posts로 이동
+    if (!location.pathname.includes("/posts")) {
+      navigate(`/posts?${newParams.toString()}`);
+    } else {
+      setSearchParams(newParams);
+    }
   };
 
   return (
@@ -40,7 +49,7 @@ const CategoryTree: React.FC<{
                 <span className="toggle-placeholder"></span>
               )}
               <Link
-                to="/posts"
+                to="#"
                 onClick={(e) => {
                   e.preventDefault();
                   clickCategory(cat.id);
