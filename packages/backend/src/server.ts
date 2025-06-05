@@ -47,11 +47,7 @@ class Server {
     this.app.use(
       cors({
         origin: (origin, cb) => {
-          const allowedOrigins = [
-            process.env.CLIENT_URL,
-            process.env.CLIENT_URL_PREVIEW,
-            undefined,
-          ];
+          const allowedOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URL_PREVIEW];
           if (!origin) {
             cb(null, true);
           }
@@ -64,7 +60,7 @@ class Server {
         credentials: true,
       })
     );
-    this.app.use(morgan(process.env.NODE_ENV || "tiny"));
+    this.app.use(morgan(process.env.NODE_ENV === "dev" ? "dev" : "tiny"));
     this.app.use(express.json({ limit: "50mb" }));
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser(process.env.COOKIE_SECRET));
