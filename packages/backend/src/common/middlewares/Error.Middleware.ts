@@ -1,5 +1,5 @@
-import { AppError } from "@mdblog/shared/src/utils/errors/AppError";
 import { NextFunction, Request, Response } from "express";
+import { AppError } from "../utils/error/AppError";
 
 class ErrorMiddleware {
   static handle(err: Error | AppError, req: Request, res: Response, next: NextFunction) {

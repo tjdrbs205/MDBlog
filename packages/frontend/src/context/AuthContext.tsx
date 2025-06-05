@@ -1,9 +1,4 @@
-import {
-  ILoginUser,
-  IReadOnlyUser,
-  IRegisterUser,
-  IUserContextData,
-} from "@mdblog/shared/src/types/user.interface";
+import { ILoginUser, IReadOnlyUser, IRegisterUser } from "@mdblog/shared/src/types/user.interface";
 import React, { createContext, useEffect, useState } from "react";
 import useRequest from "../hooks/useRequest.hook";
 

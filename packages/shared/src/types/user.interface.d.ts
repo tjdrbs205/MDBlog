@@ -25,4 +25,4 @@ interface ILoginUser {
 
 interface IReadOnlyUser extends Omit<IUser, "password"> {}
 
-export { IUser, IReadOnlyUser, IRegisterUser, ILoginUser, IUserContextData };
+export { IUser, IReadOnlyUser, IRegisterUser, ILoginUser };
