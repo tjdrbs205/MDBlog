@@ -1,13 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import HomePage from "../pages/Home/HomePage";
 import PostListPage from "../pages/posts/PostListPage";
-import PostDetailPage from "../pages/posts/PostDetailPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import MainLayout from "../components/Layout.Main";
 import AuthLayout from "../components/Layout.Auth";
 import ProfilePage from "../pages/user/ProfilePage";
 import PostEditPage from "../pages/posts/PostEditPage";
+import PostDetailPage from "../pages/posts/PostDetailPage";
 
 const AppRoutes: React.FC = () => {
   return (
