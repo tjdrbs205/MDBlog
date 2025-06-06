@@ -17,7 +17,7 @@ const CategoryTree: React.FC<{
 
     // 현재 경로가 /posts가 아니면 /posts로 이동
     if (!location.pathname.includes("/posts")) {
-      navigate(`/posts?${newParams.toString()}`);
+      navigate(`/posts?${newParams.get("category")}`);
     } else {
       setSearchParams(newParams);
     }

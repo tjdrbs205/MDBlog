@@ -4,7 +4,10 @@ import { createUploadAdapterPlugin } from "../utils/CKEditorAdapter";
 
 const LICENSE_KEY = import.meta.env.VITE_CKEDITOR_LICENSE_KEY;
 
-export const useCKEditor = (accessToken: string | null) => {
+export const useCKEditor = (
+  accessToken: string | null,
+  onTokenRefresh: () => Promise<string | null>
+) => {
   const [isLayoutReady, setIsLayoutReady] = useState(false);
   const cloud = useCKEditorCloud({ version: "45.1.0", translations: ["ko"] });
 
@@ -33,6 +36,8 @@ export const useCKEditor = (accessToken: string | null) => {
       CodeBlock,
       Emoji,
       Essentials,
+      FontColor,
+      FontBackgroundColor,
       Heading,
       ImageBlock,
       ImageCaption,
@@ -79,6 +84,9 @@ export const useCKEditor = (accessToken: string | null) => {
             "italic",
             "underline",
             "|",
+            "fontColor",
+            "fontBackgroundColor",
+            "|",
             "imageInsert",
             "|",
             "emoji",
@@ -107,6 +115,8 @@ export const useCKEditor = (accessToken: string | null) => {
           CodeBlock,
           Emoji,
           Essentials,
+          FontColor,
+          FontBackgroundColor,
           Heading,
           ImageBlock,
           ImageCaption,
@@ -137,7 +147,7 @@ export const useCKEditor = (accessToken: string | null) => {
           TextTransformation,
           TodoList,
           Underline,
-          createUploadAdapterPlugin(accessToken!),
+          createUploadAdapterPlugin(accessToken!, onTokenRefresh),
         ],
         balloonToolbar: [
           "heading",
@@ -145,6 +155,9 @@ export const useCKEditor = (accessToken: string | null) => {
           "bold",
           "italic",
           "underline",
+          "|",
+          "fontColor",
+          "fontBackgroundColor",
           "|",
           "imageInsert",
           "|",
@@ -241,6 +254,136 @@ export const useCKEditor = (accessToken: string | null) => {
         mention: {
           feeds: [{ marker: "@", feed: [] }],
         },
+        fontColor: {
+          colors: [
+            {
+              color: "hsl(0, 0%, 0%)",
+              label: "검정",
+            },
+            {
+              color: "hsl(0, 0%, 30%)",
+              label: "어두운 회색",
+            },
+            {
+              color: "hsl(0, 0%, 60%)",
+              label: "회색",
+            },
+            {
+              color: "hsl(0, 0%, 90%)",
+              label: "밝은 회색",
+            },
+            {
+              color: "hsl(0, 0%, 100%)",
+              label: "흰색",
+              hasBorder: true,
+            },
+            {
+              color: "hsl(0, 75%, 60%)",
+              label: "빨강",
+            },
+            {
+              color: "hsl(30, 75%, 60%)",
+              label: "주황",
+            },
+            {
+              color: "hsl(60, 75%, 60%)",
+              label: "노랑",
+            },
+            {
+              color: "hsl(90, 75%, 60%)",
+              label: "연두",
+            },
+            {
+              color: "hsl(120, 75%, 60%)",
+              label: "초록",
+            },
+            {
+              color: "hsl(150, 75%, 60%)",
+              label: "청록",
+            },
+            {
+              color: "hsl(180, 75%, 60%)",
+              label: "하늘",
+            },
+            {
+              color: "hsl(210, 75%, 60%)",
+              label: "파랑",
+            },
+            {
+              color: "hsl(240, 75%, 60%)",
+              label: "보라",
+            },
+            {
+              color: "hsl(270, 75%, 60%)",
+              label: "자주",
+            },
+          ],
+        },
+        fontBackgroundColor: {
+          colors: [
+            {
+              color: "hsl(0, 0%, 0%)",
+              label: "검정",
+            },
+            {
+              color: "hsl(0, 0%, 30%)",
+              label: "어두운 회색",
+            },
+            {
+              color: "hsl(0, 0%, 60%)",
+              label: "회색",
+            },
+            {
+              color: "hsl(0, 0%, 90%)",
+              label: "밝은 회색",
+            },
+            {
+              color: "hsl(0, 0%, 100%)",
+              label: "흰색",
+              hasBorder: true,
+            },
+            {
+              color: "hsl(0, 75%, 60%)",
+              label: "빨강",
+            },
+            {
+              color: "hsl(30, 75%, 60%)",
+              label: "주황",
+            },
+            {
+              color: "hsl(60, 75%, 60%)",
+              label: "노랑",
+            },
+            {
+              color: "hsl(90, 75%, 60%)",
+              label: "연두",
+            },
+            {
+              color: "hsl(120, 75%, 60%)",
+              label: "초록",
+            },
+            {
+              color: "hsl(150, 75%, 60%)",
+              label: "청록",
+            },
+            {
+              color: "hsl(180, 75%, 60%)",
+              label: "하늘",
+            },
+            {
+              color: "hsl(210, 75%, 60%)",
+              label: "파랑",
+            },
+            {
+              color: "hsl(240, 75%, 60%)",
+              label: "보라",
+            },
+            {
+              color: "hsl(270, 75%, 60%)",
+              label: "자주",
+            },
+          ],
+        },
         placeholder: "내용을 입력하세요...",
         table: {
           contentToolbar: [
@@ -253,7 +396,7 @@ export const useCKEditor = (accessToken: string | null) => {
         },
       },
     };
-  }, [cloud, isLayoutReady, accessToken]);
+  }, [cloud, isLayoutReady, accessToken, onTokenRefresh]);
 
   return {
     ...editorData,

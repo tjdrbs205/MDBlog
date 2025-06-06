@@ -11,23 +11,26 @@ const PostEditPage: React.FC = () => {
 
   const navigate = useNavigate();
   const { categories, tags } = useMainContext();
-  const { accessToken } = useAuthContext();
+  const { accessToken, refreshToken } = useAuthContext();
 
   const { execute: getPost } = useRequest<IPostDetail>(`/posts/${id}`, {
     method: "GET",
     accessToken,
     manual: true,
+    onTokenRefresh: refreshToken,
   });
 
   const { execute: createPost } = useRequest<IPostDetail>("/posts", {
     method: "POST",
     accessToken,
     manual: true,
+    onTokenRefresh: refreshToken,
   });
   const { execute: updatePost } = useRequest<IPostDetail>(`/posts/${id}`, {
     method: "PUT",
     accessToken,
     manual: true,
+    onTokenRefresh: refreshToken,
   });
 
   useEffect(() => {
@@ -35,7 +38,6 @@ const PostEditPage: React.FC = () => {
       getPost()
         .then((res) => {
           if (res.data) {
-            console.log("게시물 조회 성공:", res);
             setTitle(res.data.post.title);
             setContent(res.data.post.content);
             setSelectedCategory(res.data.post.category?.id || "");
@@ -45,7 +47,6 @@ const PostEditPage: React.FC = () => {
           }
         })
         .catch((error) => {
-          console.error("게시물 조회 오류:", error);
           alert("게시물을 불러오는 데 실패했습니다. 다시 시도해주세요.");
         });
     }
@@ -69,6 +70,7 @@ const PostEditPage: React.FC = () => {
 
     if (!title.trim()) {
       alert("제목을 입력해주세요.");
+      setIsLoading(false);
       return;
     }
 

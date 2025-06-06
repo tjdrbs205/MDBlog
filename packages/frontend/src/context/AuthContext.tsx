@@ -14,6 +14,7 @@ interface IResponseToken {
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  isAdmin: boolean;
   user: IUserContextData | null;
   accessToken: string | null;
   userData: IReadOnlyUser | null;
@@ -22,6 +23,7 @@ interface AuthContextType {
   register: (registerData: IRegisterUser) => Promise<string | Record<string, string> | null>;
   profile: () => Promise<IReadOnlyUser | string | null>;
   reload: () => Promise<void>;
+  refreshToken: () => Promise<string | null>;
 }
 
 interface AuthProviderProps {
@@ -30,6 +32,7 @@ interface AuthProviderProps {
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
+  isAdmin: false,
   user: null,
   accessToken: null,
   userData: null,
@@ -48,6 +51,9 @@ const AuthContext = createContext<AuthContextType>({
   reload: async () => {
     throw new Error("reload function not implemented");
   },
+  refreshToken: async () => {
+    throw new Error("refreshToken function not implemented");
+  },
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -57,10 +63,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [userData, setUserData] = useState<IReadOnlyUser | null>(null);
   const [user, setUser] = useState<IUserContextData | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  const handleTokenRefresh = async () => {
+    try {
+      const { data, error } = await requestRefresh();
+      if (data && data.accessToken) {
+        setAccessToken(data.accessToken);
+        setUser(parserUserToken(data.accessToken));
+        setIsAuthenticated(true);
+        return data.accessToken;
+      }
+      return null;
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      setAccessToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
+      setUserData(null);
+      return null;
+    }
+  };
 
   const { execute: requestProfile } = useRequest<IReadOnlyUser>("/users/profile", {
     accessToken,
     manual: true,
+    onTokenRefresh: handleTokenRefresh,
   });
 
   const { execute: requestRefresh } = useRequest<IResponseToken>("/users/refresh", {
@@ -88,18 +116,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [accessToken]);
 
   const reload = async () => {
-    requestRefresh().then(({ data, error }) => {
-      if (data && data.accessToken) {
-        setAccessToken(data.accessToken);
-        setUser(parserUserToken(data.accessToken));
-        setIsAuthenticated(true);
-      } else {
-        setAccessToken(null);
-        setUser(null);
-        setIsAuthenticated(false);
-        setUserData(null);
-      }
-    });
+    const { data, error } = await requestRefresh();
+    if (data && data.accessToken) {
+      setAccessToken(data?.accessToken);
+      setUser(parserUserToken(data?.accessToken));
+      setIsAuthenticated(true);
+    } else {
+      setAccessToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
+      setUserData(null);
+    }
   };
 
   const login = async (loginData: ILoginUser) => {
@@ -164,6 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       data.profileImage = defaultProfileImage;
     }
     setUserData(data);
+    setIsAdmin(data?.role === "admin");
     return data;
   };
 
@@ -171,6 +199,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        isAdmin,
         user,
         accessToken,
         userData,
@@ -179,6 +208,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         register,
         profile,
         reload,
+        refreshToken: handleTokenRefresh,
       }}
     >
       {children}

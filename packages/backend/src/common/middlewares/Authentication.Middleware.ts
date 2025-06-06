@@ -22,7 +22,7 @@ class AuthenticationMiddleware {
   public static isNotLoggedIn(req: Request, res: Response, next: NextFunction) {
     const user = req.user;
     if (user) {
-      return res.status(401).json({
+      return res.status(403).json({
         message: "이미 로그인된 사용자입니다.",
       });
     }

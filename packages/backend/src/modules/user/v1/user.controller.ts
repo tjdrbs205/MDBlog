@@ -136,14 +136,16 @@ class UserController {
         iss: process.env.JWT_ISSUER || "default_issuer",
       };
 
-      const newRefreshToken = await generateRefreshToken(userPayload);
+      // const newRefreshToken = await generateRefreshToken(userPayload);
+      // this.redisClient.set(user.id, newRefreshToken);
+      // res.cookie("refreshToken", newRefreshToken, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === "prod",
+      //   sameSite: "strict",
+      // });
+
       const newAccessToken = await generateAccessToken(userPayload);
-      this.redisClient.set(user.id, newRefreshToken);
-      res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "prod",
-        sameSite: "strict",
-      });
+
       res.status(200).json({
         accessToken: newAccessToken,
       });

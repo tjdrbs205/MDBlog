@@ -8,22 +8,25 @@ const PostDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const { user, accessToken } = useAuthContext();
+  const { user, accessToken, refreshToken } = useAuthContext();
   const { data, loading } = useRequest<IPostDetail>("/posts/" + id);
   const { execute: deletePost } = useRequest<IMessage>(`/posts/${id}`, {
     method: "DELETE",
     manual: true,
     accessToken,
+    onTokenRefresh: refreshToken,
   });
   const { execute: createComment } = useRequest<IMessage>(`/posts/${id}/comment`, {
     method: "POST",
     manual: true,
     accessToken,
+    onTokenRefresh: refreshToken,
   });
   const { execute: deleteComment } = useRequest<IMessage>(`/posts/${id}/comment`, {
     method: "DELETE",
     manual: true,
     accessToken,
+    onTokenRefresh: refreshToken,
   });
 
   const handlePostDelete = async (e: React.FormEvent) => {

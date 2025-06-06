@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { isFormData } from "../utils/isFormData";
 
-export default function useRequest<T>(url: string, options: UseRequestOptions = {}) {
+interface UserRequestOptionsWithAuth extends UseRequestOptions {
+  onTokenRefresh?: () => Promise<string | null>;
+}
+
+export default function useRequest<T>(url: string, options: UserRequestOptionsWithAuth = {}) {
   const {
     method = "GET",
     headers = { "Content-Type": "application/json" },
@@ -10,11 +14,24 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
     manual = false,
     params,
     accessToken,
+    onTokenRefresh,
   } = options;
 
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<T | null>(null);
+
+  const makeRequest = useCallback(
+    async (requestUrl: string, requestHeaders: HeadersInit, requestBody: any) => {
+      return await fetch(requestUrl, {
+        method,
+        headers: requestHeaders,
+        credentials,
+        body: requestBody,
+      });
+    },
+    [method, credentials]
+  );
 
   const execute = useCallback(
     async (overrideBody?: any): Promise<{ data: T | null; error: string | null }> => {
@@ -22,10 +39,10 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
       setError(null);
 
       let _url = import.meta.env.VITE_API_URL + url;
+      let currentAccessToken = accessToken;
 
-      const newHeaders: HeadersInit = {
+      const baseHeaders: HeadersInit = {
         ...headers,
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       };
 
       if (params) {
@@ -35,21 +52,40 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
         });
         _url += `?${urlParams.toString()}`;
       }
+
+      const requestBody = body
+        ? !isFormData(body)
+          ? JSON.stringify(body)
+          : body
+        : overrideBody
+        ? !isFormData(overrideBody)
+          ? JSON.stringify(overrideBody)
+          : overrideBody
+        : null;
+
       try {
-        const res = await fetch(_url, {
-          method,
-          headers: newHeaders,
-          credentials,
-          body: body
-            ? !isFormData(body)
-              ? JSON.stringify(body)
-              : body
-            : overrideBody
-            ? !isFormData(overrideBody)
-              ? JSON.stringify(overrideBody)
-              : overrideBody
-            : null,
-        });
+        let requestHeaders: HeadersInit = {
+          ...baseHeaders,
+          ...(currentAccessToken ? { Authorization: `Bearer ${currentAccessToken}` } : {}),
+        };
+
+        let res = await makeRequest(_url, requestHeaders, requestBody);
+
+        if (res.status === 401 && onTokenRefresh && currentAccessToken) {
+          try {
+            const newAccessToken = await onTokenRefresh();
+            if (newAccessToken) {
+              currentAccessToken = newAccessToken;
+              requestHeaders = {
+                ...baseHeaders,
+                Authorization: `Bearer ${currentAccessToken}`,
+              };
+              res = await makeRequest(_url, requestHeaders, requestBody);
+            }
+          } catch (error) {
+            throw new Error("Access token refresh failed");
+          }
+        }
 
         const result: IResponse<T> = await res.json();
 
@@ -59,7 +95,6 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
           if (Array.isArray(errbody.message)) {
             const messages: Record<string, string> = {};
             errbody.message.map((item) => (messages[item.path] = item.msg));
-
             throw new Error(JSON.stringify(messages));
           }
           throw new Error(errbody.message);
@@ -77,7 +112,7 @@ export default function useRequest<T>(url: string, options: UseRequestOptions = 
         setLoading(false);
       }
     },
-    [url, method, headers, body]
+    [url, method, headers, body, accessToken, params, onTokenRefresh, makeRequest]
   );
 
   useEffect(() => {

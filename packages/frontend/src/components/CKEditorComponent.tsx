@@ -16,8 +16,8 @@ const CKEditorComponent: React.FC<CKEditorComponentProps> = ({
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  const { accessToken } = useAuthContext();
-  const { ClassicEditor, editorConfig, isReady } = useCKEditor(accessToken);
+  const { accessToken, refreshToken } = useAuthContext();
+  const { ClassicEditor, editorConfig, isReady } = useCKEditor(accessToken, refreshToken);
 
   if (!isReady || !ClassicEditor || !editorConfig) {
     return (
