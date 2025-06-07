@@ -54,7 +54,7 @@ class UserController {
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "prod",
-          sameSite: "strict",
+          sameSite: process.env.NODE_ENV === "prod" ? "none" : "lax",
           maxAge: Number(process.env.COOKIE_EXPIRES) * 1000 || 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
@@ -85,7 +85,7 @@ class UserController {
       res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "prod",
-        sameSite: "strict",
+        sameSite: process.env.NODE_ENV === "prod" ? "none" : "lax",
       });
 
       res.status(200).json({
