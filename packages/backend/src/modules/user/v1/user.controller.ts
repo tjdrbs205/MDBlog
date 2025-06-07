@@ -55,7 +55,7 @@ class UserController {
           httpOnly: true,
           secure: process.env.NODE_ENV === "prod",
           sameSite: "strict",
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          maxAge: Number(process.env.COOKIE_EXPIRES) * 1000 || 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
         return res.status(201).json({
