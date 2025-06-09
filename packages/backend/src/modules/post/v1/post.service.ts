@@ -10,12 +10,7 @@ import { PostModel } from "../model/post.model";
 import { CategoryModel } from "../../category/model/categories.model";
 
 import CategoryService from "../../category/v1/categories.service";
-import {
-  deleteImageFromCloudinary,
-  deleteImagesFromContent,
-  extractCloudinaryImagesFromContent,
-  extractPublicIdFromUrl,
-} from "../../../common/utils/cloudinary.util";
+import { deleteImagesFromContent } from "../../../common/utils/cloudinary.util";
 
 class PostService {
   private static instance: PostService;

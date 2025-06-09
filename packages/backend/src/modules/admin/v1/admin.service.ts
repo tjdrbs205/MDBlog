@@ -1,3 +1,4 @@
+import { SettingModel } from "../../../config/models/Setting";
 import { StatsModel } from "../../../config/models/Stats";
 import { CategoryModel } from "../../category/model/categories.model";
 import { PostModel } from "../../post/model/post.model";
@@ -59,7 +60,7 @@ class AdminService {
     return {
       users: {
         total: totalUsers,
-        recent: recentUsers,
+        recent: recentUsers.map((user) => user.readOnlyUser),
       },
       posts: {
         total: totalPosts,
@@ -88,10 +89,6 @@ class AdminService {
         categories: totalCategories,
         tags: totalTags,
       },
-      recentPosts,
-      recentUsers,
-      recentComments,
-      mostVisitedPosts,
     };
   }
 
@@ -233,8 +230,8 @@ class AdminService {
       UserModel.find()
         .sort({ joinedAt: -1 })
         .select("-password")
-        .limit(limit)
-        .skip((page - 1) * limit),
+        .skip((page - 1) * limit)
+        .limit(limit),
       UserModel.countDocuments(),
     ]);
 
@@ -286,6 +283,16 @@ class AdminService {
         currentPage: page,
       },
     };
+  }
+
+  async getSettings() {
+    const settings = await SettingModel.find().sort({ key: 1 });
+
+    const settingsMap: Record<string, any> = {};
+    settings.forEach((setting) => {
+      settingsMap[setting.key] = setting.value;
+    });
+    return settingsMap;
   }
 
   async updateUserStatus(userId: string, isActive: boolean) {

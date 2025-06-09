@@ -5,7 +5,7 @@ interface UserRequestOptionsWithAuth extends UseRequestOptions {
   onTokenRefresh?: () => Promise<string | null>;
 }
 
-export default function useRequest<T>(url: string, options: UserRequestOptionsWithAuth = {}) {
+export default function useRequest<T = any>(url: string, options: UserRequestOptionsWithAuth = {}) {
   const {
     method = "GET",
     headers = { "Content-Type": "application/json" },

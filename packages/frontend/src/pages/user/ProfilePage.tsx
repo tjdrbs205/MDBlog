@@ -17,7 +17,6 @@ const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<IReadOnlyUser | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(defaultProfileImage);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -106,8 +105,11 @@ const ProfilePage: React.FC = () => {
                   <i className="bi bi-upload me-1"></i>
                   이미지 업로드
                 </button>
-                {user.profileImage !== "/images/default-profile.png" && (
-                  <button className="btn btn-outline-danger w-full" onClick={handleDeleteImage}>
+                {user.profileImage !== defaultProfileImage && (
+                  <button
+                    className="btn btn-sm btn-outline-danger w-full"
+                    onClick={handleDeleteImage}
+                  >
                     <i className="bi bi-trash me-1"></i>
                     이미지 삭제
                   </button>

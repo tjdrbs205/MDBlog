@@ -1,4 +1,5 @@
 import { ICategory } from "./categories.interface";
+import { IReadOnlyUser } from "./user.interface";
 
 interface IComment {
   author: string;
@@ -91,6 +92,12 @@ interface IGetPostsResponse {
   pagination: PagenationInfo;
 }
 
+interface IGetPostsResponseWithPagination {
+  users: IReadOnlyUser[];
+  totalUsers: number;
+  pagination: PagenationInfo;
+}
+
 interface IGetPostsResponseWithCategory extends Omit<IGetPostsResponse, "totalPosts"> {
   totalPosts: number;
   category: ICategory;
@@ -105,5 +112,6 @@ export {
   IUpdatePostDto,
   PagenationInfo,
   IGetPostsResponse,
+  IGetPostsResponseWithPagination,
   IGetPostsResponseWithCategory,
 };

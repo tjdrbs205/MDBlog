@@ -18,6 +18,70 @@ class AdminController {
     this.postService = PostService.getInstance();
   }
 
+  getDashboardInitData = async (req: Request, res: Response) => {
+    try {
+      const statsData = await this.adminService.getDashboardData();
+
+      if (!statsData) {
+        return res.status(404).json({
+          message: "대시보드 초기 데이터를 가져오는 데 실패했습니다.",
+        });
+      }
+
+      res.status(200).json({
+        ...statsData,
+      });
+    } catch (error) {
+      console.error("[AdminController] 대시보드 초기 데이터 가져오기 중 오류", error);
+      res.status(500).json({
+        message: "대시보드 초기 데이터 가져오기 중 오류가 발생했습니다.",
+      });
+    }
+  };
+
+  getUserManagementData = async (req: Request, res: Response) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = 20;
+
+      const { users, totalUsers, pagination } = await this.adminService.getUserWithPagination(
+        page,
+        limit
+      );
+
+      res.status(200).json({
+        users,
+        totalUsers,
+        pagination,
+      });
+    } catch (error) {
+      console.error("[AdminController] 사용자 관리 데이터 가져오기 중 오류", error);
+      res.status(500).json({
+        message: "사용자 관리 데이터 가져오기 중 오류가 발생했습니다.",
+      });
+    }
+  };
+
+  getSettingsData = async (req: Request, res: Response) => {
+    try {
+      const settingsData = await this.adminService.getSettings();
+
+      if (!settingsData) {
+        return res.status(404).json({
+          message: "설정 데이터를 가져오는 데 실패했습니다.",
+        });
+      }
+      res.status(200).json({
+        ...settingsData,
+      });
+    } catch (error) {
+      console.error("[AdminController] 설정 데이터 가져오기 중 오류", error);
+      res.status(500).json({
+        message: "설정 데이터 가져오기 중 오류가 발생했습니다.",
+      });
+    }
+  };
+
   updateUserStatus = async (req: Request, res: Response) => {
     try {
       const { userId, isActive } = req.body;

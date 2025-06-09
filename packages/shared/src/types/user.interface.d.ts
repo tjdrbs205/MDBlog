@@ -7,8 +7,8 @@ interface IUser {
   bio: string;
   role: string;
   lastLogin: Date;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   isActive: boolean;
 }
 

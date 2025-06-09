@@ -7,4 +7,12 @@ interface ISetting {
   updatedAt: Date;
 }
 
-export { ISetting };
+interface ISettingData {
+  aboutBlog: string;
+  contactEmail: string;
+  contactGithub: string;
+  profileImage: string;
+  siteDescription: string;
+}
+
+export { ISetting, ISettingData };

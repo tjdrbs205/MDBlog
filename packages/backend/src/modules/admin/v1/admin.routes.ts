@@ -1,7 +1,7 @@
 import { Router } from "express";
 import AdminController from "./admin.controller";
 import AuthenticationMiddleware from "../../../common/middlewares/Authentication.Middleware";
-import { param } from "express-validator";
+import { param, query } from "express-validator";
 import ValidationMiddleware from "../../../common/middlewares/validation.Middleware";
 import AsyncHandler from "../../../common/middlewares/AsyncHandler.Middleware";
 import { imageUpload } from "../../../common/utils/fileUpload.util";
@@ -11,8 +11,22 @@ const adminController = new AdminController();
 
 router.use(AuthenticationMiddleware.jwtAuthorization, AuthenticationMiddleware.isAdmin);
 
-router.post("/settings", AsyncHandler.wrap(adminController.saveSettings));
-router.post(
+router.get("/dashboard", AsyncHandler.wrap(adminController.getDashboardInitData));
+router.get(
+  "/users",
+  [
+    query("page")
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage("페이지 번호는 1 이상의 정수여야 합니다."),
+    ValidationMiddleware.validateRequest,
+  ],
+  AsyncHandler.wrap(adminController.getUserManagementData)
+);
+router.get("/settings", AsyncHandler.wrap(adminController.getSettingsData));
+
+router.put("/settings", AsyncHandler.wrap(adminController.saveSettings));
+router.put(
   "/settings/profile-image",
   imageUpload.single("profileImage"),
   AsyncHandler.wrap(adminController.uploadProfileImage)

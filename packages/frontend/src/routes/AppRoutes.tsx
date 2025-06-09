@@ -8,6 +8,9 @@ import AuthLayout from "../components/Layout.Auth";
 import ProfilePage from "../pages/user/ProfilePage";
 import PostEditPage from "../pages/posts/PostEditPage";
 import PostDetailPage from "../pages/posts/PostDetailPage";
+import DashboardPage from "../pages/admin/DashboardPage";
+import UserManagementPage from "../pages/admin/UserManagementPage";
+import SettingPage from "../pages/admin/SettingPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -24,14 +27,20 @@ const AppRoutes: React.FC = () => {
         <Route path="my">
           <Route path="profile" element={<ProfilePage />} />
         </Route>
+        <Route path="admin">
+          <Route index element={<DashboardPage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="users" element={<UserManagementPage />} />
+          <Route path="settings" element={<SettingPage />} />
+          {/* Add more admin routes here */}
+        </Route>
+        <Route path="*" element={<div>404 Not Found</div>} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
       </Route>
-
-      <Route path="/admin" element={"안녕하세요 제작중인 admin"}></Route>
     </Routes>
   );
 };

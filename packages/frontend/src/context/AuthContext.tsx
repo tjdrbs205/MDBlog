@@ -13,6 +13,7 @@ interface IResponseToken {
 }
 
 interface AuthContextType {
+  defaultProfileImage: string;
   isAuthenticated: boolean;
   isAdmin: boolean;
   user: IUserContextData | null;
@@ -31,6 +32,7 @@ interface AuthProviderProps {
 }
 
 const AuthContext = createContext<AuthContextType>({
+  defaultProfileImage: "",
   isAuthenticated: false,
   isAdmin: false,
   user: null,
@@ -198,6 +200,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
+        defaultProfileImage,
         isAuthenticated,
         isAdmin,
         user,
