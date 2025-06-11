@@ -43,12 +43,7 @@ const UserProfile = () => {
           </Link>
           <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             <li>
-              <Link className="dropdown-item" to="">
-                <i className="bi bi-file-earmark-text me-2"></i>내 게시물
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item" to="">
+              <Link className="dropdown-item" to="/posts/new">
                 <i className="bi bi-pencil-square me-2"></i>새 글 작성
               </Link>
             </li>

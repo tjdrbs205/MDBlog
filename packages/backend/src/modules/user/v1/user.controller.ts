@@ -226,10 +226,11 @@ class UserController {
         });
       }
 
-      if (profileImage) await uploadUserProfileImage(user.id, profileImage);
       if (currentProfileImage !== user.profileImage) {
         await deleteUserProfileImage(user.id);
       }
+      if (profileImage) await uploadUserProfileImage(user.id, profileImage);
+
       const updatedUser = await this.userService.updateUserProfile(user.id, username, bio);
       const redisKey = `user:${user.id}`;
       this.redisClient.set(redisKey, JSON.stringify(updatedUser));

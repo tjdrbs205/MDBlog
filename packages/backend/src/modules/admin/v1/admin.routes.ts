@@ -25,11 +25,10 @@ router.get(
 );
 router.get("/settings", AsyncHandler.wrap(adminController.getSettingsData));
 
-router.put("/settings", AsyncHandler.wrap(adminController.saveSettings));
 router.put(
-  "/settings/profile-image",
-  imageUpload.single("profileImage"),
-  AsyncHandler.wrap(adminController.uploadProfileImage)
+  "/settings",
+  imageUpload.single("blogProfileImage"),
+  AsyncHandler.wrap(adminController.saveSettings)
 );
 
 router.put("/users/status", AsyncHandler.wrap(adminController.updateUserStatus));

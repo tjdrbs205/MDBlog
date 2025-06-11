@@ -17,7 +17,7 @@ router.get(
     query("page").optional().isInt({ min: 1 }).withMessage("페이지는 1보다 커야합니다."),
     query("sort")
       .optional()
-      .isIn(["newest", "oldest", "title", "views"])
+      .isIn(["newest", "oldest", "title", "view"])
       .withMessage("유효하지 않은 정렬 기준입니다."),
     ValidationMiddleware.validateRequest,
   ],
@@ -82,7 +82,7 @@ router.post(
 router.post(
   "/image",
   AuthenticationMiddleware.jwtAuthorization,
-  AuthenticationMiddleware.isLoggedIn,
+  AuthenticationMiddleware.isAdmin,
   imageUpload.single("postImage"),
   imageUploadLimiter.rateLimit(1, 5), // 1분에 최대 5번 업로드 가능
   AsyncHandler.wrap(postController.uploadPostImage)
@@ -109,7 +109,7 @@ router.put(
 router.delete(
   "/:id",
   AuthenticationMiddleware.jwtAuthorization,
-  AuthenticationMiddleware.isLoggedIn,
+  AuthenticationMiddleware.isAdmin,
   [
     param("id").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
     ValidationMiddleware.validateRequest,
@@ -120,7 +120,7 @@ router.delete(
 router.delete(
   "/:postId/comment",
   AuthenticationMiddleware.jwtAuthorization,
-  AuthenticationMiddleware.isAdmin,
+  AuthenticationMiddleware.isLoggedIn,
   [
     param("postId").isMongoId().withMessage("유효하지 않은 게시물 ID입니다."),
     body("commentId").isMongoId().withMessage("유효하지 않은 댓글 ID입니다."),

@@ -43,7 +43,7 @@ class PostController {
         sortOptions = { createdAt: 1 };
       } else if (sort === "title") {
         sortOptions = { title: -1 };
-      } else if (sort === "views") {
+      } else if (sort === "view") {
         sortOptions = { view: -1 };
       }
 
@@ -79,7 +79,7 @@ class PostController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = 10;
 
-      const filter: Record<string, any> = { isPublic: true };
+      const filter: Record<string, any> = { isPublic: true, view: { $gt: 0 } };
 
       if (category) {
         filter.category = category;
@@ -372,6 +372,12 @@ class PostController {
         });
       }
 
+      if (comment.author.toString() !== userId) {
+        return res.status(403).json({
+          message: "댓글을 삭제할 권한이 없습니다.",
+        });
+      }
+
       await this.postService.deleteComment(postId, commentId);
 
       res.status(200).json({
@@ -390,6 +396,8 @@ class PostController {
       // const { year, month } = req.query;
       const year = typeof req.query.year === "string" ? req.query.year : null;
       const month = typeof req.query.month === "string" ? req.query.month : null;
+
+      console.log("[PostController] 아카이브 조회", { year, month });
 
       const { archiveByYear } = await this.postService.getArchiveData();
 

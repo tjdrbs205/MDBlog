@@ -310,3 +310,51 @@ footer a:hover {
 .level-3 {
   font-size: 0.9em;
 }
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-item {
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.tag-item:hover {
+  background-color: #e9ecef;
+}
+
+.tag-delete-form {
+  display: inline;
+}
+
+.category-tree {
+  list-style: none;
+  padding-left: 0;
+}
+
+.category-item {
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-bottom: 0.25rem;
+}
+
+.category-item:hover {
+  background-color: #f8f9fa;
+}
+
+.category-children {
+  list-style: none;
+  padding-left: 1.5rem;
+  border-left: 1px solid #dee2e6;
+  margin-top: 0.25rem;
+}
+
+.category-actions {
+  float: right;
+}

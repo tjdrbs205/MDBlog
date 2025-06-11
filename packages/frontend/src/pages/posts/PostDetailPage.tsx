@@ -55,7 +55,6 @@ const PostDetailPage: React.FC = () => {
       return;
     }
     alert("댓글이 성공적으로 삭제되었습니다.");
-    // 페이지를 새로고침하여 댓글 목록을 갱신
     navigate(0);
   };
 

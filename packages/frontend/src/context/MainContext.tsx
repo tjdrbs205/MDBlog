@@ -8,6 +8,7 @@ interface MainContextType {
   siteDescription: string;
   aboutBlog: string;
   contactGithub: string;
+  contactEmail: string;
   profileImage: string;
   aboutBlogHtml: string;
   categories: ICategory[];
@@ -42,6 +43,7 @@ const MainContext = createContext<MainContextType>({
   siteDescription: "",
   aboutBlog: "",
   contactGithub: "",
+  contactEmail: "",
   profileImage: "",
   aboutBlogHtml: "",
   categories: [],
@@ -84,6 +86,7 @@ export const MainProvider: React.FC<MainProviderProps> = ({ children }) => {
     aboutBlog: data?.aboutBlog || "This is a sample about section.",
     aboutBlogHtml: data?.aboutBlogHtml || "<p>This is a sample about section.</p>",
     contactGithub: data?.contactGithub || "",
+    contactEmail: data?.contactEmail || "",
     profileImage: data?.profileImage || "",
     categories: data?.categories || [],
     categoriesHierarchical: data?.categoriesHierarchical || [],

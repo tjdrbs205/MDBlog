@@ -20,12 +20,12 @@ class CategoryController {
 
   create = async (req: Request, res: Response) => {
     try {
-      const { name, parentId } = req.body;
+      const { name, parent } = req.body;
 
       if (!name || !name.trim()) {
         return res.status(400).json({ message: "카테고리 이름은 필수입니다." });
       }
-      if (!parentId || !parentId.trim()) {
+      if (!parent || !parent.trim()) {
         return res.status(400).json({ message: "부모 카테고리 ID는 필수입니다." });
       }
 

@@ -195,7 +195,7 @@ const DashboardPage: React.FC = () => {
             </div>
             <div className="menu-title">댓글 관리</div>
           </Link>
-          <Link to="/admin/content" className="admin-menu-item">
+          <Link to="/admin/contents" className="admin-menu-item">
             <div className="menu-icon">
               <i className="bi bi-grid-3x3-gap"></i>
             </div>

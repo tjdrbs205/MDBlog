@@ -18,7 +18,7 @@ class SidebarLoaderMiddleware {
       CategoryModel.getCategoryHierarchy(),
       TagModel.find().sort({ name: 1 }),
       PostModel.find({ isPublic: true })
-        .sort({ createAt: -1 })
+        .sort({ createdAt: -1 })
         .limit(4)
         .populate("author", "username")
         .populate("category", "name")

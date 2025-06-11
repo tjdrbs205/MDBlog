@@ -5,11 +5,19 @@ import { ISettingData } from "@mdblog/shared/src/types/setting.interface";
 
 const SettingPage: React.FC = () => {
   const { defaultProfileImage, accessToken, refreshToken } = useAuthContext();
-  const [settings, setSettings] = useState<ISettingData | null>(null);
-  const { data, error, loading } = useRequest<ISettingData>("/admin/settings", {
+  const { data, loading } = useRequest<ISettingData>("/admin/settings", {
     accessToken,
     onTokenRefresh: refreshToken,
   });
+  const { execute: updateSettins } = useRequest("/admin/settings", {
+    method: "PUT",
+    headers: {},
+    manual: true,
+    accessToken,
+    onTokenRefresh: refreshToken,
+  });
+
+  const [settings, setSettings] = useState<ISettingData | null>(null);
   const [blogProfileImage, setBlogProfileImage] = useState<string | null>(null);
   const [blogProfileImageFile, setBlogProfileImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,7 +54,6 @@ const SettingPage: React.FC = () => {
   const handleSaveSettings = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newFormData = new FormData();
 
     formData.append("currentBlogProfileImage", settings?.profileImage || defaultProfileImage);
 
@@ -56,6 +63,15 @@ const SettingPage: React.FC = () => {
 
     formData.forEach((value, key) => {
       console.log(`FormData - ${key}: ${value}`);
+    });
+
+    updateSettins(formData).then((res) => {
+      if (res.error) {
+        console.error("설정 저장 실패:", res.error);
+        alert("설정 저장 중 오류가 발생했습니다.");
+        return;
+      }
+      alert("설정이 저장되었습니다.");
     });
   };
 
@@ -169,7 +185,7 @@ const SettingPage: React.FC = () => {
                 <h5 className="mb-3">연락처 정보</h5>
 
                 <div className="mb-3">
-                  <label htmlFor="contractEmail" className="form-label">
+                  <label htmlFor="contactEmail" className="form-label">
                     이메일
                   </label>
                   <div className="input-group">
@@ -178,8 +194,8 @@ const SettingPage: React.FC = () => {
                     </span>
                     <input
                       type="email"
-                      name="contractEmail"
-                      id="contractEmail"
+                      name="contactEmail"
+                      id="contactEmail"
                       className="form-control"
                       placeholder="연락 이메일 주소"
                       defaultValue={settings?.contactEmail || ""}

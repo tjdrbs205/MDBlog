@@ -278,7 +278,7 @@ class PostService {
       const month = item._id.month;
 
       if (!archiveByYear[year]) {
-        archiveByYear[year] = {};
+        archiveByYear[year] = [];
       }
 
       archiveByYear[year].push({

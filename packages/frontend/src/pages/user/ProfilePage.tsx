@@ -5,9 +5,7 @@ import { IReadOnlyUser } from "@mdblog/shared/src/types/user.interface";
 import useRequest from "../../hooks/useRequest.hook";
 
 const ProfilePage: React.FC = () => {
-  const defaultProfileImage =
-    "https://github.com/tjdrbs205/MDBlog/blob/main-backup/public/images/default-profile.png?raw=true";
-  const { userData, isAuthenticated, accessToken, profile } = useAuthContext();
+  const { defaultProfileImage, userData, isAuthenticated, accessToken, profile } = useAuthContext();
   const { execute } = useRequest("/users/profile/update", {
     method: "PUT",
     headers: {},
@@ -72,7 +70,15 @@ const ProfilePage: React.FC = () => {
     if (profileImageFile) {
       newFormData.append("profileImage", profileImageFile);
     }
-    execute(newFormData).then(() => profile());
+    execute(newFormData).then((res) => {
+      if (res.error) {
+        console.error("프로필 저장 실패:", res.error);
+        alert("프로필 저장 중 오류가 발생했습니다.");
+        return;
+      }
+      alert("프로필이 저장되었습니다.");
+      profile();
+    });
   };
 
   if (!isAuthenticated) return <Navigate to="/auth/login" replace />;

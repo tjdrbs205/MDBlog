@@ -198,8 +198,25 @@ class AdminController {
   };
 
   saveSettings = async (req: Request, res: Response) => {
+    const defaultProfileImage =
+      "https://github.com/tjdrbs205/MDBlog/blob/main-backup/public/images/default-profile.png?raw=true";
+
     try {
-      const settings = req.body;
+      const { siteDescription, aboutBlog, contactEmail, contactGithub, currentBlogProfileImage } =
+        req.body;
+      const blogProfileImage = req.file?.buffer;
+
+      if (currentBlogProfileImage === defaultProfileImage) await deleteBlogProfileImage();
+      if (blogProfileImage) {
+        await uploadBlogProfileImage(blogProfileImage);
+      }
+
+      const settings: Record<string, any> = {
+        siteDescription: siteDescription || "",
+        aboutBlog: aboutBlog || "",
+        contactEmail: contactEmail || "",
+        contactGithub: contactGithub || "",
+      };
 
       for (const [key, value] of Object.entries(settings)) {
         await SettingModel.findOneAndUpdate({ key }, { key, value }, { upsert: true, new: true });

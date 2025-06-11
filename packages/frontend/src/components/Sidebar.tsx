@@ -161,7 +161,7 @@ const Sidebar: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="flex-grow-1 ms-2">
+                      <div className="flex-grow-1 ms-2" style={{ minWidth: "0" }}>
                         <p className="mb-0 text-truncate">{post.title}</p>
                         <small className="text-muted">
                           {new Date(post.createdAt).toLocaleDateString()}

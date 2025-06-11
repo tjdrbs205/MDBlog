@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { IGetPostsResponse, IPost, PagenationInfo } from "@mdblog/shared/src/types/post.interface";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import SearchComponent from "../../components/SearchComponent";
 import { useMainContext } from "../../context/MainContext";
 import useRequest from "../../hooks/useRequest.hook";
 import { useAuthContext } from "../../context/AuthContext";
 
-const PostListPage: React.FC = () => {
+type PostListPageProps = {
+  selectSort?: string;
+};
+
+const PostListPage: React.FC<PostListPageProps> = (props) => {
+  const { selectSort } = props;
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
   const { isAuthenticated } = useAuthContext();
   const { tags } = useMainContext();
@@ -23,7 +29,7 @@ const PostListPage: React.FC = () => {
   // 검색/필터 파라미터
   const page = Number(searchParams.get("page") || 1);
   const category = searchParams.get("category") || "";
-  const sort = searchParams.get("sort") || "newest";
+  const sort = searchParams.get("sort") || selectSort || "newest";
   const q = searchParams.get("q") || "";
   const tag = searchParams.get("tag") || "";
 
@@ -45,7 +51,7 @@ const PostListPage: React.FC = () => {
       setPosts(data.data?.posts || []);
       setPagination(data.data?.pagination || pagination);
     });
-  }, [searchParams]);
+  }, [location]);
 
   return (
     <div>
