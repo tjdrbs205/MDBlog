@@ -364,7 +364,7 @@ class PostController {
 
       const post = await this.postService.getPostById(postId);
 
-      const comment = post.comments.id(commentId);
+      const comment: any = post.comments.id(commentId);
 
       if (!comment) {
         return res.status(404).json({
@@ -372,7 +372,7 @@ class PostController {
         });
       }
 
-      if (comment.author.toString() !== userId) {
+      if (comment.author._id.toString() !== userId) {
         return res.status(403).json({
           message: "댓글을 삭제할 권한이 없습니다.",
         });
