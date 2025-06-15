@@ -41,7 +41,7 @@ const PostEditPage: React.FC = () => {
             setTitle(res.data.post.title);
             setContent(res.data.post.content);
             setSelectedCategory(res.data.post.category?.id || "");
-            setTagInput(res.data.post.tags?.join(", ") || "");
+            setTagInput((res as any).data.post.tags.map((tag: any) => tag.name).join(",") || "");
             setIsPublic(res.data.post.isPublic);
             setStatus(res.data.post.status);
           }
