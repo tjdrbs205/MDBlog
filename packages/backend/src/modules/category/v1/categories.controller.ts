@@ -25,9 +25,6 @@ class CategoryController {
       if (!name || !name.trim()) {
         return res.status(400).json({ message: "카테고리 이름은 필수입니다." });
       }
-      if (!parent || !parent.trim()) {
-        return res.status(400).json({ message: "부모 카테고리 ID는 필수입니다." });
-      }
 
       await this.categoryService.createCategory(req.body);
       res.status(201).json({ message: "카테고리 생성 성공" });

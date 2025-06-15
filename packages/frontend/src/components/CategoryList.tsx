@@ -1,6 +1,7 @@
 import { MouseEvent, useEffect, useState } from "react";
 import useRequest from "../hooks/useRequest.hook";
 import { useAuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type CategoryListProps = {
   categoriesHierarchical: any;
@@ -13,6 +14,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
   level = 0,
   onEditCategory,
 }) => {
+  const navigate = useNavigate();
   const { accessToken, refreshToken } = useAuthContext();
   const [catagoryId, setCategoryId] = useState<string | null>(null);
   const { execute: deleteCategory } = useRequest(`/category/${catagoryId}`, {
@@ -56,6 +58,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
           }
           alert("카테고리가 성공적으로 삭제되었습니다.");
           setCategoryId(null);
+          navigate(0);
         })
         .catch((error) => {
           console.error("Error deleting category:", error);

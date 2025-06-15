@@ -3,8 +3,10 @@ import CategoryList from "../../components/CategoryList";
 import { useMainContext } from "../../context/MainContext";
 import useRequest from "../../hooks/useRequest.hook";
 import { useAuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const ContentsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { accessToken, refreshToken } = useAuthContext();
   const { categories, categoriesHierarchical, tags } = useMainContext();
   const editModalRef = useRef<HTMLDivElement>(null);
@@ -57,6 +59,7 @@ const ContentsPage: React.FC = () => {
         return;
       }
       console.log("카테고리 추가 성공:", res.data);
+      navigate(0);
     });
   };
 
