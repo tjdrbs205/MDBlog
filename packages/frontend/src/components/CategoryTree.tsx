@@ -7,20 +7,10 @@ const CategoryTree: React.FC<{
   selectedCategory?: string | null;
   level?: number;
 }> = ({ categories, categoryMap, selectedCategory, level = 0 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const clickCategory = (catId: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("category", catId);
-
-    // 현재 경로가 /posts가 아니면 /posts로 이동
-    if (!location.pathname.includes("/posts") || location.pathname.includes("/new")) {
-      navigate(`/posts?category=${newParams.get("category")}`);
-    } else {
-      setSearchParams(newParams);
-    }
+    navigate(`/posts?category=${catId}`);
   };
 
   return (
