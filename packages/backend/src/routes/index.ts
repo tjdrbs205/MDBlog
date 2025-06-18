@@ -9,6 +9,11 @@ const router = Router();
 // /api/v1
 router.use("/api", v1Routes);
 
+// health
+router.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 // 초기 데이터 로드
 router.get(
   "/api/init",

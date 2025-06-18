@@ -1,17 +1,11 @@
-import { BrowserRouter } from "react-router-dom";
-import AppRoutes from "./routes/AppRoutes";
-import { MainProvider } from "./context/MainContext";
-import { AuthProvider } from "./context/AuthContext";
+import { ServerProvider } from "./context/ServerContext";
+import AppContent from "./components/Layout.AppContent";
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <MainProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </MainProvider>
-    </AuthProvider>
+    <ServerProvider>
+      <AppContent />
+    </ServerProvider>
   );
 };
 
