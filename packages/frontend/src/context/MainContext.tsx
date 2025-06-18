@@ -78,7 +78,6 @@ export const MainProvider: React.FC<MainProviderProps> = ({ children }) => {
 
   if (error) {
     console.error("Error loading initial data:", error);
-    refreshData();
   }
 
   const value: MainContextType = {
@@ -111,6 +110,13 @@ export const MainProvider: React.FC<MainProviderProps> = ({ children }) => {
 
   useEffect(() => {
     execute();
+    const interval = setInterval(() => {
+      if (!data) {
+        refreshData;
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (

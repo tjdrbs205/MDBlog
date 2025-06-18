@@ -18,8 +18,9 @@ export const ServerProvider: React.FC<ServerProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   const checkServerHealth = async () => {
+    const url = import.meta.env.VITE_API_URL;
     try {
-      const response = await fetch("/health", {
+      const response = await fetch(`${url}/health`, {
         method: "GET",
         signal: AbortSignal.timeout(5000),
       });
